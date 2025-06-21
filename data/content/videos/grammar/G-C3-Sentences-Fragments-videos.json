@@ -4,8 +4,7 @@
     "title": "Lesson Recording: Sentences & Fragments (G - C3)",
     "youtubeId": "DacvVsToCM4",
     "description": "Full lesson recording covering sentences and fragments."
-  }
-    
+  },
   {
     "id": "lesson-recording",
     "title": "Lesson Recording: Sentences & Fragments (G - C3)",
@@ -49,9 +48,9 @@
     "description": "Concept video covering non-essential information, clauses, and appositives."
   },
   {
-    "id": "concept-video-7", // Assuming CV7 was also RP1ea1IPGmw based on source, but might need a different ID if it's distinct.
-    "title": "CV7 : bla bla bla (Placeholder Title - Update Needed)", // Title from source was "bla bla bla"
-    "youtubeId": "RP1ea1IPGmw", // Same video ID as CV6 in source
+    "id": "concept-video-7", 
+    "title": "CV7 : bla bla bla (Placeholder Title - Update Needed)",
+    "youtubeId": "RP1ea1IPGmw", 
     "description": "Concept video (placeholder description)."
   },
   {
