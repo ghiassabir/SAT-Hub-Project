@@ -40,10 +40,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // e.g. G-C3-Sentences-Fragments-notes.md
         filePath = `../data/content/reading-materials/${subject}/${chapter}-${type}.md`;
         fileExtension = 'md';
-    } else if (type === 'videos') {
-        // e.g. G-C3-Sentences-Fragments-videos.json
-        filePath = `../data/content/videos/${subject}/${chapter}-${type}.json`;
-        fileExtension = 'json';
+    // Inside js/viewer-logic.js, in the filePath construction logic:
+// ...
+} else if (type === 'videos' || type === 'lesson-recording' || type === 'concept-videos') {
+    // For G-C3-Sentences-Fragments-lesson-recording.json or G-C3-Sentences-Fragments-concept-videos.json
+    // The filename becomes [chapter]-[type].json
+    filePath = `../data/content/videos/${subject}/${chapter}-${type}.json`;
+    fileExtension = 'json';
+// ...
     } else if (type.endsWith('-quiz-list') || type.endsWith('-resources')) { // For quiz lists or resource lists
         // e.g. G-C3-Sentences-Fragments-cb-quiz-list.json
         // e.g. G-C3-Sentences-Fragments-khan-resources.json
