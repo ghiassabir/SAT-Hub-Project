@@ -17,8 +17,9 @@ Explore the following resources to master sentences and fragments. Each section 
 
 *   [End-of-Chapter Quiz](../../../practice-entrypoints/g-c3-eoc-quiz.html)
 *   [Khan Academy Practice (External)](https://www.khanacademy.org/humanities/grammar/syntax-conventions-of-standard-english/fragments-and-run-ons/e/recognizing-fragments)
+*   [Khan Academy Practice & Videos](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=khan-resources)
 *   [College Board Practice](../../../practice-entrypoints/g-c3-cb-practice.html)
-*   *   [College Board Practice Quizzes](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=cb-quizzes)
+*   [College Board Practice Quizzes](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=cb-quizzes)
 
 ---
 <!-- Optional: A link to go back to the main syllabus or course schedule if needed,
