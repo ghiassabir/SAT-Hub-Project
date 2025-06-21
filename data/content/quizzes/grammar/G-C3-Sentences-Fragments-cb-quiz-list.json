@@ -1,17 +1,17 @@
 [
   {
     "title": "CB Quiz 1: Sample English Questions",
-    "quizName": "G-C0-CB-Practice0", // This is the filename (without .json) in /data/json/
+    "quizName": "G-C0-CB-Practice0", 
     "description": "Official College Board questions focusing on orientation for English Section."
   },
   {
     "title": "CB Quiz 2: Sample Math Questions",
-    "quizName": "M-C0-CB-Practice0", // This is the filename (without .json) in /data/json/
+    "quizName": "M-C0-CB-Practice0", 
     "description": "Official College Board questions focusing on orientation for Math Section."
   },
   {
     "title": "CB Quiz 3: Mixed Sentence Structure (Unpublished)",
-    "quizName": "G-C3-CB-Practice3", // This is the filename (without .json) in /data/json/
+    "quizName": "G-C3-CB-Practice3", 
     "status": "unpublished",
     "description": "A mix of sentence structure questions from the College Board. Currently not available for practice."
   }
