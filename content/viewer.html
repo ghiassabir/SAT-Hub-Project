@@ -1,42 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-S">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAT Hub Content Viewer</title>
+    <title>SAT Hub Content</title>
     <link rel="stylesheet" href="../css/style.css"> <!-- Path to global CSS -->
-    <!-- Include Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <header class="sathub-header p-4 shadow-md">
-        <!-- You can reuse your dashboard header structure here if desired, or a simpler one -->
-        <div class="container mx-auto flex items-center">
-            <img src="../assets/logo.png" alt="The SAT Hub Logo" class="h-10 w-auto mr-2 rounded-md">
-            <h1 class="sathub-header-title text-xl font-bold">SAT Hub Content</h1>
-        </div>
+    <header style="background-color: #2a5266; color: #ffd700; padding: 1rem; text-align: center;">
+        <img src="../assets/logo.png" alt="SAT Hub Logo" style="height: 50px; display: inline-block; vertical-align: middle; margin-right: 10px;">
+        <h1 style="display: inline-block; vertical-align: middle; font-size: 1.5rem;">SAT Hub Content</h1>
     </header>
 
-    <main class="container mx-auto p-4 md:p-6">
+    <main style="padding: 20px;">
         <div style="margin-bottom: 20px;">
             <button onclick="history.back()" style="padding: 8px 15px; background-color: #2a5266; color: #ffd700; border: 1px solid #ffd700; border-radius: 4px; cursor: pointer;">← Go Back</button>
         </div>
-        <div id="content-display-area" class="themed-card">
-            <div class="themed-card-body">
-                <p>Loading content...</p>
-            </div>
+        <div id="content-display-area" style="border: 1px solid #ccc; padding: 20px; background-color: #f9f9f9; min-height: 300px;">
+            <p>Loading content...</p>
         </div>
     </main>
 
-    <footer class="bg-gray-100 border-t border-gray-200 mt-8">
-        <div class="container mx-auto py-4 px-6 text-center text-gray-600 text-sm">
-            © <span id="currentYearViewer"></span> The SAT Hub. All Rights Reserved.
-        </div>
+    <footer style="text-align: center; padding: 20px; margin-top: 30px; border-top: 1px solid #e0e0e0;">
+        © <span id="currentYearViewer"></span> The SAT Hub. All Rights Reserved.
     </footer>
 
-    <script src="../js/main.js"></script> <!-- Path to main JS for viewer logic -->
+    <!-- We will link to js/viewer-logic.js or js/main.js here later -->
     <script>
-        // Small script to set year, can be moved to main.js
+        // Placeholder for viewer logic for now
+        // This will be moved to a separate JS file
+        async function loadDynamicViewerContent() {
+            const contentDisplayArea = document.getElementById('content-display-area');
+            const params = new URLSearchParams(window.location.search);
+            const fileType = params.get('type'); // 'notes', 'cheatsheet', 'videos'
+            const subject = params.get('subject'); // 'grammar'
+            const chapterFile = params.get('file'); // e.g., 'G-C3-Sentences-Fragments-notes.md'
+                                                  // OR 'G-C3-Sentences-Fragments-videos.json'
+
+            if (!fileType || !subject || !chapterFile) {
+                contentDisplayArea.innerHTML = '<p style="color: red;">Error: Missing parameters (type, subject, file) in URL.</p>';
+                return;
+            }
+
+            let contentPath = '';
+            if (fileType === 'videos') {
+                contentPath = `../data/content/videos/${subject}/${chapterFile}`;
+            } else { // notes, cheatsheet, chaptertext etc. are all .md
+                contentPath = `../data/content/reading-materials/${subject}/${chapterFile}`;
+            }
+            
+            console.log("Viewer attempting to load:", contentPath);
+
+            try {
+                const response = await fetch(contentPath);
+                if (!response.ok) {
+                    throw new Error(`File not found: ${response.status} ${contentPath}`);
+                }
+                const data = await response.text();
+
+                if (chapterFile.endsWith('.md')) {
+                    if (typeof marked !== 'undefined') {
+                        contentDisplayArea.innerHTML = marked.parse(data);
+                    } else {
+                        contentDisplayArea.innerHTML = '<p style="color:red;">Markdown library (marked.js) not loaded.</p>';
+                    }
+                } else if (chapterFile.endsWith('.json')) {
+                    const jsonData = JSON.parse(data);
+                    let videoHtml = '<div class="video-list" style="space-y: 1.5rem;">'; // Basic styling for list
+                    jsonData.forEach(video => {
+                        videoHtml += `
+                            <div class="video-item" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <h3 style="font-size: 1.2em; color: #2a5266; margin-bottom: 5px;">${video.title}</h3>
+                                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000;">
+                                    <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                                        src="https://www.youtube.com/embed/${video.youtubeId}"
+                                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                                    </iframe>
+                                </div>
+                                ${video.description ? `<p style="font-size: 0.9em; color: #555; margin-top: 5px;">${video.description}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                    videoHtml += '</div>';
+                    contentDisplayArea.innerHTML = videoHtml;
+                } else {
+                    contentDisplayArea.innerHTML = '<p style="color:red;">Unsupported file type.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching/rendering content:', error);
+                contentDisplayArea.innerHTML = `<p style="color: red;">Error loading content from ${contentPath}. ${error.message}</p>`;
+            }
+        }
+
+        if (document.getElementById('content-display-area')) {
+            loadDynamicViewerContent();
+        }
         if (document.getElementById('currentYearViewer')) {
             document.getElementById('currentYearViewer').textContent = new Date().getFullYear();
         }
