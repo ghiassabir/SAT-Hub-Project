@@ -4,8 +4,8 @@ Explore the following resources to master sentences and fragments. Each section 
 
 ## ▶︎ Instructional Videos
 
-*   [Recorded Lesson](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=videos#lesson-recording)
-*   [Concept Videos (short)](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=videos#concept-videos)
+*   [Recorded Lesson](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=lesson-recording)
+*   [Concept Videos (short)](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=concept-videos)
 
 ## 📖 Reading Material
 
@@ -14,8 +14,6 @@ Explore the following resources to master sentences and fragments. Each section 
 *   [Cheat Sheet](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=cheatsheet)
 
 ## ✏️ Practice & Quizzes
-
-*   ## ✏️ Practice & Quizzes
 
 *   [End-of-Chapter Quiz](../../quiz.html?quiz_name=G-C3-EOC)
 *   [College Board Practice Quizzes](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=cb-quiz-list)
