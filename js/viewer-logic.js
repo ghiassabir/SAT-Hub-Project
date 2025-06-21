@@ -1,87 +1,166 @@
-console.log("--- js/viewer-logic.js SCRIPT LOADED ---");
-
-// ... rest of your viewer-logic.js code (async function loadDynamicViewerContent()... DOMContentLoaded listener...)
-
-async function loadDynamicViewerContent() {
+document.addEventListener('DOMContentLoaded', async () => {
     const contentDisplayArea = document.getElementById('content-display-area');
-    if (!contentDisplayArea) {
-        console.error("Content display area not found in viewer.html!");
+    const viewerTitleElement = document.getElementById('viewer-title');
+    const backButton = document.getElementById('viewer-back-button');
+    document.body.classList.add('viewer-body'); // Add class for specific viewer styling
+
+    if (!contentDisplayArea || !viewerTitleElement || !backButton) {
+        console.error('Essential viewer elements not found!');
+        if (contentDisplayArea) {
+            contentDisplayArea.innerHTML = '<p style="color: red;">Error: Page structure is missing. Cannot load content.</p>';
+        }
         return;
     }
+
+    backButton.addEventListener('click', () => {
+        history.back();
+    });
 
     const params = new URLSearchParams(window.location.search);
-    const fileType = params.get('type');
     const subject = params.get('subject');
-    const chapterFile = params.get('file'); // This is the direct filename
+    const chapter = params.get('chapter'); // This is the chapter slug, e.g., G-C3-Sentences-Fragments
+    const type = params.get('type');
 
-    contentDisplayArea.innerHTML = '<p>Loading content...</p>'; // Clear previous and show loading
-
-    if (!fileType || !subject || !chapterFile) {
-        contentDisplayArea.innerHTML = '<p style="color: red;">Error: Missing parameters (type, subject, file) in URL. Example: ?type=notes&subject=grammar&file=G-C3-Sentences-Fragments-notes.md</p>';
+    if (!subject || !chapter || !type) {
+        contentDisplayArea.innerHTML = '<p style="color: red;">Error: Missing required parameters (subject, chapter, or type) to load content.</p>';
+        viewerTitleElement.textContent = 'Error';
         return;
     }
 
-    let contentPath = '';
-    if (fileType === 'videos') {
-        contentPath = `../data/content/videos/${subject}/${chapterFile}`;
-    } else { // notes, cheatsheet, chaptertext are assumed .md
-        contentPath = `../data/content/reading-materials/${subject}/${chapterFile}`;
+    // Construct a user-friendly title
+    const chapterTitleFriendly = chapter.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); // Basic slug to title
+    viewerTitleElement.textContent = `${chapterTitleFriendly} - ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+
+    let filePath = '';
+    let fileExtension = '';
+
+    // Determine file path and extension based on type
+    if (['notes', 'cheatsheet', 'hub', 'chapter-text'].includes(type)) {
+        // For Markdown files, chapter slug usually forms the base filename
+        // e.g. G-C3-Sentences-Fragments-notes.md
+        filePath = `../data/content/reading-materials/${subject}/${chapter}-${type}.md`;
+        fileExtension = 'md';
+    } else if (type === 'videos') {
+        // e.g. G-C3-Sentences-Fragments-videos.json
+        filePath = `../data/content/videos/${subject}/${chapter}-${type}.json`;
+        fileExtension = 'json';
+    } else if (type.endsWith('-quiz-list') || type.endsWith('-resources')) { // For quiz lists or resource lists
+        // e.g. G-C3-Sentences-Fragments-cb-quiz-list.json
+        // e.g. G-C3-Sentences-Fragments-khan-resources.json
+        filePath = `../data/content/quizzes/${subject}/${chapter}-${type}.json`; 
+        // Note: For Khan resources, if they are not quiz lists, they might be in a different folder.
+        // This current structure assumes quiz/resource lists are under data/content/quizzes/
+        // Adjust if Khan resources have a different path structure for their JSON lists.
+        fileExtension = 'json';
+    } else {
+        contentDisplayArea.innerHTML = `<p style="color: red;">Error: Unknown content type requested: ${type}.</p>`;
+        viewerTitleElement.textContent = 'Unknown Content Type';
+        return;
     }
-    
-    console.log("Viewer (js/viewer-logic.js) attempting to load:", contentPath);
 
     try {
-        const response = await fetch(contentPath);
+        const response = await fetch(filePath);
         if (!response.ok) {
-            throw new Error(`File not found: ${response.status} (tried ${contentPath})`);
+            throw new Error(`HTTP error! status: ${response.status} for ${filePath}`);
         }
-        const data = await response.text();
 
-        if (chapterFile.endsWith('.md')) {
+        if (fileExtension === 'md') {
+            const markdownText = await response.text();
             if (typeof marked !== 'undefined') {
-                contentDisplayArea.innerHTML = marked.parse(data);
+                // Configure marked to allow HTML if you kept spans with styles in MD
+                // For a stricter approach, you'd sanitize or rely purely on CSS for styling MD elements
+                marked.setOptions({
+                    gfm: true,
+                    breaks: true, // Convert single line breaks to <br>
+                    // sanitize: false, // Be cautious with this if MD source is untrusted. Default is false.
+                                   // If true, it will strip HTML.
+                });
+                contentDisplayArea.innerHTML = marked.parse(markdownText);
             } else {
-                contentDisplayArea.innerHTML = '<p style="color:red;">Markdown library (marked.js) not loaded. Make sure it is linked in viewer.html.</p>';
+                console.error('Marked.js library not loaded.');
+                contentDisplayArea.textContent = 'Error: Markdown parser not available.\n\n' + markdownText;
             }
-        } else if (chapterFile.endsWith('.json')) {
-            const jsonData = JSON.parse(data);
-            let videoHtml = '<div class="video-list" style="display: flex; flex-direction: column; gap: 20px;">'; // Added gap
-            jsonData.forEach(video => {
-                videoHtml += `
-                    <div class="video-item" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <h3 style="font-size: 1.25rem; color: #2a5266; margin-top: 0; margin-bottom: 10px;">${video.title}</h3>
-                        <div style="position: relative; padding-bottom: 56.25%; /* 16:9 Aspect Ratio */ height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 5px;">
-                            <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                                src="https://www.youtube.com/embed/${video.youtubeId}"
-                                frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-                            </iframe>
-                        </div>
-                        ${video.description ? `<p style="font-size: 0.9em; color: #555; margin-top: 10px;">${video.description}</p>` : ''}
-                    </div>
-                `;
-            });
-            videoHtml += '</div>';
-            contentDisplayArea.innerHTML = videoHtml;
-        } else {
-            contentDisplayArea.innerHTML = '<p style="color:red;">Unsupported file type specified in URL.</p>';
+        } else if (fileExtension === 'json') {
+            const jsonData = await response.json();
+            renderJsonData(jsonData, type, contentDisplayArea);
         }
+
     } catch (error) {
-        console.error('Error fetching/rendering content:', error);
-        contentDisplayArea.innerHTML = `<p style="color: red;">Error loading content from ${contentPath}. ${error.message}</p>`;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // This specifically targets viewer.html
-    if (document.getElementById('content-display-area') && document.title.includes("SAT Hub Content Viewer")) {
-        console.log("--- DOMContentLoaded in viewer-logic.js - about to call loadDynamicViewerContent ---"); // ADD THIS
-        loadDynamicViewerContent();
-        loadDynamicViewerContent();
-    }
-
-    // For the footer year in viewer.html
-    const currentYearViewerEl = document.getElementById('currentYearViewer');
-    if (currentYearViewerEl) {
-        currentYearViewerEl.textContent = new Date().getFullYear();
+        console.error('Error fetching or rendering content:', error);
+        contentDisplayArea.innerHTML = `<p style="color: red;">Sorry, couldn't load the content for "${chapterTitleFriendly} - ${type}".<br>Path: ${filePath}<br>Error: ${error.message}</p>`;
+        viewerTitleElement.textContent = 'Content Load Error';
     }
 });
+
+function renderJsonData(jsonData, type, container) {
+    let htmlContent = '';
+    if (type === 'videos') {
+        htmlContent = '<div class="video-list-container">';
+        jsonData.forEach(video => {
+            htmlContent += `
+                <div class="video-item" id="${video.id || ''}">
+                    <h3>${video.title || 'Untitled Video'}</h3>
+                    <div class="video-embed">
+                        <iframe 
+                            src="https://www.youtube.com/embed/${video.youtubeId}" 
+                            title="${video.title || 'YouTube video player'}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    ${video.description ? `<p class="video-description">${video.description}</p>` : ''}
+                </div>
+            `;
+        });
+        htmlContent += '</div>';
+    } else if (type.endsWith('-quiz-list') || type.endsWith('-resources')) {
+        // Handles JSON like G-C3-Sentences-Fragments-cb-quiz-list.json or -khan-resources.json
+        htmlContent = '<div class="quiz-list-container">';
+        jsonData.forEach(categoryOrItem => {
+            // Check if the jsonData is an array of categories or directly an array of items
+            if (categoryOrItem.category && Array.isArray(categoryOrItem.items)) { // Categorized list (like Khan resources)
+                htmlContent += `<div class="quiz-category"><h3>${categoryOrItem.category}</h3>`;
+                categoryOrItem.items.forEach(item => {
+                    htmlContent += renderQuizListItem(item);
+                });
+                htmlContent += `</div>`;
+            } else { // Direct list of items (like CB quiz list)
+                htmlContent += renderQuizListItem(categoryOrItem);
+            }
+        });
+        htmlContent += '</div>';
+    }
+    // Add more 'else if' blocks here for other JSON types as needed
+    else {
+        htmlContent = '<p>JSON data rendering for this type is not yet implemented.</p><pre>' + JSON.stringify(jsonData, null, 2) + '</pre>';
+    }
+    container.innerHTML = htmlContent;
+}
+
+function renderQuizListItem(item) {
+    let itemHtml = `<div class="quiz-item"><h4>`;
+    let linkTarget = '#'; // Default if no proper target
+
+    if (item.type === 'external_link') {
+        linkTarget = item.target || '#';
+        itemHtml += `<a href="${linkTarget}" target="_blank" rel="noopener noreferrer">${item.title || 'Untitled Resource'} 🔗</a>`;
+    } else if (item.type === 'internal_quiz' || item.quizName) { // Handles internal quizzes
+        // Construct link to quiz.html. Path is relative from /content/viewer.html to /quiz.html
+        linkTarget = `../../quiz.html?quiz_name=${item.quizName}`;
+        if (item.source) linkTarget += `&source=${item.source}`; // Optional source param
+        itemHtml += `<a href="${linkTarget}">${item.title || 'Untitled Quiz'}</a>`;
+    } else { // Fallback for other types or if structure is different
+        itemHtml += `${item.title || 'Untitled Item'}`;
+    }
+    itemHtml += `</h4>`;
+
+    if (item.description) {
+        itemHtml += `<p class="quiz-description">${item.description}</p>`;
+    }
+    if (item.status === 'unpublished') {
+        itemHtml += `<p class="status-unpublished">(Currently unavailable)</p>`;
+    }
+    itemHtml += `</div>`;
+    return itemHtml;
+}
