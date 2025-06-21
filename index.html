@@ -5,184 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAT Hub - Course Syllabus</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- If you use Tailwind via CDN for specific elements, ensure it's linked,
-         but ideally, all styles come from style.css -->
+    <!-- Inline styles from original moved to style.css or kept if very specific -->
     <style>
-        /* Basic styles from the original embedded page for structure,
-           can be moved to style.css and refined. */
-        body {
-            font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            color: #333333;
-            line-height: 1.6;
-        }
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 25px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .logo-top-left img, .logo-bottom-right img {
-            height: 68px;
-            width: auto;
-            border: none;
-            border-radius: 6px;
-            vertical-align: middle;
-        }
-        .go-back-link { /* Applied to "Back to Home / Dashboard" */
-            display: inline-block;
-            background-color: #2a5266;
-            color: #ffd700;
-            padding: 8px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 11pt;
-            border: 1px solid #FFD700;
-        }
-        .syllabus-section {
-            background-color: #2a5266;
-            border: 1px solid #FFD700;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .syllabus-section summary {
-            font-size: 18pt;
-            color: #ffd700;
-            background-color: transparent;
-            padding: 12px 20px;
-            border-radius: 4px 4px 0 0;
-            cursor: pointer;
-            display: list-item; /* Makes the arrow appear */
-            border-bottom: 1px solid #FFD700;
-        }
-        .syllabus-section .section-content {
-            padding: 15px;
-            background-color: #2a5266; /* Original color */
-            border-radius: 0 0 4px 4px;
-        }
-        .syllabus-section ul {
-            list-style-type: none;
-            padding: 15px;
-            margin: 0;
-            font-size: 11pt;
-            background-color: #ffffff;
-            border-radius: 4px;
-        }
-        .syllabus-section li {
-            margin-bottom: 8px;
-            padding: 5px 0;
-            display: flex;
-            align-items: center;
-        }
-        .syllabus-section li span.icon { /* For the book icon */
-            font-family: 'Arial Unicode MS', 'Apple Symbols', 'sans-serif';
-            font-size: 1.1em;
-            margin-right: 10px;
-            color: #2a5266;
-        }
-        .syllabus-section li a {
-            color: #2a5266; /* Link color from original */
-            text-decoration: none;
-            flex-grow: 1;
-        }
-         .syllabus-section li a:hover {
-            text-decoration: underline;
-        }
-        .footer-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 25px;
-            margin-top: 30px;
-            border-top: 1px solid #e0e0e0;
-        }
+        body { font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif; max-width: 900px; margin: 0 auto; background-color: #ffffff; color: #333333; line-height: 1.6; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background-color: #ffffff; border-bottom: 1px solid #e0e0e0; }
+        .logo-top-left img { height: 68px; width: auto; border: none; border-radius: 6px; vertical-align: middle; }
+        .syllabus-header { padding: 20px 25px 10px 25px; text-align: center; }
+        .syllabus-header h1 { color: #2a5266; font-size: 26pt; margin-bottom: 10px; border-bottom: 3px solid #FFD700; display: inline-block; padding-bottom: 5px; }
+        .syllabus-header p { font-size: 12pt; color: #555555; margin-top: 5px; }
+        .syllabus-sections-container { padding: 0 25px 25px 25px; }
+        details.syllabus-section { background-color: #2a5266; border: 1px solid #FFD700; border-radius: 5px; margin-bottom: 20px; }
+        details.syllabus-section summary { font-size: 18pt; color: #ffd700; background-color: transparent; padding: 12px 20px; border-radius: 4px 4px 0 0; cursor: pointer; display: list-item; border-bottom: 1px solid #FFD700; }
+        .section-content { padding: 15px; background-color: #2a5266; border-radius: 0 0 4px 4px; }
+        .section-content ul { list-style-type: none; padding: 15px; margin: 0; font-size: 11pt; background-color: #ffffff; border-radius: 4px; }
+        .section-content li { margin-bottom: 8px; padding: 5px 0; display: flex; align-items: center; }
+        .section-content li .icon { font-family: 'Arial Unicode MS', 'Apple Symbols', 'sans-serif'; font-size: 1.1em; margin-right: 10px; color: #2a5266; }
+        .section-content li a { color: #2a5266; text-decoration: none; } /* Added text-decoration none for cleaner links */
+        .section-content li a:hover { text-decoration: underline; } /* Added hover effect */
+        .footer-bar { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; margin-top: 30px; border-top: 1px solid #e0e0e0; }
+        .logo-bottom-right img { height: 68px; width: auto; border: none; border-radius: 6px; vertical-align: middle; }
+        /* Add other styles from style.css as needed */
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="logo-top-left">
-            <img src="assets/logo.png" alt="The SAT Hub Logo">
+    <div style="font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif; max-width: 900px; margin: 0 auto; background-color: #ffffff; color: #333333; line-height: 1.6;">
+        <div class="top-bar">
+            <div class="logo-top-left"><img src="assets/logo.png" alt="The SAT Hub Logo" /> </div>
+            <!-- "Go Back to Home" link removed as this is index.html -->
         </div>
-        <div class="go-back-top-right">
-            <!-- This link might go to a future main hub or be removed if index.html is the top -->
-            <!-- For now, let's link it to dashboard.html -->
-            <a class="go-back-link" title="Dashboard" href="dashboard.html">Analytics Dashboard →</a>
-        </div>
-    </div>
-
-    <div style="padding: 20px 25px 10px 25px; text-align: center;">
-        <h1 style="color: #2a5266; font-size: 26pt; margin-bottom: 10px; border-bottom: 3px solid #FFD700; display: inline-block; padding-bottom: 5px;">Course Syllabus</h1>
-        <p style="font-size: 12pt; color: #555555; margin-top: 5px;">Overview of topics and chapters covered in this SAT course.</p>
-    </div>
-
-    <div style="padding: 0 25px 25px 25px;">
-        <details class="syllabus-section" open> <!-- Math section open by default -->
-            <summary>Math - College Panda (29 Chapters)</summary>
-            <div class="section-content">
-                <ul>
-                    <!-- NOTE: The 'file' parameter should be the exact filename in data/content/... -->
-                    <li><span class="icon">📖</span> <a title="Exponents & Radicals" href="content/viewer.html?subject=math&type=notes&file=M-C1-Exponents-Radicals-notes.md">Chapter 1: Exponents & Radicals</a></li>
-                    <li><span class="icon">📖</span> <a title="Percent" href="content/viewer.html?subject=math&type=notes&file=M-C2-Percent-notes.md">Chapter 2: Percent</a></li>
-                    <li><span class="icon">📖</span> <a title="Exponential & Linear Growth" href="content/viewer.html?subject=math&type=notes&file=M-C3-Exponential-Linear-Growth-notes.md">Chapter 3: Exponential & Linear Growth</a></li>
-                    <li><span class="icon">📖</span> <a title="Rates" href="content/viewer.html?subject=math&type=notes&file=M-C4-Rates-notes.md">Chapter 4: Rates</a></li>
-                    <!-- Add all other Math chapters similarly, guessing the filename for now -->
-                    <li><span class="icon">📖</span> <a title="Ratio & Proportion" href="content/viewer.html?subject=math&type=notes&file=M-C5-Ratio-Proportion-notes.md">Chapter 5: Ratio & Proportion</a></li>
-                    <li><span class="icon">📖</span> <a title="Expressions" href="content/viewer.html?subject=math&type=notes&file=M-C6-Expressions-notes.md">Chapter 6: Expressions</a></li>
-                    <!-- ... continue for all 29 math chapters + appendix ... -->
-                    <li><span class="icon">📖</span> <a title="Desmos Appendix" href="content/viewer.html?subject=math&type=notes&file=M-A-Desmos-notes.md">Appendix: Desmos</a></li>
-                </ul>
+        <div class="syllabus-header">
+            <h1>Course Syllabus</h1>
+            <p>Overview of topics and chapters covered in this SAT course.</p>
+            <!-- Placeholder for links to Dashboard and Quiz App -->
+            <div style="margin-top: 15px; padding-bottom: 10px;">
+                <a href="dashboard.html" style="display: inline-block; background-color: #2a5266; color: #ffd700; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 11pt; border: 1px solid #FFD700; margin-right: 10px;">Analytics Dashboard</a>
+                <a href="quiz.html" style="display: inline-block; background-color: #2a5266; color: #ffd700; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 11pt; border: 1px solid #FFD700;">Practice Quiz App</a>
             </div>
-        </details>
-
-        <details class="syllabus-section">
-            <summary>Erica Meltzer - Grammar (14 Chapters)</summary>
-            <div class="section-content">
-                <ul>
-                    <li><span class="icon">📖</span> <a title="Transitions" href="content/viewer.html?subject=grammar&type=notes&file=G-C1-Transitions-notes.md">Chapter 1: Transitions</a></li>
-                    <li><span class="icon">📖</span> <a title="Specific Focus" href="content/viewer.html?subject=grammar&type=notes&file=G-C2-Specific-Focus-notes.md">Chapter 2: Specific Focus</a></li>
-                    <li><span class="icon">📖</span> <a title="Sentences & Fragments" href="content/viewer.html?subject=grammar&type=notes&file=G-C3-Sentences-Fragments-notes.md">Chapter 3: Sentences & Fragments</a></li>
-                    <!-- This is our test chapter, we have content for G-C3 -->
-                    <!-- ... continue for all 14 grammar chapters + appendix ... -->
-                    <!-- Inside the Grammar section's <ul> in index.html, after the G-C3 notes link -->
-<li><span class="icon">🎬</span> <a title="Sentences & Fragments Videos" href="content/viewer.html?subject=grammar&type=videos&file=G-C3-Sentences-Fragments-videos.json">Chapter 3: Sentences & Fragments - Videos</a></li>
-                    <li><span class="icon">📖</span> <a title="Parts of Speech Appendix" href="content/viewer.html?subject=grammar&type=notes&file=G-A-Parts-Of-Speech-notes.md">Appendix: Parts of Speech</a></li>
-                </ul>
-            </div>
-        </details>
-
-        <details class="syllabus-section">
-            <summary>Erica Meltzer - Reading (10 Chapters)</summary>
-            <div class="section-content">
-                <ul>
-                    <li><span class="icon">📖</span> <a title="Overview of SAT Reading" href="content/viewer.html?subject=reading&type=notes&file=R-C1-Overview-SAT-Reading-notes.md">Chapter 1: Overview of SAT Reading</a></li>
-                    <li><span class="icon">📖</span> <a title="Vocabulary in Context" href="content/viewer.html?subject=reading&type=notes&file=R-C2-Vocabulary-Context-notes.md">Chapter 2: Vocabulary in Context</a></li>
-                    <!-- ... continue for all 10 reading chapters + appendix ... -->
-                    <li><span class="icon">📖</span> <a title="Question Types Appendix" href="content/viewer.html?subject=reading&type=notes&file=R-A-Question-Types-notes.md">Appendix: Question Types</a></li>
-                </ul>
-            </div>
-        </details>
-    </div>
-
-    <div class="footer-bar">
-        <div class="go-back-bottom-left">
-            <!-- <a class="go-back-link" title="Dashboard" href="dashboard.html">Analytics Dashboard →</a> -->
-            <!-- Or remove if not needed -->
         </div>
-        <div class="logo-bottom-right">
-            <img src="assets/logo.png" alt="The SAT Hub Logo">
+        <div class="syllabus-sections-container">
+            <details class="syllabus-section">
+                <summary>Math - College Panda (29 Chapters)</summary>
+                <div class="section-content">
+                    <ul>
+                        <li><span class="icon">📖</span> <a title="Exponents & Radicals - Lesson Resources (M - C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=notes">Chapter 1: Exponents & Radicals</a></li>
+                        <li><span class="icon">📖</span> <a title="Percent - Lesson Resources (M - C2)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=notes">Chapter 2: Percent</a></li>
+                        <li><span class="icon">📖</span> <a title="Exponential & Linear Growth - Lesson Resources (M - C3)" href="content/viewer.html?subject=math&chapter=M-C3-Exponential-Linear-Growth&type=notes">Chapter 3: Exponential & Linear Growth</a></li>
+                        <li><span class="icon">📖</span> <a title="Rates - Lesson Resources (M - C4)" href="content/viewer.html?subject=math&chapter=M-C4-Rates&type=notes">Chapter 4: Rates</a></li>
+                        <li><span class="icon">📖</span> <a title="Ratio & Proportion - Lesson Resources (M - C5)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=notes">Chapter 5: Ratio & Proportion</a></li>
+                        <li><span class="icon">📖</span> <a title="Expressions - Lesson Resources (M - C6)" href="content/viewer.html?subject=math&chapter=M-C6-Expressions&type=notes">Chapter 6: Expressions</a></li>
+                        <li><span class="icon">📖</span> <a title="Constructing Models - Lesson Resources (M - C7)" href="content/viewer.html?subject=math&chapter=M-C7-Constructing-Models&type=notes">Chapter 7: Constructing Models</a></li>
+                        <li><span class="icon">📖</span> <a title="Manipulating & Solving Equations - Lesson Resources (M - C8)" href="content/viewer.html?subject=math&chapter=M-C8-Manipulating-Solving-Equations&type=notes">Chapter 8: Manipulating & Solving Equations</a></li>
+                        <li><span class="icon">📖</span> <a title="More Equation Solving Strategies - Lesson Resources (M - C9)" href="content/viewer.html?subject=math&chapter=M-C9-More-Equation-Solving-Strategies&type=notes">Chapter 9: More Equation Solving Strategies</a></li>
+                        <li><span class="icon">📖</span> <a title="Systems of Equations - Lesson Resources (M - C10)" href="content/viewer.html?subject=math&chapter=M-C10-Systems-of-Equations&type=notes">Chapter 10: Systems of Equations</a></li>
+                        <li><span class="icon">📖</span> <a title="Inequalities - Lesson Resources (M - C11)" href="content/viewer.html?subject=math&chapter=M-C11-Inequalities&type=notes">Chapter 11: Inequalities</a></li>
+                        <li><span class="icon">📖</span> <a title="Word Problems - Lesson Resources (M - C12)" href="content/viewer.html?subject=math&chapter=M-C12-Word-Problems&type=notes">Chapter 12: Word Problems</a></li>
+                        <li><span class="icon">📖</span> <a title="Min & Max Word Problems - Lesson Resources (M - C13)" href="content/viewer.html?subject=math&chapter=M-C13-Min-Max-Word-Problems&type=notes">Chapter 13: Min & Max Word Problems</a></li>
+                        <li><span class="icon">📖</span> <a title="Lines - Lesson Resources (M - C14)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=notes">Chapter 14: Lines</a></li>
+                        <li><span class="icon">📖</span> <a title="Interpreting Linear Models - Lesson Resources (M - C15)" href="content/viewer.html?subject=math&chapter=M-C15-Interpreting-Linear-Models&type=notes">Chapter 15: Interpreting Linear Models</a></li>
+                        <li><span class="icon">📖</span> <a title="Functions - Lesson Resources (M - C16)" href="content/viewer.html?subject=math&chapter=M-C16-Functions&type=notes">Chapter 16: Functions</a></li>
+                        <li><span class="icon">📖</span> <a title="Quadratics - Lesson Resources (M - C17)" href="content/viewer.html?subject=math&chapter=M-C17-Quadratics&type=notes">Chapter 17: Quadratics</a></li>
+                        <li><span class="icon">📖</span> <a title="Synthetic Division - Lesson Resources (M - C18)" href="content/viewer.html?subject=math&chapter=M-C18-Synthetic-Division&type=notes">Chapter 18: Synthetic Division</a></li>
+                        <li><span class="icon">📖</span> <a title="Complex Numbers - Lesson Resources (M - C19)" href="content/viewer.html?subject=math&chapter=M-C19-Complex-Numbers&type=notes">Chapter 19: Complex Numbers</a></li>
+                        <li><span class="icon">📖</span> <a title="Absolute Value - Lesson Resources (M - C20)" href="content/viewer.html?subject=math&chapter=M-C20-Absolute-Value&type=notes">Chapter 20: Absolute Value</a></li>
+                        <li><span class="icon">📖</span> <a title="Angles - Lesson Resources (M - C21)" href="content/viewer.html?subject=math&chapter=M-C21-Angles&type=notes">Chapter 21: Angles</a></li>
+                        <li><span class="icon">📖</span> <a title="Triangles - Lesson Resources (M - C22)" href="content/viewer.html?subject=math&chapter=M-C22-Triangles&type=notes">Chapter 22: Triangles</a></li>
+                        <li><span class="icon">📖</span> <a title="Circles - Lesson Resources (M - C23)" href="content/viewer.html?subject=math&chapter=M-C23-Circles&type=notes">Chapter 23: Circles</a></li>
+                        <li><span class="icon">📖</span> <a title="Trigonometry - Lesson Resources (M - C24)" href="content/viewer.html?subject=math&chapter=M-C24-Trigonometry&type=notes">Chapter 24: Trigonometry</a></li>
+                        <li><span class="icon">📖</span> <a title="Reading Data - Lesson Resources (M - C25)" href="content/viewer.html?subject=math&chapter=M-C25-Reading-Data&type=notes">Chapter 25: Reading Data</a></li>
+                        <li><span class="icon">📖</span> <a title="Probability - Lesson Resources (M - C26)" href="content/viewer.html?subject=math&chapter=M-C26-Probability&type=notes">Chapter 26: Probability</a></li>
+                        <li><span class="icon">📖</span> <a title="Statistics 1 - Lesson Resources (M - C27)" href="content/viewer.html?subject=math&chapter=M-C27-Statistics-1&type=notes">Chapter 27: Statistics 1</a></li>
+                        <li><span class="icon">📖</span> <a title="Statistics 2 - Lesson Resources (M - C28)" href="content/viewer.html?subject=math&chapter=M-C28-Statistics-2&type=notes">Chapter 28: Statistics 2</a></li>
+                        <li><span class="icon">📖</span> <a title="Volume - Lesson Resources (M - C29)" href="content/viewer.html?subject=math&chapter=M-C29-Volume&type=notes">Chapter 29: Volume</a></li>
+                        <li><span class="icon">📖</span> <a title="Desmos - Lesson Resources (M - A)" href="content/viewer.html?subject=math&chapter=M-A-Desmos&type=notes">Appendix: Desmos</a></li>
+                    </ul>
+                </div>
+            </details>
+            <details class="syllabus-section">
+                <summary>Erica Meltzer - Grammar (14 Chapters)</summary>
+                <div class="section-content">
+                    <ul>
+                        <li><span class="icon">📖</span> <a title="Transitions - Lesson Resources (G - C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=notes">Chapter 1: Transitions</a></li>
+                        <li><span class="icon">📖</span> <a title="Specific Focus - Lesson Resources (G - C2)" href="content/viewer.html?subject=grammar&chapter=G-C2-Specific-Focus&type=notes">Chapter 2: Specific Focus</a></li>
+                        <li><span class="icon">📖</span> <a title="Sentences & Fragments - Lesson Resources (G - C3)" href="content/viewer.html?subject=grammar&chapter=G-C3-Sentences-Fragments&type=notes">Chapter 3: Sentences & Fragments</a></li>
+                        <li><span class="icon">📖</span> <a title="Joining & Separating Sentences - Lesson Resources (G - C4)" href="content/viewer.html?subject=grammar&chapter=G-C4-Joining-Separating-Sentences&type=notes">Chapter 4: Joining & Separating Sentences</a></li>
+                        <li><span class="icon">📖</span> <a title="Joining Sentences & Fragments - Lesson Resources (G - C5)" href="content/viewer.html?subject=grammar&chapter=G-C5-Joining-Sentences-Fragments&type=notes">Chapter 5: Joining Sentences & Fragments</a></li>
+                        <li><span class="icon">📖</span> <a title="Non-Essential & Essential Clauses - Lesson Resources (G - C6)" href="content/viewer.html?subject=grammar&chapter=G-C6-Non-Essential-Essential-Clauses&type=notes">Chapter 6: Non-Essential & Essential Clauses</a></li>
+                        <li><span class="icon">📖</span> <a title="Additional Comma Uses & Misuses - Lesson Resources (G - C7)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=notes">Chapter 7: Additional Comma Uses & Misuses</a></li>
+                        <li><span class="icon">📖</span> <a title="Verbs Agreements and Tense - Lesson Resources (G - C8)" href="content/viewer.html?subject=grammar&chapter=G-C8-Verbs-Agreements-Tense&type=notes">Chapter 8: Verbs Agreements and Tense</a></li>
+                        <li><span class="icon">📖</span> <a title="Pronouns - Lesson Resources (G - C9)" href="content/viewer.html?subject=grammar&chapter=G-C9-Pronouns&type=notes">Chapter 9: Pronouns</a></li>
+                        <li><span class="icon">📖</span> <a title="Apostrophes - Lesson Resources (G - C10)" href="content/viewer.html?subject=grammar&chapter=G-C10-Apostrophes&type=notes">Chapter 10: Apostrophes</a></li>
+                        <li><span class="icon">📖</span> <a title="Modification - Lesson Resources (G - C11)" href="content/viewer.html?subject=grammar&chapter=G-C11-Modification&type=notes">Chapter 11: Modification</a></li>
+                        <li><span class="icon">📖</span> <a title="Parallel Structure - Lesson Resources (G - C12)" href="content/viewer.html?subject=grammar&chapter=G-C12-Parallel-Structure&type=notes">Chapter 12: Parallel Structure</a></li>
+                        <li><span class="icon">📖</span> <a title="Word Pairs - Lesson Resources (G - C13)" href="content/viewer.html?subject=grammar&chapter=G-C13-Word-Pairs&type=notes">Chapter 13: Word Pairs</a></li>
+                        <li><span class="icon">📖</span> <a title="Question Marks - Lesson Resources (G - C14)" href="content/viewer.html?subject=grammar&chapter=G-C14-Question-Marks&type=notes">Chapter 14: Question Marks</a></li>
+                        <li><span class="icon">📖</span> <a title="Parts of Speech - Lesson Resources (G - A)" href="content/viewer.html?subject=grammar&chapter=G-A-Parts-of-Speech&type=notes">Appendix: Parts of Speech</a></li>
+                    </ul>
+                </div>
+            </details>
+            <details class="syllabus-section">
+                <summary>Erica Meltzer - Reading (10 Chapters)</summary>
+                <div class="section-content">
+                    <ul>
+                        <li><span class="icon">📖</span> <a title="Overview of SAT Reading - Lesson Resources (R - C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=notes">Chapter 1: Overview of SAT Reading</a></li>
+                        <li><span class="icon">📖</span> <a title="Vocabulary in Context - Lesson Resources (R - C2)" href="content/viewer.html?subject=reading&chapter=R-C2-Vocabulary-in-Context&type=notes">Chapter 2: Vocabulary in Context</a></li>
+                        <li><span class="icon">📖</span> <a title="Making the Leap - Lesson Resources (R - C3)" href="content/viewer.html?subject=reading&chapter=R-C3-Making-the-Leap&type=notes">Chapter 3: Making the Leap</a></li>
+                        <li><span class="icon">📖</span> <a title="The Big Picture - Lesson Resources (R - C4)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=notes">Chapter 4: The Big Picture</a></li>
+                        <li><span class="icon">📖</span> <a title="Literal Comprehension - Lesson Resources (R - C5)" href="content/viewer.html?subject=reading&chapter=R-C5-Literal-Comprehension&type=notes">Chapter 5: Literal Comprehension</a></li>
+                        <li><span class="icon">📖</span> <a title="Reading for Function - Lesson Resources (R - C6)" href="content/viewer.html?subject=reading&chapter=R-C6-Reading-for-Function&type=notes">Chapter 6: Reading for Function</a></li>
+                        <li><span class="icon">📖</span> <a title="Text Completions - Lesson Resources (R - C7)" href="content/viewer.html?subject=reading&chapter=R-C7-Text-Completions&type=notes">Chapter 7: Text Completions</a></li>
+                        <li><span class="icon">📖</span> <a title="Supporting & Undermining - Lesson Resources (R - C8)" href="content/viewer.html?subject=reading&chapter=R-C8-Supporting-Undermining&type=notes">Chapter 8: Supporting & Undermining</a></li>
+                        <li><span class="icon">📖</span> <a title="Graphs & Charts - Lesson Resources (R - C9)" href="content/viewer.html?subject=reading&chapter=R-C9-Graphs-Charts&type=notes">Chapter 9: Graphs & Charts</a></li>
+                        <li><span class="icon">📖</span> <a title="Paired Passages - Lesson Resources (R - C10)" href="content/viewer.html?subject=reading&chapter=R-C10-Paired-Passages&type=notes">Chapter 10: Paired Passages</a></li>
+                        <li><span class="icon">📖</span> <a title="Questions Types - Lesson Resources (R - A)" href="content/viewer.html?subject=reading&chapter=R-A-Question-Types&type=notes">Appendix: Question Types</a></li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+        <div class="footer-bar">
+            <!-- "Go Back" link removed from bottom as well -->
+            <div> </div> <!-- To maintain layout if needed -->
+            <div class="logo-bottom-right"><img src="assets/logo.png" alt="The SAT Hub Logo" /></div>
         </div>
     </div>
-
-    <!-- Link to a global JS file if index.html needs any specific JS, otherwise can be omitted -->
-    <!-- <script src="js/main.js"></script> -->
-    <script>
-        // Basic script for details/summary polyfill if needed or other simple interactions
-        // For now, just to show where JS specific to index.html might go.
-        // console.log("Syllabus page (index.html) loaded.");
-    </script>
+    <script src="js/main.js"></script> <!-- Assuming minimal JS for index, like mobile menu toggle -->
 </body>
 </html>
