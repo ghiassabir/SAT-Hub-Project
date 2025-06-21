@@ -74,6 +74,8 @@ async function loadDynamicViewerContent() {
 document.addEventListener('DOMContentLoaded', function() {
     // This specifically targets viewer.html
     if (document.getElementById('content-display-area') && document.title.includes("SAT Hub Content Viewer")) {
+        console.log("--- DOMContentLoaded in viewer-logic.js - about to call loadDynamicViewerContent ---"); // ADD THIS
+        loadDynamicViewerContent();
         loadDynamicViewerContent();
     }
 
