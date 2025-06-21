@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // e.g. G-C3-Sentences-Fragments-notes.md
         filePath = `../data/content/reading-materials/${subject}/${chapter}-${type}.md`;
         fileExtension = 'md';
+        } else if (type === 'lesson-recording' || type === 'concept-videos') { // Changed this line
+    filePath = `../data/content/videos/${subject}/${chapter}-${type}.json`; // Now uses the specific type in filename
+    fileExtension = 'json';
+} else if (type.endsWith('-quiz-list') || type.endsWith('-resources')) {
     // Inside js/viewer-logic.js, in the filePath construction logic:
 // ...
 } else if (type === 'videos' || type === 'lesson-recording' || type === 'concept-videos') {
