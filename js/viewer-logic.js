@@ -1,3 +1,7 @@
+console.log("--- js/viewer-logic.js SCRIPT LOADED ---");
+
+// ... rest of your viewer-logic.js code (async function loadDynamicViewerContent()... DOMContentLoaded listener...)
+
 async function loadDynamicViewerContent() {
     const contentDisplayArea = document.getElementById('content-display-area');
     if (!contentDisplayArea) {
