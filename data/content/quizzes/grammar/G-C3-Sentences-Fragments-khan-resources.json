@@ -51,16 +51,5 @@
       }
     ]
   }
-  // If you had an internal quiz based on Khan, it might look like:
-  // {
-  //   "category": "SAT Hub Practice (Khan-Inspired)",
-  //   "items": [
-  //     {
-  //       "title": "G-C3 Khan-Style Fragment Quiz (SAT Hub)",
-  //       "type": "internal_quiz",
-  //       "target": "../../../practice-entrypoints/g-c3-khan-quiz1.html",
-  //       "description": "Practice fragments with questions similar to Khan Academy, hosted on SAT Hub."
-  //     }
-  //   ]
-  // }
+ 
 ]
