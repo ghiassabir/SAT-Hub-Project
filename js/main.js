@@ -850,3 +850,104 @@ function closeModal() {
 window.onclick = function(event) { 
     if (event.target == modal) closeModal(); 
 }
+
+// --- Viewer Logic (Append to existing main.js) ---
+
+// Check if we are on the viewer page by looking for the content-display-area
+if (document.getElementById('content-display-area')) {
+    loadViewerContent();
+}
+
+async function loadViewerContent() {
+    const contentDisplayArea = document.getElementById('content-display-area');
+    if (!contentDisplayArea) return;
+
+    contentDisplayArea.innerHTML = '<div class="themed-card-body"><p>Loading content...</p></div>'; // Clear previous and show loading
+
+    const params = new URLSearchParams(window.location.search);
+    const subject = params.get('subject');
+    const chapter = params.get('chapter'); // e.g., G-C3
+    const type = params.get('type');       // e.g., notes, cheatsheet, videos
+    const fileName = params.get('file');   // e.g., G-C3-Sentences-Fragments-notes.md (alternative to subject/chapter/type)
+
+    if (!subject || !chapter || !type) {
+        if (!fileName) {
+            contentDisplayArea.innerHTML = '<div class="themed-card-body"><p style="color: red;">Error: Missing subject, chapter, and type, or filename parameters in URL.</p></div>';
+            return;
+        }
+    }
+    
+    let contentPath;
+    let fileExtension;
+
+    if (fileName) {
+        // Construct path based on a direct filename (assuming it includes subject/etc implicitly)
+        // This is a simplified example; you might need to know if it's reading-material or video
+        // For now, assume .md if no other info.
+        fileExtension = fileName.split('.').pop().toLowerCase();
+        contentPath = `../data/content/${fileName}`; // Adjust if fileName includes subdirs like "grammar/G-C3..."
+                                                    // Or if you categorize fileName to be like subject/chapter-type.md
+                                                    // For the example G-C3-Sentences-Fragments-notes.md, it would be like:
+                                                    // ../data/content/reading-materials/grammar/G-C3-Sentences-Fragments-notes.md (more complex construction)
+                                                    // LET'S SIMPLIFY FOR NOW: assume 'file' parameter gives the *full path relative to data/content/*
+                                                    // e.g. file=reading-materials/grammar/G-C3-Sentences-Fragments-notes.md
+        contentPath = `../data/content/${fileName}`;
+    } else {
+        // Construct path based on subject, chapter, type
+        const topicKeyword = chapter; // Assuming chapter code like G-C3 is part of the topic keyword
+                                  // For more complex names like "G-C3-Sentences-Fragments", you'd need that full string.
+                                  // Let's use the example from instructions: G-C3-Sentences-Fragments-notes.md
+                                  // So, the 'chapter' param might need to be "G-C3-Sentences-Fragments"
+
+        if (type === 'notes' || type === 'cheatsheet' || type === 'chaptertext') {
+            fileExtension = 'md';
+            // Example: ../data/content/reading-materials/grammar/G-C3-Sentences-Fragments-notes.md
+            contentPath = `../data/content/reading-materials/${subject}/${chapter}-${type}.${fileExtension}`;
+        } else if (type === 'videos') {
+            fileExtension = 'json';
+            // Example: ../data/content/videos/grammar/G-C3-Sentences-Fragments-videos.json
+            contentPath = `../data/content/videos/${subject}/${chapter}-${type}.${fileExtension}`;
+        } else {
+            contentDisplayArea.innerHTML = '<div class="themed-card-body"><p style="color: red;">Error: Unknown content type.</p></div>';
+            return;
+        }
+    }
+
+
+    console.log("Attempting to load content from:", contentPath);
+
+    try {
+        const response = await fetch(contentPath);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText} (tried to load ${contentPath})`);
+        }
+        const data = await response.text();
+
+        if (fileExtension === 'md') {
+            if (typeof marked === 'undefined') {
+                 contentDisplayArea.innerHTML = '<div class="themed-card-body"><p style="color: red;">Error: Marked.js library not loaded.</p></div>';
+                 return;
+            }
+            contentDisplayArea.innerHTML = '<div class="themed-card-body">' + marked.parse(data) + '</div>';
+        } else if (fileExtension === 'json') {
+            const jsonData = JSON.parse(data);
+            let videoHtml = '<div class="themed-card-body space-y-6">';
+            jsonData.forEach(video => {
+                videoHtml += `
+                    <div class="video-item p-4 border rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold text-blue-700 mb-2">${video.title}</h3>
+                        <div class="aspect-w-16 aspect-h-9 mb-2">
+                            <iframe src="https://www.youtube.com/embed/${video.youtubeId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        ${video.description ? `<p class="text-sm text-gray-600">${video.description}</p>` : ''}
+                    </div>
+                `;
+            });
+            videoHtml += '</div>';
+            contentDisplayArea.innerHTML = videoHtml;
+        }
+    } catch (error) {
+        console.error('Error loading or rendering content:', error);
+        contentDisplayArea.innerHTML = `<div class="themed-card-body"><p style="color: red;">Error loading content from ${contentPath}. Please check the file path and ensure the file exists. Details: ${error.message}</p></div>`;
+    }
+}
