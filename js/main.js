@@ -951,11 +951,3 @@ async function loadViewerContent() {
         contentDisplayArea.innerHTML = `<div class="themed-card-body"><p style="color: red;">Error loading content from ${contentPath}. Please check the file path and ensure the file exists. Details: ${error.message}</p></div>`;
     }
 }
-
-<a href="content/viewer.html?subject=grammar&chapter=G-C3-Sentences-Fragments&type=notes" class="text-blue-500 hover:underline">
-    View G-C3 Sentences & Fragments Notes
-</a>
-<br>
-<a href="content/viewer.html?subject=grammar&chapter=G-C3-Sentences-Fragments&type=videos" class="text-blue-500 hover:underline">
-    View G-C3 Sentences & Fragments Videos
-</a>
