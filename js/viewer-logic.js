@@ -155,7 +155,8 @@ function renderQuizListItem(item) {
         itemHtml += `<a href="${linkTarget}" target="_blank" rel="noopener noreferrer">${item.title || 'Untitled Resource'} 🔗</a>`;
     } else if (item.type === 'internal_quiz' || item.quizName) { // Handles internal quizzes
         // Construct link to quiz.html. Path is relative from /content/viewer.html to /quiz.html
-        linkTarget = `../../quiz.html?quiz_name=${item.quizName}`;
+       // linkTarget = `../../quiz.html?quiz_name=${item.quizName}`;//old
+        linkTarget = `/SAT-Hub-Project/quiz.html?quiz_name=${item.quizName}`; // NEW
         if (item.source) linkTarget += `&source=${item.source}`; // Optional source param
         itemHtml += `<a href="${linkTarget}">${item.title || 'Untitled Quiz'}</a>`;
     } else { // Fallback for other types or if structure is different
