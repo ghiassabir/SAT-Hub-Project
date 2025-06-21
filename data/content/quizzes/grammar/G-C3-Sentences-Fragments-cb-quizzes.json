@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Quiz 1: Sentence Fragments & Run-ons",
+    "entryPoint": "../../../practice-entrypoints/g-c3-cb-quiz1.html",
+    "description": "Official College Board questions focusing on sentence fragments and run-on sentences."
+  },
+  {
+    "title": "Quiz 2: Identifying Independent Clauses",
+    "entryPoint": "../../../practice-entrypoints/g-c3-cb-quiz2.html",
+    "description": "Practice identifying independent clauses with College Board questions."
+  },
+  {
+    "title": "Quiz 3: Mixed Sentence Structure (Unpublished)",
+    "entryPoint": "../../../practice-entrypoints/g-c3-cb-quiz3.html",
+    "status": "unpublished",
+    "description": "A mix of sentence structure questions from the College Board. Currently not available for practice."
+  }
+]
