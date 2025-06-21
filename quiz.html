@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluebook Prototype - Phase 6 (Modes & Manual Break)</title>
+    <style>
+        :root {
+            --bluebook-dark-blue: #0d2f5a;
+            --bluebook-header-blue-home: #003366;
+            --bluebook-footer-blue: #e0e7ff;
+            --bluebook-button-blue: #2563eb;
+            --bluebook-button-secondary-bg: #1e293b;
+            --bluebook-border-color: #cbd5e0;
+            --bluebook-text-color: #1e293b;
+            --bluebook-light-text: #64748b;
+            --bluebook-selected-blue-border: #2563eb;
+            --bluebook-selected-blue-bg: #eff6ff;
+            --bluebook-option-letter-border: #94a3b8;
+            --bluebook-option-letter-text: #475569;
+            --bluebook-preview-banner-bg: #334155;
+            --bluebook-pane-divider: #cbd5e0;
+            --bluebook-yellow-button: #facc15;
+            --bluebook-yellow-button-hover: #eab308;
+            --bluebook-yellow-button-text: #422006;
+            --bluebook-red-flag: #ef4444;
+            --bluebook-dim-text: #9ca3af;
+            --bluebook-crossout-btn-bg-active: #dbeafe;
+            --bluebook-highlight-yellow: #fef9c3;
+            --bluebook-spr-input-bg: #ffffff;
+            --bluebook-spr-input-border: #6b7280;
+            --bluebook-home-bg: #f0f4f8;
+            --bluebook-card-bg: #ffffff;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%; font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; color: var(--bluebook-text-color);
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+        }
+
+        .app-view {
+            display: none; flex-direction: column;
+            height: 100%; width: 100%; position: absolute;
+            top: 0; left: 0;
+        }
+        .app-view.active { display: flex; }
+
+        /* --- Test Interface & Review Page & Break View Common Header Styles --- */
+        .test-interface-view .app-header, 
+        .review-page-view .app-header { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 1rem; background-color: var(--bluebook-dark-blue); color: white;
+            height: 50px; flex-shrink: 0; z-index: 10;
+        }
+        .test-interface-view .header-left, .test-interface-view .header-center, .test-interface-view .header-right,
+        .review-page-view .header-left, .review-page-view .header-center, .review-page-view .header-right {
+             display: flex; align-items: center; gap: 1rem;
+        }
+        .test-interface-view .header-center, 
+        .review-page-view .header-center { 
+            position: absolute; left: 50%; transform: translateX(-50%); 
+        }
+
+        .directions-btn {
+            display: flex; align-items: center; gap: 0.25rem; cursor: pointer;
+            color: #d1d5db; font-size: 0.875rem;
+        }
+        .directions-btn:hover { color: white; }
+        .directions-btn svg { width: 0.875rem; height: 0.875rem; }
+
+        .section-title-header { font-size: 0.875rem; font-weight: 600; }
+
+        .timer-display-container {
+            display: flex; align-items: center;
+            background-color: rgba(0,0,0,0.2); padding: 0.25rem 0.75rem; border-radius: 9999px;
+        }
+        .timer-text { font-size: 0.875rem; font-weight: 500; }
+        .timer-text.hidden { display: none; }
+        .timer-icon { width: 0.875rem; height: 0.875rem; color: white; }
+        .timer-icon.hidden { display: none; }
+        .timer-toggle { font-size: 0.75rem; color: #9ca3af; cursor: pointer; margin-left: 0.25rem; }
+        .timer-toggle:hover { color: white; }
+
+        .header-icon-btn {
+            display: flex; align-items: center; gap: 0.375rem; color: #d1d5db;
+            font-size: 0.8125rem; cursor: pointer; position: relative;
+            padding: 0.25rem 0.375rem;
+        }
+        .header-icon-btn:hover { color: white; }
+        .header-icon-btn.active { color: white; background-color: rgba(255,255,255,0.1); border-radius: 0.25rem;}
+        .header-icon-btn svg { width: 1rem; height: 1rem; }
+        .header-icon-btn.hidden { display: none !important; }
+
+
+        .test-preview-banner {
+            background-color: var(--bluebook-preview-banner-bg); color: white; text-align: center;
+            padding: 0.125rem 0; font-size: 0.75rem; font-weight: bold;
+            letter-spacing: 0.05em; flex-shrink: 0;
+        }
+        .main-content-area { display: flex; flex-grow: 1; overflow: hidden; }
+        .main-content-area.cross-out-active .answer-option:not(.crossed-out) { cursor: default; }
+        .main-content-area.single-pane .passage-pane,
+        .main-content-area.single-pane .spr-instructions-pane,
+        .main-content-area.single-pane .pane-divider-draggable { display: none; }
+        .main-content-area.single-pane .question-pane { flex-basis: 100% !important; }
+        .passage-pane, .question-pane, .spr-instructions-pane {
+            padding: 1.5rem; overflow-y: auto; box-sizing: border-box; background-color: white;
+        }
+        .passage-pane { flex-basis: 50%; border-right: 1px solid var(--bluebook-pane-divider); }
+        .spr-instructions-pane { flex-basis: 50%; border-right: 1px solid var(--bluebook-pane-divider); }
+        .question-pane { flex-basis: 50%; background-color: #f9fafb; }
+        .passage-content p, .question-text p, .spr-instructions-content p, .spr-instructions-content li { font-size: 1rem; line-height: 1.6; }
+        .passage-content p + p, .spr-instructions-content p + p { margin-top: 1em; }
+         .spr-instructions-content h3 { font-size: 1.125rem; font-weight: bold; margin-bottom: 0.75rem;}
+        .spr-instructions-content ul { list-style-position: outside; padding-left: 1.5rem; margin-bottom: 1rem;}
+        .spr-instructions-content ul li { margin-bottom: 0.5rem; }
+        .spr-examples-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.875rem; }
+        .spr-examples-table th, .spr-examples-table td { border: 1px solid var(--bluebook-border-color); padding: 0.5rem; text-align: left; }
+        .spr-examples-table th { background-color: #f3f4f6; font-weight: 600; }
+        .pane-divider-draggable { width: 2px; background-color: var(--bluebook-pane-divider); cursor: col-resize; flex-shrink: 0; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px dashed var(--bluebook-border-color);
+            padding-bottom: 0.75rem; margin-bottom: 1.25rem;
+        }
+        .question-ident { display: flex; align-items: center; gap: 0.75rem; }
+        .question-number-box {
+            width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;
+            background-color: var(--bluebook-text-color); color: white;
+            border-radius: 0.375rem; font-weight: bold; font-size: 0.875rem;
+        }
+        .mark-for-review-label {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.875rem; color: var(--bluebook-light-text); cursor: pointer;
+        }
+        .mark-for-review-label input { display: none; }
+        .mark-for-review-label svg { width: 1.25rem; height: 1.25rem; color: #9ca3af; }
+        .mark-for-review-label input:checked + svg { color: var(--bluebook-red-flag); fill: var(--bluebook-red-flag); }
+        .cross-out-tool-btn {
+            border: 1px solid var(--bluebook-border-color); border-radius: 0.375rem;
+            padding: 0.5rem; cursor: pointer; background-color: white;
+            display: flex; align-items: center; gap: 0.25rem;
+        }
+        .cross-out-tool-btn:hover { background-color: #f3f4f6; }
+        .cross-out-tool-btn.active { background-color: var(--bluebook-crossout-btn-bg-active); border-color: var(--bluebook-button-blue); }
+        .cross-out-tool-btn svg { width: 1.5rem; height: 1.5rem; }
+        .answer-options { display: flex; flex-direction: column; gap: 0.75rem; }
+        .answer-option-container { display: flex; align-items: center; gap: 0.5rem; }
+        .answer-option {
+            flex-grow: 1; display: flex; align-items: center; padding: 0.75rem;
+            border: 1px solid var(--bluebook-border-color); border-radius: 0.5rem;
+            cursor: pointer; background-color: white; gap: 0.75rem; position: relative;
+        }
+        .answer-option:hover:not(.crossed-out) { border-color: #a5b4fc; }
+        .answer-option.selected:not(.crossed-out) {
+            border-color: var(--bluebook-selected-blue-border);
+            background-color: var(--bluebook-selected-blue-bg);
+            box-shadow: 0 0 0 1px var(--bluebook-selected-blue-border);
+        }
+        .answer-option.crossed-out { cursor: default !important; }
+        .answer-option.crossed-out .answer-text, .answer-option.crossed-out .answer-letter { color: var(--bluebook-dim-text) !important; }
+        .answer-option.crossed-out .answer-letter { border-color: var(--bluebook-dim-text) !important; background-color: #e5e7eb !important; }
+        .answer-option.crossed-out::after {
+            content: ''; position: absolute; left: 0.75rem; right: 0.75rem; top: 50%;
+            height: 2px; background-color: var(--bluebook-dim-text);
+            transform: translateY(-50%); z-index: 1;
+        }
+        .answer-letter {
+            width: 1.75rem; height: 1.75rem; border-radius: 9999px;
+            border: 1px solid var(--bluebook-option-letter-border); color: var(--bluebook-option-letter-text);
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 600; font-size: 0.875rem; flex-shrink: 0;
+            position: relative; z-index: 2; pointer-events: none;
+        }
+        .answer-option.selected:not(.crossed-out) .answer-letter { background-color: var(--bluebook-selected-blue-border); color: white; border-color: var(--bluebook-selected-blue-border); }
+        .answer-text { font-size: 1rem; color: var(--bluebook-text-color); position: relative; z-index: 2; pointer-events: none; }
+        .answer-text.text-dimmed-for-crossout { color: var(--bluebook-dim-text) !important; }
+        .individual-cross-out-btn {
+            width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--bluebook-border-color); border-radius: 50%;
+            background-color: white; color: var(--bluebook-light-text);
+            cursor: pointer; flex-shrink: 0; visibility: hidden;
+        }
+        .main-content-area.cross-out-active .answer-option-container .individual-cross-out-btn { visibility: visible; }
+        .main-content-area.cross-out-active .answer-option-container:has(.answer-option.crossed-out) .individual-cross-out-btn { display: none !important; }
+        .individual-cross-out-btn:hover { background-color: #f3f4f6; color: var(--bluebook-text-color); }
+        .undo-cross-out-btn {
+            font-size: 0.875rem; color: var(--bluebook-button-blue);
+            font-weight: 500; cursor: pointer; text-decoration: underline;
+            padding-left: 0.5rem; flex-shrink: 0;
+        }
+        .spr-input-container { margin-top: 1.5rem; }
+        .spr-input-field {
+            width: 180px; padding: 0.75rem; font-size: 1.5rem; text-align: center;
+            border: 2px solid var(--bluebook-spr-input-border); border-radius: 0.375rem;
+            background-color: var(--bluebook-spr-input-bg); color: var(--bluebook-text-color);
+        }
+        .spr-input-field:focus { outline: 2px solid var(--bluebook-button-blue); border-color: var(--bluebook-button-blue); }
+        .spr-answer-preview { margin-top: 0.75rem; font-style: italic; color: var(--bluebook-light-text); font-size: 0.875rem; height: 1.25em; }
+        .text-highlight { background-color: var(--bluebook-highlight-yellow); }
+        .calculator-overlay {
+            position: fixed; top: 100px; left: 100px; width: 380px; min-height: 450px;
+            background-color: #ffffff; border: 1px solid #ccc; border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 60;
+            display: none; flex-direction: column;
+        }
+        .calculator-overlay.visible { display: flex; }
+        .calculator-header {
+            padding: 0.5rem 0.75rem; background-color: #f1f1f1; cursor: move;
+            border-bottom: 1px solid #ccc; border-top-left-radius: 7px; border-top-right-radius: 7px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .calculator-header strong { font-weight: 600; font-size: 0.875rem; }
+        .calculator-close-btn { cursor: pointer; border: none; background: none; font-size: 1.5rem; color: var(--bluebook-light-text); padding: 0 0.25rem; }
+        .calculator-close-btn:hover { color: var(--bluebook-text-color); }
+        .calculator-body {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            font-size: 1.2rem; color: #aaa; padding: 1rem;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm72 0c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm0 36c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-72 0c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zM47 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm0 36c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zM11 54c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm72 0c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7z' stroke-width='1' stroke='%23CCC' fill-opacity='0.1' fill='%23EEE'/%3E%3C/svg%3E");
+        }
+        .reference-sheet-panel {
+            position: fixed; top: 0; right: 0; width: 350px; height: 100%;
+            background-color: #f8f9fa; z-index: 55;
+            box-shadow: -3px 0 10px rgba(0,0,0,0.1);
+            transform: translateX(100%); transition: transform 0.3s ease-in-out;
+            display: flex; flex-direction: column;
+            border-left: 1px solid var(--bluebook-border-color);
+        }
+        .reference-sheet-panel.visible { transform: translateX(0); }
+        .reference-header {
+            padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--bluebook-border-color); background-color: #eff2f5;
+        }
+        .reference-header h3 { font-size: 1rem; font-weight: 600; margin: 0; color: var(--bluebook-text-color); }
+        .reference-close-btn { cursor: pointer; border: none; background: none; font-size: 1.75rem; color: var(--bluebook-light-text); padding: 0 0.25rem; }
+        .reference-close-btn:hover { color: var(--bluebook-text-color); }
+        .reference-body { padding: 1.25rem; overflow-y: auto; flex-grow: 1; }
+        .reference-body img { max-width: 100%; height: auto; }
+
+        /* Footer common styles for test & review */
+        .app-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.5rem 1rem; background-color: var(--bluebook-footer-blue);
+            height: 50px; flex-shrink: 0; z-index: 10;
+            border-top: 1px solid var(--bluebook-border-color);
+        }
+        .app-footer .footer-left { font-size: 0.875rem; font-weight: 600; color: var(--bluebook-text-color); }
+        .app-footer .footer-center button { /* QNav button for test view */
+            background-color: var(--bluebook-button-secondary-bg); color: white;
+            padding: 0.5rem 1.25rem; border-radius: 9999px; border: none;
+            cursor: pointer; font-weight: 600; font-size: 0.875rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .app-footer .footer-center button:hover { background-color: #374151; }
+        .app-footer .footer-center button svg { width: 0.75rem; height: 0.75rem; }
+        .app-footer .footer-right { display: flex; gap: 0.75rem; }
+        .app-footer .nav-button {
+            padding: 0.5rem 2rem; border-radius: 9999px; cursor: pointer;
+            font-weight: 600; font-size: 0.875rem; border: none;
+        }
+        .app-footer .nav-button.primary { background-color: var(--bluebook-button-blue); color: white; }
+        .app-footer .nav-button.primary:hover { background-color: #1d4ed8; }
+        .app-footer .nav-button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 50; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0s 0.3s;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s, visibility 0s; }
+        .modal-content {
+            background-color: white; border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 2.5rem; width: 90%; max-width: 45rem; text-align: center;
+        }
+        .modal-content h2 { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+        .modal-content p { font-size: 1rem; line-height: 1.6; color: var(--bluebook-light-text); margin-bottom: 2rem; }
+        .modal-content p strong { color: var(--bluebook-text-color); }
+        .modal-button {
+            padding: 0.75rem 3rem; border-radius: 9999px; font-weight: bold; font-size: 1rem;
+            cursor: pointer; border: none;
+        }
+        .modal-button.yellow { background-color: var(--bluebook-yellow-button); color: var(--bluebook-yellow-button-text); }
+        .modal-button.yellow:hover { background-color: var(--bluebook-yellow-button-hover); }
+        .modal-button.secondary { background-color: #e5e7eb; color: var(--bluebook-text-color); margin-right: 1rem; }
+        .modal-button.secondary:hover { background-color: #d1d5db; }
+        .qnav-popup {
+            position: fixed; bottom: 0; left: 0; right: 0; background-color: white;
+            border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 40; transform: translateY(100%);
+            transition: transform 0.3s ease-in-out; padding: 1.5rem; max-width: 42rem; margin: 0 auto;
+        }
+        .qnav-popup.visible { transform: translateY(0); }
+        .qnav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .qnav-header h3 { font-size: 1.125rem; font-weight: bold; margin: 0; }
+        .qnav-close-btn { font-size: 1.5rem; color: var(--bluebook-light-text); cursor: pointer; background: none; border: none; padding: 0.25rem; }
+        .qnav-legend {
+            display: flex; justify-content: center; align-items: center; gap: 1.5rem;
+            font-size: 0.75rem; color: var(--bluebook-light-text);
+            padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--bluebook-border-color);
+        }
+        .legend-item { display: flex; align-items: center; gap: 0.375rem; }
+        .legend-icon { width: 0.625rem; height: 0.625rem; border-radius: 50%; }
+        .legend-icon.current { background-color: var(--bluebook-button-blue); }
+        .legend-icon.unanswered { border: 1.5px dashed var(--bluebook-border-color); }
+        .legend-icon.for-review svg { width: 0.875rem; height: 0.875rem; color: var(--bluebook-red-flag); fill: var(--bluebook-red-flag); }
+        .qnav-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .qnav-grid-btn {
+            width: 2.5rem; height: 2.5rem; border-radius: 0.25rem; border: 1px solid var(--bluebook-border-color);
+            background-color: white; color: var(--bluebook-text-color); font-weight: bold; font-size: 0.875rem;
+            cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center;
+        }
+        .qnav-grid-btn:hover { background-color: #f3f4f6; }
+        .qnav-grid-btn.current { border: 2px solid var(--bluebook-button-blue); background-color: var(--bluebook-selected-blue-bg); }
+        .qnav-grid-btn.current .q-num-current-dot { width: 0.5rem; height: 0.5rem; background-color: var(--bluebook-button-blue); border-radius: 50%; }
+        .qnav-grid-btn.unanswered { border-style: dashed; }
+        .qnav-grid-btn .review-flag-icon { position: absolute; top: -0.3rem; right: -0.3rem; }
+        .qnav-grid-btn .review-flag-icon svg { width: 1rem; height: 1rem; color: var(--bluebook-red-flag); fill: var(--bluebook-red-flag); stroke: white; stroke-width: 1.5px;}
+        .qnav-review-page-btn {
+            display: block; width: auto; margin: 0 auto; text-align: center; padding: 0.5rem 0;
+            color: var(--bluebook-button-blue); font-weight: 600; font-size: 0.875rem;
+            background: none; border: none; cursor: pointer; text-decoration: underline;
+        }
+        .qnav-review-page-btn:hover { text-decoration: none; }
+        .more-menu-dropdown {
+            position: absolute; top: calc(100% + 0.5rem); right: 0; background-color: white; border-radius: 0.375rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; width: 220px; overflow: hidden;
+            opacity: 0; visibility: hidden; transform: translateY(-10px);
+            transition: opacity 0.2s, transform 0.2s, visibility 0s 0.2s;
+        }
+        .more-menu-dropdown.visible { opacity: 1; visibility: visible; transform: translateY(0); transition: opacity 0.2s, transform 0.2s, visibility 0s; }
+        .more-menu-item {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+            font-size: 0.875rem; color: var(--bluebook-text-color); cursor: pointer;
+        }
+        .more-menu-item:hover { background-color: #f3f4f6; }
+        .more-menu-item svg { width: 1.125rem; height: 1.125rem; color: var(--bluebook-light-text); }
+        .more-menu-divider { height: 1px; background-color: var(--bluebook-border-color); margin: 0.25rem 0; }
+        .confirm-checkbox-label {
+            display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--bluebook-text-color);
+            margin-bottom: 1.5rem; cursor: pointer; text-align: left;
+        }
+        .confirm-checkbox-label input { margin-right: 0.5rem; width: 1rem; height: 1rem;}
+
+        /* Home Screen Styles */
+        .home-screen-view .app-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 1.5rem; background-color: var(--bluebook-header-blue-home); color: white;
+            height: 60px; flex-shrink: 0;
+        }
+        .home-screen-view .logo { font-size: 1.5rem; font-weight: bold; }
+        .home-screen-view .user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem;}
+        .home-screen-view .user-avatar {
+            width: 2rem; height: 2rem; border-radius: 50%;
+            background-color: var(--bluebook-footer-blue); color: var(--bluebook-dark-blue);
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+        .home-screen-view .main-home-content {
+            flex-grow: 1; overflow-y: auto; padding: 2rem;
+            background-color: var(--bluebook-home-bg);
+        }
+        .home-screen-view h1 { font-size: 2rem; font-weight: bold; margin-bottom: 0.25rem; }
+        .home-screen-view .subtitle { font-size: 1rem; color: var(--bluebook-light-text); margin-bottom: 2.5rem; }
+        .home-screen-view h2 { font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem; }
+        .home-practice-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .home-practice-card {
+            background-color: var(--bluebook-card-bg); padding: 1.5rem; border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07); display: flex; flex-direction: column;
+        }
+        .home-practice-card h3 { font-size: 1.125rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .home-practice-card p { font-size: 0.875rem; color: var(--bluebook-light-text); margin-bottom: 1rem; flex-grow: 1; }
+        .home-practice-card .start-btn {
+            background-color: var(--bluebook-button-blue); color: white; padding: 0.625rem 1.5rem; border-radius: 9999px;
+            font-weight: 600; text-align: center; cursor: pointer; border: none; align-self: flex-start;
+        }
+        .home-practice-card .start-btn:hover { background-color: #1d4ed8; }
+        .home-practice-card .start-btn.disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        .fullscreen-transition-view {
+            background-color: white; align-items: center; justify-content: center; text-align: center; padding: 2rem;
+        }
+        .fullscreen-transition-view h1 { font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--bluebook-dark-blue); }
+        .fullscreen-transition-view .message { font-size: 1.125rem; color: var(--bluebook-light-text); margin-bottom: 2rem; }
+        .fullscreen-transition-view .spinner {
+            border: 5px solid #f3f3f3; border-top: 5px solid var(--bluebook-button-blue);
+            border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .finished-screen-content-box {
+            background-color: white; padding: 2rem; border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 500px;
+            border: 1px solid var(--bluebook-border-color); margin-top: 2rem;
+        }
+        .finished-screen-content-box .finished-img-placeholder { width: 120px; height: 120px; margin: 0 auto 1.5rem auto; border-radius:50%; background-color: #e0e7ff; display:flex; align-items:center; justify-content:center; font-size: 3rem;}
+        .finished-screen-content-box .reminder { font-size: 0.875rem; margin-bottom: 1.5rem; }
+        .finished-screen-content-box .test-day-msg { font-size: 0.875rem; color: var(--bluebook-light-text); margin-bottom: 2rem; }
+        .finished-screen-view .return-home-btn {
+             background-color: var(--bluebook-yellow-button); color: var(--bluebook-yellow-button-text);
+             padding: 0.75rem 3rem; border-radius: 9999px; font-weight: bold; font-size: 1.125rem;
+             cursor: pointer; border: none;
+        }
+        .finished-screen-view .return-home-btn:hover { background-color: var(--bluebook-yellow-button-hover); }
+        #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;}
+
+        .review-page-view .main-review-content {
+            flex-grow: 1; overflow-y: auto; padding: 2rem; background-color: #f9fafb;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .review-box {
+            background-color: white; padding: 2rem; border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 100%; max-width: 800px;
+        }
+        .review-box h1 { font-size: 1.75rem; font-weight: bold; text-align: center; margin-bottom: 0.5rem;}
+        .review-box .subtitle { text-align: center; color: var(--bluebook-light-text); margin-bottom: 1.5rem; font-size: 0.875rem;}
+        .review-section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 1rem; margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--bluebook-border-color);
+        }
+        .review-section-header h2 { font-size: 1rem; font-weight: bold; margin:0; }
+        .review-legend { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--bluebook-light-text); }
+        .review-legend .legend-item { display: flex; align-items: center; gap: 0.25rem; }
+        .review-q-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    </style>
+    <!-- MathJax Configuration -->
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+</head>
+<body>
+    <div class="app-wrapper">
+
+      
+
+        <!-- Home Screen View -->
+        <div class="app-view home-screen-view active" id="home-view">
+            <header class="app-header">
+                <div class="logo">Bluebook</div>
+                <div class="user-info">
+                    <div class="user-avatar">SG</div>
+                    <span>Sabir Ghias</span>
+                </div>
+            </header>
+            <main class="main-home-content custom-scrollbar">
+                <h1>Welcome, Sabir!</h1>
+                <p class="subtitle">Good luck on test day!</p>
+                <h2>Practice and Prepare</h2>
+                <div class="home-practice-cards">
+                    <div class="home-practice-card">
+                        <!-- MODIFIED for Phase 6: Button for Full Practice Test -->
+                        <h3>Full Practice Test</h3>
+                        <p>Simulate a full Bluebook test with timed sections.</p>
+                        <button class="start-btn" id="start-full-practice-test-btn">Start Full Test</button>
+                    </div>
+                    <div class="home-practice-card">
+                        <!-- ADDED for Phase 6: Button for Single Practice Quiz -->
+                        <h3>Single Practice Quiz</h3>
+                        <p>Focus on a specific set of questions with no time limit (timer counts up).</p>
+                        <button class="start-btn" id="start-single-practice-quiz-btn">Start Single Quiz</button>
+                    </div>
+                    <!-- You can remove or keep this third card as you see fit -->
+                    <div class="home-practice-card">
+                        <h3>Example Card (Disabled)</h3>
+                        <p>Another type of practice or resource placeholder.</p>
+                        <button class="start-btn disabled" disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </main>
+        </div> 
+
+        <!-- Test Interface View (Content dynamically loaded by script.js) -->
+        <div class="app-view test-interface-view" id="test-interface-view">
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="directions-btn" id="directions-btn">
+                        <span class="section-title-header" id="section-title-header">Section Title Here</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </div>
+                <div class="header-center">
+                    <div class="timer-display-container" id="timer-display-container">
+                        <span class="timer-text" id="timer-text">0:00</span>
+                        <svg id="timer-clock-icon" class="timer-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <button id="timer-toggle-btn" class="timer-toggle">[Hide]</button>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-icon-btn" id="highlights-notes-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22h6a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v10"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10.4 12.6a2 2 0 1 1 3.2 0l-1.6 3Z"/></svg>
+                        <span>Highlights & Notes</span>
+                    </button>
+                    <button class="header-icon-btn hidden" id="calculator-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="8" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="16" y2="21"></line><line x1="3" y1="8" x2="21" y2="8"></line><line x1="3" y1="16" x2="21" y2="16"></line></svg>
+                        <span>Calculator</span>
+                    </button>
+                     <button class="header-icon-btn hidden" id="reference-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                        <span>Reference</span>
+                    </button>
+                    <div style="position: relative;">
+                        <button class="header-icon-btn" id="more-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                            <span>More</span>
+                        </button>
+                        <div class="more-menu-dropdown" id="more-menu-dropdown">
+                            <div class="more-menu-item" id="more-help"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> <span>Help</span> </div>
+                            <div class="more-menu-item" id="more-shortcuts"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 10a2 2 0 100-4 2 2 0 000 4zM12 12a2 2 0 100 4 2 2 0 000-4z"/></svg> <span>Shortcuts</span> </div>
+                            <div class="more-menu-item" id="more-assistive-tech"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5S9.2 2 12 2zm0 11c-2.8 0-5 2.2-5 5v2h10v-2c0-2.8-2.2-5-5-5z"/></svg> <span>Assistive Technology</span> </div>
+                            <div class="more-menu-item" id="more-line-reader"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg> <span>Line Reader</span> </div>
+                            <div class="more-menu-divider"></div>
+                            <div class="more-menu-item" id="more-unscheduled-break"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> <span>Unscheduled Break</span> </div>
+                            <div class="more-menu-divider"></div>
+                            <div class="more-menu-item" id="more-exit-exam"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> <span>Exit the Exam</span> </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="test-preview-banner">THIS IS A TEST PREVIEW</div>
+            <main class="main-content-area" id="main-content-area-dynamic">
+                <div class="passage-pane custom-scrollbar" id="passage-pane"> <div class="passage-content" id="passage-content"></div> </div>
+                <div class="spr-instructions-pane custom-scrollbar" id="spr-instructions-pane" style="display: none;"> <div class="spr-instructions-content" id="spr-instructions-content"></div> </div>
+                <div class="pane-divider-draggable" id="pane-divider-draggable"></div>
+                <div class="question-pane custom-scrollbar" id="question-pane">
+                    <div class="question-header">
+                        <div class="question-ident">
+                            <div class="question-number-box" id="question-number-box-main">1</div>
+                            <label class="mark-for-review-label"> <input type="checkbox" id="mark-review-checkbox-main"/> <svg id="flag-icon-main" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg> <span>Mark for Review</span> </label>
+                        </div>
+                        <button class="cross-out-tool-btn" id="cross-out-tool-btn-main"> <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.48 10.99C8.32 10.66 8 10.38 8 10C8 9.45 8.45 9 9 9C9.55 9 10 9.45 10 10C10 10.38 9.68 10.66 9.52 10.99H14.48C14.32 10.66 14 10.38 14 10C14 9.45 14.45 9 15 9C15.55 9 16 9.45 16 10C16 10.38 15.68 10.66 15.52 10.99H17C17.55 10.99 18 11.44 18 11.99C18 12.54 17.55 12.99 17 12.99H15.52C15.68 13.32 16 13.61 16 14C16 14.55 15.55 15 15 15C14.45 15 14 14.55 14 14C14 13.61 14.32 13.32 14.48 12.99H9.52C9.68 13.32 10 13.61 10 14C10 14.55 9.55 15 9 15C8.45 15 8 14.55 8 14C8 13.61 8.32 13.32 8.48 12.99H7C6.45 12.99 6 12.54 6 11.99C6 11.44 6.45 10.99 7 10.99H8.48Z" fill="currentColor"></path><path d="M3 5L21 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg> <span>ABC</span> </button>
+                    </div>
+                    <div class="question-text" id="question-text-main"></div>
+                    <div id="answer-area">
+                        <div class="answer-options" id="answer-options-main"></div>
+                        <div class="spr-input-container" id="spr-input-container-main" style="display: none;"> <input type="text" class="spr-input-field" id="spr-input-field-main" maxlength="6"> <div class="spr-answer-preview" id="spr-answer-preview-main">Answer Preview: </div> </div>
+                    </div>
+                </div>
+            </main>
+            <footer class="app-footer">
+                <div class="footer-left" id="user-name-footer">Sabir Ghias</div>
+                <div class="footer-center"> <button id="qNavBtnFooter"> <span>Question </span><span id="current-q-footer">1</span> of <span id="total-q-footer">0</span> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg> </button> </div>
+                <div class="footer-right"> <button class="nav-button primary" id="back-btn-footer">Back</button> <button class="nav-button primary" id="next-btn-footer">Next</button> </div>
+            </footer>
+        </div>
+
+        <!-- Module Over View -->
+        <div class="app-view fullscreen-transition-view" id="module-over-view">
+            <h1>This Module Is Over</h1>
+            <p class="message">All your work has been saved.<br>You'll move on automatically in just a moment.</p>
+            <div class="spinner"></div>
+        </div>
+
+        <div class="app-view fullscreen-transition-view" id="finished-view" style="z-index: 1;">
+            <canvas id="confetti-canvas"></canvas>
+            <div style="position: relative; z-index: 2;">
+                <h1>You're All Finished!</h1>
+                <div class="finished-screen-content-box">
+                    <div class="finished-img-placeholder">😄</div>
+                    <p class="reminder">Return to the homepage to start the preview again.<br><strong>Reminder:</strong> there are no scores or feedback in this preview.</p>
+                    <p class="test-day-msg">When you see this page on test day, you'll know your scores have been submitted.</p>
+                    <button class="return-home-btn" id="return-to-home-btn">Return to Home</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Review Page View -->
+        <div class="app-view review-page-view" id="review-page-view">
+            <header class="app-header">
+                <div class="header-left"> <div class="directions-btn" id="review-directions-btn"> <span class="section-title-header" id="review-section-title-header">Section Review</span> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg> </div> </div>
+                <div class="header-center"> <div class="timer-display-container" id="review-timer-display-container"> <span class="timer-text" id="review-timer-text">0:00</span> <svg id="review-timer-clock-icon" class="timer-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <button id="review-timer-toggle-btn" class="timer-toggle">[Hide]</button> </div> </div>
+                <div class="header-right"> </div>
+            </header>
+            <div class="test-preview-banner">THIS IS A TEST PREVIEW</div>
+            <main class="main-review-content custom-scrollbar">
+                <div class="review-box">
+                    <h1>Check Your Work</h1>
+                    <p class="subtitle">On test day, you won’t be able to move on to the next module until time expires.<br>For these practice questions, you can click Next when you’re ready to move on.</p>
+                    <div class="review-section-header">
+                        <h2 id="review-page-section-name">Section 1: Reading and Writing Questions</h2>
+                        <div class="review-legend">
+                            <div class="legend-item"><span class="legend-icon unanswered" style="border: 1.5px dashed var(--bluebook-border-color);"></span> Unanswered</div>
+                            <div class="legend-item"><span class="legend-icon for-review"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1em; height: 1em; fill: var(--bluebook-red-flag);"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15" stroke="var(--bluebook-red-flag)" stroke-width="2"/></svg></span> For Review</div>
+                        </div>
+                    </div>
+                    <div class="review-q-grid qnav-grid" id="review-page-qnav-grid">
+                    </div>
+                </div>
+            </main>
+            <footer class="app-footer">
+                <div class="footer-left" id="review-user-name-footer">Sabir Ghias</div>
+                <div class="footer-center"></div>
+                <div class="footer-right"> <button class="nav-button primary" id="review-back-btn-footer">Back</button> <button class="nav-button primary" id="review-next-btn-footer">Next</button> </div>
+            </footer>
+        </div>
+
+
+<!-- ADDED for Phase 6: Manual Break Instruction View -->
+        <div class="app-view fullscreen-transition-view active" id="manual-break-view" 
+            <!-- style="display: none;" --> > 
+            <main style="text-align: center; padding: 2rem; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background-color: white;">
+                <h1>10-Minute Break</h1>
+                <p class="message" style="font-size: 1.25rem; margin-bottom: 1.5rem;">
+                    Please take a 10-minute break. <br>
+                    You may leave your seat. Remember to manage your time.
+                </p>
+                <p class="message" style="margin-bottom: 2.5rem;">
+                    Click "Continue to Next Section" when you are ready to begin the Math section.
+                </p>
+                <button id="continue-after-break-btn" class="modal-button yellow" style="padding: 0.75rem 3rem; font-size: 1.125rem;border: 2px solid blue;"
+                    onclick="console.log('INLINE CLICK on manual break button'); alert('MANUAL BREAK BUTTON INLINE CLICKED');">
+                    Continue to Next Section (VISIBLE TEST)
+                </button>
+            </main>
+        </div>
+
+
+      
+
+        <div id="modals-container">
+            <div class="modal-overlay" id="directions-modal"> <div class="modal-content"> <h2 id="directions-modal-title"></h2> <p id="directions-modal-text"></p> <button class="modal-button yellow" id="directions-modal-close-btn">Close</button> </div> </div>
+            <div class="qnav-popup" id="qnav-popup"> <div class="qnav-header"> <h3 id="qnav-title"></h3> <button class="qnav-close-btn" id="qnav-close-btn">×</button> </div> <div class="qnav-legend"> <div class="legend-item"><span class="legend-icon current"></span> Current</div> <div class="legend-item"><span class="legend-icon unanswered"></span> Unanswered</div> <div class="legend-item"><span class="legend-icon for-review"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg></span> For Review</div> </div> <div class="qnav-grid" id="qnav-grid-main"></div> <button class="qnav-review-page-btn" id="qnav-goto-review-btn">Go to Review Page</button> </div>
+            <div class="modal-overlay" id="unscheduled-break-confirm-modal"> <div class="modal-content"> <h2>You'll Lose Testing Time During This Break</h2> <label class="confirm-checkbox-label"> <input type="checkbox" id="understand-lose-time-checkbox"> I need to take a break, and I understand that I'll lose testing time. </label> <p>If you're testing with a laptop, do not close it.</p> <div> <button class="modal-button secondary" id="unscheduled-break-cancel-btn">Cancel</button> <button class="modal-button yellow" id="unscheduled-break-confirm-btn" disabled>Take Unscheduled Break</button> </div> </div> </div>
+            <div class="modal-overlay" id="exit-exam-confirm-modal"> <div class="modal-content" style="max-width: 35rem;"> <h2>Are You Sure You Want To Exit the Preview?</h2> <p>Test previews are not timed or scored, and your progress isn’t saved. If you exit and come back, you’ll start over.</p> <div> <button class="modal-button secondary" id="exit-exam-cancel-btn">Continue Test Preview</button> <button class="modal-button yellow" id="exit-exam-confirm-btn">Exit</button> </div> </div> </div>
+        </div>
+
+        <div class="calculator-overlay" id="calculator-overlay-main"> <div class="calculator-header" id="calculator-header-draggable"> <strong>Calculator</strong> <button class="calculator-close-btn" id="calculator-overlay-close-btn">×</button> </div> <div class="calculator-body"> Desmos Calculator Placeholder </div> </div>
+        <div class="reference-sheet-panel" id="reference-sheet-panel-main"> <div class="reference-header"> <h3>Reference</h3> <button class="reference-close-btn" id="reference-sheet-close-btn">×</button> </div> <div class="reference-body"> <img src="assets/math-refernce-sheet.png" alt="Math Reference Sheet"> </div> </div>
+    </div>
+
+    <script src="js/quiz-logic.js"></script> 
+    <!-- Make sure this script.js is the one I am providing in my next message -->
+</body>
+</html>
