@@ -4,32 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAT Hub Content</title>
-    <link rel="stylesheet" href="../css/style.css"> <!-- Path to global CSS -->
+    <link rel="stylesheet" href="../css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <header style="background-color: #2a5266; color: #ffd700; padding: 1rem; text-align: center;">
-        <img src="../assets/logo.png" alt="SAT Hub Logo" style="height: 50px; display: inline-block; vertical-align: middle; margin-right: 10px;">
-        <h1 style="display: inline-block; vertical-align: middle; font-size: 1.5rem;">SAT Hub Content</h1>
+    <header class="viewer-header"> <!-- Basic header -->
+        <img src="../assets/logo.png" alt="SAT Hub Logo" class="logo">
+        <span id="viewer-title" class="viewer-title-text">Loading Title...</span>
+        <button id="viewer-back-button" class="back-button">← Go Back</button>
     </header>
 
-    <main style="padding: 20px;">
-        <div style="margin-bottom: 20px;">
-            <button onclick="history.back()" style="padding: 8px 15px; background-color: #2a5266; color: #ffd700; border: 1px solid #ffd700; border-radius: 4px; cursor: pointer;">← Go Back</button>
-        </div>
-        <div id="content-display-area" style="border: 1px solid #ccc; padding: 20px; background-color: #f9f9f9; min-height: 300px;">
-            <p>Loading content...</p>
-        </div>
+    <main id="content-display-area" class="viewer-main-content">
+        <p>Loading content...</p>
     </main>
 
-    <footer style="text-align: center; padding: 20px; margin-top: 30px; border-top: 1px solid #e0e0e0;">
-        © <span id="currentYearViewer"></span> The SAT Hub. All Rights Reserved.
-    </footer>  
+    <footer class="viewer-footer"> <!-- Basic footer -->
+        <p>© <span id="currentYear"></span> The SAT Hub. All Rights Reserved.</p>
+    </footer>
 
-<!-- ... rest of your viewer.html body ... -->
     <script src="../js/viewer-logic.js"></script>
-</body>
-</html>
-    
 </body>
 </html>
