@@ -1,52 +1,545 @@
+/* === Global Resets & Font Imports === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f0f2f5;
+    background-color: #f0f2f5; /* Light gray page background */
     color: #333333;
+    line-height: 1.6;
+    display: flex; /* For sticky footer on viewer page */
+    flex-direction: column; /* For sticky footer on viewer page */
+    min-height: 100vh; /* For sticky footer on viewer page */
 }
-.sathub-header {
+
+/* === Main Page Container (for index.html, course-schedule.html) === */
+.page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding-bottom: 20px;
+    flex-grow: 1; /* Allows footer to stick to bottom if content is short */
+}
+
+/* === Shared Header/Footer Elements for index.html, course-schedule.html === */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.logo-top-left img, 
+.logo-bottom-right img {
+    height: 60px;
+    width: auto;
+    border: none;
+    border-radius: 6px;
+    vertical-align: middle;
+}
+
+.nav-button-top-right a, 
+.nav-button-bottom-left a {
+    display: inline-block;
+    background-color: #2a5266; /* SAT Hub dark teal/blue */
+    color: #ffd700; /* SAT Hub gold/yellow */
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 11pt;
+    font-weight: 500;
+    border: 1px solid #FFD700; /* Gold border */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.nav-button-top-right a:hover, 
+.nav-button-bottom-left a:hover {
+    background-color: #356a80; /* Slightly darker teal */
+    color: #fff;
+}
+
+.page-header-title {
+    color: #2a5266;
+    font-size: 24pt;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.syllabus-header h1, /* From index.html */
+.schedule-header h1 { /* From course-schedule.html */
+    border-bottom: 3px solid #FFD700;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.page-header-subtitle {
+    font-size: 12pt;
+    color: #555555;
+    margin-top: 5px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.app-links-container { /* Container for Dashboard/Quiz links on index.html */
+    text-align: center;
+    margin-top: 15px;
+    padding-bottom: 15px;
+}
+.app-links-container a { /* Re-using nav-button style */
+    display: inline-block;
     background-color: #2a5266;
-    color: #f0f0f0;
-}
-.sathub-header-title {
     color: #ffd700;
+    padding: 10px 18px; /* Slightly larger */
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 11pt;
+    font-weight: 600;
+    border: 1px solid #FFD700;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin: 0 8px 10px 8px;
 }
-.main-tab-button {
+.app-links-container a:hover {
+    background-color: #356a80;
+    color: #fff;
+}
+
+/* Collapsible sections for Syllabus and Course Schedule */
+details.content-section { /* General class for these <details> blocks */
+    background-color: #2a5266;
+    border: 1px solid #FFD700;
+    border-radius: 6px; /* Slightly more rounded */
+    margin: 0 25px 20px 25px;
+    overflow: hidden; /* Prevents content spill before animation */
+}
+details.content-section summary {
+    font-size: 18pt;
+    color: #ffd700;
+    background-color: #2a5266; /* Summary same bg as details block */
+    padding: 12px 20px;
+    border-radius: 0; /* Remove individual radius for seamless look */
+    cursor: pointer;
+    display: list-item;
+    border-bottom: 1px solid #356a80; /* Darker teal border for summary */
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+details.content-section[open] summary {
+    border-bottom: 1px solid #FFD700; /* Gold border when open */
+}
+details.content-section summary:hover {
+    background-color: #356a80;
+}
+details.content-section .content-body { /* Inner content area */
+    padding: 0; /* Remove padding, ul will handle it */
+    background-color: #2a5266;
+}
+details.content-section .content-body ul {
+    list-style-type: none;
+    padding: 15px 20px; /* Padding for the list itself */
+    margin: 0;
+    font-size: 11pt;
+    background-color: #ffffff; /* White background for the list items area */
+    border-top: 1px solid #FFD700; /* Separator if summary is different color */
+}
+details.content-section .content-body li {
+    margin-bottom: 10px;
+    padding: 8px 0; /* Increased padding */
+    display: flex;
+    align-items: center;
+    border-bottom: 1px dashed #eee; /* Light separator for list items */
+}
+details.content-section .content-body li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+details.content-section .content-body li .icon {
+    font-family: 'Arial Unicode MS', 'Apple Symbols', 'sans-serif';
+    font-size: 1.2em; /* Larger icon */
+    margin-right: 12px;
+    color: #2a5266;
+}
+details.content-section .content-body li a {
+    color: #2a5266;
+    text-decoration: none;
+    flex-grow: 1;
+    font-weight: 500;
+}
+details.content-section .content-body li a:hover {
+    color: #1a3b49;
+    text-decoration: underline;
+}
+
+/* Specific for Course Schedule daily breakdowns */
+details.date-group-details { /* Nested details for days */
+    margin: 10px 0; /* Spacing within week */
+    background-color: #356a80; /* Slightly different shade for nesting */
+    border: 1px solid #e6c300; /* Slightly darker gold for nested border */
+    border-radius: 4px;
+}
+details.date-group-details summary {
+    font-size: 14pt;
+    color: #f0f0f0;
+    padding: 10px 15px;
+    border-bottom: none;
+    border-left: 5px solid #FFD700;
+    background-color: #356a80; /* Ensure summary bg matches */
+}
+details.date-group-details[open] summary {
+     border-bottom: 1px solid #e6c300;
+}
+details.date-group-details summary:hover {
+    background-color: #2a5266;
+}
+details.date-group-details ul {
+    margin: 0; /* No top margin, summary provides spacing */
+    padding: 10px 15px;
+    background-color: #ffffff;
+    border-top: 1px solid #e6c300;
+}
+
+.footer-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    margin-top: 30px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* === Styles for Viewer Page (content/viewer.html) and its Content === */
+body.viewer-body {
+    /* Styles applied when viewer-logic.js adds this class */
+}
+
+.viewer-header {
+    background-color: #2a5266;
+    color: #ffd700;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.viewer-header .logo {
+    height: 50px;
+    width: auto;
+}
+.viewer-title-text {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 15px;
+    text-align: center;
+    flex-grow: 1;
+}
+.viewer-header .back-button {
+    background-color: #ffd700;
+    color: #2a5266;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600; /* Bolder button text */
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+.viewer-header .back-button:hover {
+    background-color: #e6c300; /* Darker gold on hover */
+}
+
+.viewer-main-content {
+    flex-grow: 1;
+    width: 95%;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 25px 30px; /* More padding */
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07); /* Slightly more shadow */
+}
+
+/* Markdown generated elements styling */
+.viewer-main-content h1, 
+.viewer-main-content h2, 
+.viewer-main-content h3,
+.viewer-main-content h4,
+.viewer-main-content h5,
+.viewer-main-content h6 {
+    color: #2a5266;
+    margin-top: 1.8em; /* More top margin for headings */
+    margin-bottom: 1em;
+    line-height: 1.4; /* Adjust line height for headings */
+    font-weight: 600;
+}
+.viewer-main-content h1:first-child,
+.viewer-main-content h2:first-child,
+.viewer-main-content h3:first-child {
+    margin-top: 0.5em; /* Less top margin for first heading */
+}
+.viewer-main-content h1 { font-size: 2em; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.3em;}
+.viewer-main-content h2 { font-size: 1.6em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2em;}
+.viewer-main-content h3 { font-size: 1.35em; } /* Slightly adjusted */
+.viewer-main-content h4 { font-size: 1.15em; } /* Slightly adjusted */
+
+.viewer-main-content p {
+    line-height: 1.75; /* More spacious paragraphs */
+    margin-bottom: 1.25em;
+}
+.viewer-main-content ul, 
+.viewer-main-content ol {
+    margin-left: 25px;
+    margin-bottom: 1.25em;
+    padding-left: 5px; /* Slight padding for bullet alignment */
+}
+.viewer-main-content ul li,
+.viewer-main-content ol li {
+    margin-bottom: 0.6em;
+    line-height: 1.6;
+}
+.viewer-main-content a {
+    color: #1e6091; /* Consistent link blue */
+    text-decoration: none;
+    font-weight: 500; /* Make links slightly bolder */
+}
+.viewer-main-content a:hover {
+    text-decoration: underline;
+    color: #133c5a; /* Darker blue on hover */
+}
+.viewer-main-content pre {
+    background-color: #f8f9fa;
+    padding: 16px; /* More padding */
+    border-radius: 5px; /* More rounded */
+    overflow-x: auto;
+    border: 1px solid #d1d5db; /* Softer border */
+    margin-bottom: 1.25em;
+    font-size: 0.95em; /* Slightly larger pre text */
+}
+.viewer-main-content code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; /* Better monospace stack */
+    background-color: #e9ecef; /* Softer background */
+    padding: 3px 6px; /* Adjusted padding */
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #3d3d3d; /* Darker code text */
+}
+.viewer-main-content pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit; /* Inherit from pre */
+    color: inherit;
+}
+.viewer-main-content blockquote {
+    border-left: 5px solid #ffd700;
+    margin: 1.5em 0; /* More vertical margin */
+    padding: 12px 25px; /* More padding */
+    color: #404040;
+    background-color: #fff9e6; /* Light yellow tint for blockquotes */
+    border-radius: 0 5px 5px 0;
+}
+.viewer-main-content blockquote p:last-child {
+    margin-bottom: 0; /* Remove bottom margin from last p in blockquote */
+}
+.viewer-main-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin: 1em 0; /* Add some margin around images */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.viewer-main-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5em; /* More margin */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.viewer-main-content th, .viewer-main-content td {
+    border: 1px solid #d0d7de; /* GitHub-like table border */
+    padding: 10px 15px; /* More padding */
+    text-align: left;
+}
+.viewer-main-content th {
+    background-color: #f6f8fa; /* Lighter header for tables */
+    font-weight: 600;
+}
+
+/* PDF Embed Container */
+.pdf-embed-container {
+    border: 1px solid #d1d5db; /* Softer border */
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    height: 75vh; /* Taller PDF viewer */
+    min-height: 550px;
+    margin: 1.5em 0; /* More margin */
+    background-color: #f0f2f5;
+}
+.pdf-embed-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Video List Styles */
+.video-list-container .video-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 20px; /* More padding */
+    margin-bottom: 25px;
+    background-color: #fcfcfc; /* Very light gray */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.video-list-container .video-item h3 {
+    margin-top: 0;
+    margin-bottom: 12px; /* More space below title */
+    color: #2a5266;
+    font-size: 1.25em;
+}
+.video-list-container .video-embed {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    max-width: 100%; 
+    background: #000;
+    border-radius: 5px; /* Rounded corners for video embed area */
+    margin-top: 10px;
+}
+.video-list-container .video-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+.video-list-container .video-description {
+    font-size: 0.95em; /* Slightly larger */
+    color: #4f4f4f; /* Darker gray */
+    margin-top: 12px;
+    line-height: 1.6;
+}
+
+/* Quiz/Resource List Styles */
+.quiz-list-container .quiz-category h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    color: #2a5266;
+    border-bottom: 2px solid #e0e0e0; /* Thicker border */
+    padding-bottom: 10px;
+}
+.quiz-list-container .quiz-item {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 18px 20px; /* Adjusted padding */
+    margin-bottom: 18px;
+    background-color: #ffffff;
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+.quiz-list-container .quiz-item:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+.quiz-list-container .quiz-item h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+.quiz-list-container .quiz-item h4 a {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #1e6091;
+}
+.quiz-list-container .quiz-description {
+    font-size: 0.95em;
+    color: #4f4f4f;
+    margin-top: 6px;
+    line-height: 1.5;
+}
+.quiz-list-container .quiz-item .status-unpublished {
+    color: #dc3545;
+    font-style: italic;
+    font-size: 0.9em;
+    margin-top: 6px;
+    display: block; /* Ensure it's on its own line */
+}
+
+.viewer-footer {
+    text-align: center;
+    padding: 20px; /* More padding */
+    background-color: #e9ecef;
+    color: #495057;
+    font-size: 0.9em;
+    border-top: 1px solid #dee2e6;
+    margin-top: auto; /* This pushes footer to bottom if body has display:flex and flex-direction:column and viewer-main-content has flex-grow:1 */
+}
+
+/* === STYLES FROM DASHBOARD VERSION 2 (MERGED AND ADAPTED) === */
+/* These are directly from Dashboard version 2 Styling css.txt,
+   They might need minor adjustments or scoping if they conflict
+   with the more general styles above when applied to index.html or viewer.html.
+   For dashboard.html, they should work as intended.
+*/
+
+/* .sathub-header, .sathub-header-title already defined more globally */
+
+.main-tab-button { /* Already partially defined, ensure consistency or scope if needed */
     transition: all 0.3s ease;
-    color: #4b5563;
+    color: #4b5563; /* Tailwind gray-600 */
+    padding: 0.75rem 1rem; /* Tailwind py-3 px-4 */
+    border-bottom: 2px solid transparent; /* For active state */
 }
 .main-tab-button.active {
-    border-bottom-width: 2px;
-    border-color: #2a5266;
+    border-bottom-color: #2a5266; /* SAT Hub dark teal/blue */
     color: #2a5266;    
     font-weight: 600;
 }
 .main-tab-button:not(.active):hover {
     color: #2a5266;
+    border-bottom-color: #cbd5e1; /* Light hover border */
 }
+
 .sub-tab-button {
     padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
+    border-radius: 0.375rem; /* Tailwind rounded-md */
     transition: background-color 0.3s ease, color 0.3s ease;
-    font-size: 0.875rem;
-    margin-right: 0.5rem;
-    color: #4b5563;
-    background-color: #f3f4f6;
+    font-size: 0.875rem; /* Tailwind text-sm */
+    margin-right: 0.5rem; /* Tailwind space-x-2 implies margin */
+    color: #4b5563; /* Tailwind gray-600 */
+    background-color: #f3f4f6; /* Tailwind bg-gray-100 */
     cursor: pointer;
+    border: 1px solid transparent;
 }
 .sub-tab-button.active {
-    background-color: #2a5266;
-    color: #ffffff;
+    background-color: #2a5266; 
+    color: #ffffff; 
 }
 .sub-tab-button:not(.active):hover {
-    background-color: #e5e7eb;
+    background-color: #e5e7eb; /* Tailwind bg-gray-200 */
+    border-color: #d1d5db;
 }
-.themed-card {
+
+.themed-card { /* Shared by dashboard and potentially viewer if class is used */
     background-color: #ffffff;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e2e8f0; /* Tailwind border-gray-300 */
     border-left-width: 8px;
-    border-left-color: #ffd700;
+    border-left-color: #ffd700; /* SAT Hub gold/yellow */
     overflow: hidden;
     margin-bottom: 1.5rem;
 }
@@ -54,13 +547,14 @@ body {
     background-color: #2a5266;
     color: #ffd700;          
     padding: 0.75rem 1.25rem;
-    font-size: 1.125rem;
+    font-size: 1.125rem; /* Tailwind text-lg */
     font-weight: 600;
 }
 .themed-card-body {
     padding: 1.25rem;
 }
-.score-card {
+
+.score-card { /* Used in Dashboard Overview */
     background-color: #ffffff;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
@@ -68,48 +562,96 @@ body {
     border: 1px solid #e2e8f0;
     border-left-width: 8px;
     border-left-color: #ffd700;
+    text-align: center; /* Center content in score cards */
+}
+.score-card h3 {
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* medium */
+    color: #4b5563; /* gray-600 */
+    margin-bottom: 0.25rem;
 }
 .score-card .score-value {
     color: #2a5266;
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 700; /* bold */
 }
-.table th, .table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
-.table th { background-color: #f8f9fa; font-weight: 600; color: #2d3b45; }
-.table tbody tr:last-child td { border-bottom: 0; }
-.table tbody tr.clickable-row:hover { background-color: #f0f9ff; cursor: pointer; }
+.score-card .score-value .text-lg { /* For units like /1600 */
+    font-size: 1.125rem; /* text-lg */
+    color: #6b7280; /* gray-500 */
+}
+.score-card .text-sm { /* For class average text */
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
 
-.progress-bar-container { background-color: #e0e0e0; border-radius: 0.25rem; overflow: hidden; height: 1rem; }
+
+.table { /* Dashboard tables */
+    min-width: 100%;
+    border-collapse: collapse; /* Ensure borders are clean */
+}
+.table th, .table td { 
+    padding: 0.75rem 1rem; 
+    text-align: left; 
+    border-bottom: 1px solid #e0e0e0; 
+    font-size: 0.875rem; /* text-sm */
+}
+.table th { 
+    background-color: #f8f9fa; /* Light gray for headers */
+    font-weight: 600; 
+    color: #2d3b45; 
+    text-transform: uppercase; /* Uppercase headers */
+    letter-spacing: 0.05em;
+}
+.table tbody tr:last-child td { 
+    border-bottom: 0; 
+}
+.table tbody tr.clickable-row:hover { 
+    background-color: #f0f9ff; /* Light blue hover for clickable rows */
+    cursor: pointer; 
+}
+
+/* Progress bar styles from Dashboard V2 */
+.progress-bar-container { background-color: #e0e0e0; border-radius: 0.25rem; overflow: hidden; height: 1rem; margin-top: 0.25rem;}
 .progress-bar { height: 100%; text-align: center; color: white; font-size: 0.75rem; line-height: 1rem; transition: width 0.5s ease-in-out; }
-.performance-good { background-color: #28a745; }
-.performance-average { background-color: #ffc107; }
-.performance-poor { background-color: #dc3545; }
-.performance-na { background-color: #e0e0e0; }
+.performance-good { background-color: #28a745; } /* Green */
+.performance-average { background-color: #ffc107; } /* Yellow */
+.performance-poor { background-color: #dc3545; } /* Red */
+.performance-na { background-color: #e0e0e0; } /* Neutral gray */
 
 .text-good { color: #198754; }
 .text-poor { color: #bb2d3b; }
 
-.modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+/* Modal styles from Dashboard V2 */
+.modal { display: none; position: fixed; z-index: 1050; /* Higher than viewer header */ left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
 .modal-content { background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #cccccc; width: 90%; max-width: 850px; border-radius: 8px; position: relative; overflow:hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .modal-header { background-color: #2a5266; color: #ffd700; padding: 1rem 1.25rem; font-size: 1.25rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-.modal-body-content { padding: 1.25rem; max-height: calc(100vh - 150px); overflow-y: auto; }
-.close-button { color: #ffd700; font-size: 28px; font-weight: bold; }
-.close-button:hover, .close-button:focus { color: #ffffff; text-decoration: none; cursor: pointer; }
+.modal-body-content { padding: 1.5rem; max-height: calc(100vh - 200px); overflow-y: auto; } /* Ensure modal body is scrollable */
+.modal .close-button { color: #ffd700; font-size: 28px; font-weight: bold; background: none; border: none; cursor: pointer; }
+.modal .close-button:hover, .modal .close-button:focus { color: #ffffff; }
 
-/* Clickable skill item in the main skills list */
+/* Clickable skill item in the Dashboard Skills Hub */
 .skill-item-container {
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 0.75rem; /* Added padding from original dashboard structure */
+    background-color: #f9fafb; /* Light bg for skill items */
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
 }
 .skill-item-container:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    border-color: #2a5266;
 }
 
-/* Single Question Analysis styles */
+/* Single Question Analysis card styles (for Dashboard Modals) */
 .question-analysis-card {
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;
     margin-bottom: 1.5rem;
     overflow: hidden;
+    background-color: #fff;
 }
 .question-analysis-header {
     padding: 0.75rem 1rem;
@@ -118,40 +660,40 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Allow wrapping for smaller screens */
-    gap: 0.5rem; /* Spacing between items */
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 .question-analysis-header .meta-item {
-    font-size: 0.875rem; /* Small font for meta info */
+    font-size: 0.875rem;
     color: #4b5563;
 }
 .question-analysis-body {
     padding: 1rem;
     display: grid;
-    grid-template-columns: 1fr; /* Default to single column */
+    grid-template-columns: 1fr;
     gap: 1.25rem;
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) { /* md breakpoint */
     .question-analysis-body {
-        grid-template-columns: 2fr 1fr; /* Two columns on larger screens */
+        grid-template-columns: 2fr 1fr; /* Two columns on larger screens for dashboard modal */
     }
 }
-.answer-explanation {
-    background-color: #f0fdf4;
-    border-left: 4px solid #22c55e;
-    padding: 0 0.75rem; /* Reduced padding when collapsed */
+.answer-explanation { /* Used in Dashboard question modals */
+    background-color: #f0fdf4; /* Light green */
+    border-left: 4px solid #22c55e; /* Green border */
+    padding: 0 0.75rem;
     border-radius: 0.25rem;
     margin-top: 0.75rem;
-    max-height: 0; /* Initially hidden */
+    max-height: 0;
     overflow: hidden;
-    transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
 }
 .answer-explanation.expanded {
-    max-height: 500px; /* Adjust as needed for content */
+    max-height: 500px; /* Or enough to show content */
     padding: 0.75rem;
 }
 .toggle-explanation-btn {
-    background-color: #e0e7ff; /* Light blue for button */
+    background-color: #e0e7ff;
     color: #2a5266;
     border: none;
     padding: 0.4rem 0.8rem;
@@ -160,16 +702,17 @@ body {
     font-size: 0.875rem;
     margin-top: 0.5rem;
     transition: background-color 0.2s ease;
-    display: block; /* Make it a block button */
-    width: fit-content; /* Only take content width */
+    display: block;
+    width: fit-content;
 }
 .toggle-explanation-btn:hover {
-    background-color: #c3d2ff;
+    background-color: #c7d2fe; /* Tailwind indigo-200 */
 }
 
-.pacing-slower { background-color: #fee2e2; color: #991b1b; }
-.pacing-faster { background-color: #dbeafe; color: #1e40af; }
-.pacing-on-pace { background-color: #f3f4f6; color: #374151; }
+/* Pacing and Difficulty Badges (from Dashboard) */
+.pacing-slower { background-color: #fee2e2; color: #991b1b; } /* Red family */
+.pacing-faster { background-color: #dbeafe; color: #1e40af; } /* Blue family */
+.pacing-on-pace { background-color: #f3f4f6; color: #374151; } /* Gray family */
 .pacing-badge {
     display: inline-block;
     padding: 0.125rem 0.5rem;
@@ -182,27 +725,33 @@ body {
     padding: 0.125rem 0.6rem;
     font-size: 0.75rem;
     font-weight: 500;
-    border-radius: 9999px;
+    border-radius: 9999px; /* pill shape */
     color: white;
+    text-transform: capitalize;
 }
-.difficulty-Easy { background-color: #22c55e; }
-.difficulty-Medium { background-color: #f59e0b; }
-.difficulty-Hard { background-color: #ef4444; }
+.difficulty-Easy { background-color: #22c55e; } /* Green */
+.difficulty-Medium { background-color: #f59e0b; } /* Amber */
+.difficulty-Hard { background-color: #ef4444; } /* Red */
 
-.question-chart-container {
+.question-chart-container { /* For mini donut charts in dashboard modals */
     position: relative;
-    width: 100px; /* Fixed width for small donut */
-    height: 100px; /* Fixed height for small donut */
-    margin: 0.5rem auto 0; /* Center it */
+    width: 100px;
+    height: 100px;
+    margin: 0.5rem auto 0;
 }
 .question-chart-container canvas {
     max-height: 100%;
     max-width: 100%;
 }
 
-/* Pacing Bar Chart Styles */
-.pacing-bar-chart-container {
+.pacing-bar-chart-container { /* For pacing bar chart in dashboard modals */
     position: relative;
-    height: 150px; /* Adjust height as needed */
+    height: 180px; /* Increased height */
     width: 100%;
+    margin-top: 1rem;
+}
+
+/* General utility to hide elements */
+.hidden {
+    display: none !important;
 }
