@@ -5,52 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAT Hub - Course Syllabus</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body { font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif; max-width: 900px; margin: 0 auto; background-color: #ffffff; color: #333333; line-height: 1.6; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background-color: #ffffff; border-bottom: 1px solid #e0e0e0; }
-        .logo-top-left img { height: 68px; width: auto; border: none; border-radius: 6px; vertical-align: middle; }
-        .nav-button-top-right a { display: inline-block; background-color: #2a5266; color: #ffd700; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 11pt; border: 1px solid #FFD700; }
-        .nav-button-top-right a:hover { background-color: #356a80; } /* Added hover effect */
-        .syllabus-header { padding: 20px 25px 10px 25px; text-align: center; }
-        .syllabus-header h1 { color: #2a5266; font-size: 26pt; margin-bottom: 10px; border-bottom: 3px solid #FFD700; display: inline-block; padding-bottom: 5px; }
-        .syllabus-header p { font-size: 12pt; color: #555555; margin-top: 5px; }
-        .app-links-container { margin-top: 15px; padding-bottom: 10px; } /* Container for app links */
-        .app-links-container a { margin-right: 10px; margin-bottom: 10px; } /* Spacing for app links */
-        .syllabus-sections-container { padding: 0 25px 25px 25px; }
-        details.syllabus-section { background-color: #2a5266; border: 1px solid #FFD700; border-radius: 5px; margin-bottom: 20px; }
-        details.syllabus-section summary { font-size: 18pt; color: #ffd700; background-color: transparent; padding: 12px 20px; border-radius: 4px 4px 0 0; cursor: pointer; display: list-item; border-bottom: 1px solid #FFD700; }
-        .section-content { padding: 15px; background-color: #2a5266; border-radius: 0 0 4px 4px; }
-        .section-content ul { list-style-type: none; padding: 15px; margin: 0; font-size: 11pt; background-color: #ffffff; border-radius: 4px; }
-        .section-content li { margin-bottom: 8px; padding: 5px 0; display: flex; align-items: center; }
-        .section-content li .icon { font-family: 'Arial Unicode MS', 'Apple Symbols', 'sans-serif'; font-size: 1.1em; margin-right: 10px; color: #2a5266; }
-        .section-content li a { color: #2a5266; text-decoration: none; }
-        .section-content li a:hover { text-decoration: underline; }
-        .footer-bar { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; margin-top: 30px; border-top: 1px solid #e0e0e0; }
-        .nav-button-bottom-left a { display: inline-block; background-color: #2a5266; color: #ffd700; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 11pt; border: 1px solid #FFD700; }
-        .nav-button-bottom-left a:hover { background-color: #356a80; } /* Added hover effect */
-        .logo-bottom-right img { height: 68px; width: auto; border: none; border-radius: 6px; vertical-align: middle; }
-    </style>
+    <!-- Google Fonts import is now in style.css -->
 </head>
 <body>
-    <div style="font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif; max-width: 900px; margin: 0 auto; background-color: #ffffff; color: #333333; line-height: 1.6;">
+    <div class="page-container"> {/* Added page-container class */}
         <div class="top-bar">
-            <div class="logo-top-left"><img src="assets/logo.png" alt="The SAT Hub Logo" /> </div>
-            <div class="nav-button-top-right">
+            <div class="logo-top-left"><img src="assets/logo.png" alt="The SAT Hub Logo" /></div>
+            <div class="nav-button-top-right"> {/* Added class */}
                 <a title="View Course Schedule" href="course-schedule.html">View Course Schedule →</a>
             </div>
         </div>
-        <div class="syllabus-header">
-            <h1>Course Syllabus</h1>
-            <p>Overview of topics and chapters covered in this SAT course.</p>
+        <div class="syllabus-header"> {/* Keeping this specific class for potential distinct styling if needed later */}
+            <h1 class="page-header-title">Course Syllabus</h1> {/* Added class */}
+            <p class="page-header-subtitle">Overview of topics and chapters covered in this SAT course.</p> {/* Added class */}
             <div class="app-links-container">
-                <a href="dashboard.html" style="display: inline-block; background-color: #2a5266; color: #ffd700; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 11pt; border: 1px solid #FFD700;">Analytics Dashboard</a>
-                <a href="quiz.html" style="display: inline-block; background-color: #2a5266; color: #ffd700; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 11pt; border: 1px solid #FFD700;">Practice Quiz App</a>
+                <a href="dashboard.html">Analytics Dashboard</a>
+                <a href="quiz.html">Practice Quiz App</a>
             </div>
         </div>
-        <div class="syllabus-sections-container">
-            <details class="syllabus-section" open> <!-- Added 'open' attribute to default open the first section -->
+        <div class="syllabus-sections-container"> {/* This class was from original, can keep or remove if .page-container handles all padding */}
+            
+            <details class="content-section" open> {/* Changed class + added open */}
                 <summary>Math - College Panda (29 Chapters)</summary>
-                <div class="section-content">
+                <div class="content-body"> {/* Changed class */}
                     <ul>
                         <li><span class="icon">📖</span> <a title="Exponents & Radicals - Lesson Resources (M - C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub">Chapter 1: Exponents & Radicals</a></li>
                         <li><span class="icon">📖</span> <a title="Percent - Lesson Resources (M - C2)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub">Chapter 2: Percent</a></li>
@@ -85,13 +62,14 @@
                     </ul>
                 </div>
             </details>
-            <details class="syllabus-section">
+            <details class="content-section"> {/* Changed class */}
                 <summary>Erica Meltzer - Grammar (14 Chapters)</summary>
-                <div class="section-content">
+                <div class="content-body"> {/* Changed class */}
                     <ul>
                         <li><span class="icon">📖</span> <a title="Transitions - Lesson Resources (G - C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub">Chapter 1: Transitions</a></li>
                         <li><span class="icon">📖</span> <a title="Specific Focus - Lesson Resources (G - C2)" href="content/viewer.html?subject=grammar&chapter=G-C2-Specific-Focus&type=hub">Chapter 2: Specific Focus</a></li>
                         <li><span class="icon">📖</span> <a title="Sentences & Fragments - Lesson Resources (G - C3)" href="content/viewer.html?subject=grammar&chapter=G-C3-Sentences-Fragments&type=hub">Chapter 3: Sentences & Fragments</a></li>
+                        {/* ... (Repeat for all Grammar chapters, ensuring links use &type=hub) ... */}
                         <li><span class="icon">📖</span> <a title="Joining & Separating Sentences - Lesson Resources (G - C4)" href="content/viewer.html?subject=grammar&chapter=G-C4-Joining-Separating-Sentences&type=hub">Chapter 4: Joining & Separating Sentences</a></li>
                         <li><span class="icon">📖</span> <a title="Joining Sentences & Fragments - Lesson Resources (G - C5)" href="content/viewer.html?subject=grammar&chapter=G-C5-Joining-Sentences-Fragments&type=hub">Chapter 5: Joining Sentences & Fragments</a></li>
                         <li><span class="icon">📖</span> <a title="Non-Essential & Essential Clauses - Lesson Resources (G - C6)" href="content/viewer.html?subject=grammar&chapter=G-C6-Non-Essential-Essential-Clauses&type=hub">Chapter 6: Non-Essential & Essential Clauses</a></li>
@@ -107,9 +85,9 @@
                     </ul>
                 </div>
             </details>
-            <details class="syllabus-section">
+            <details class="content-section"> {/* Changed class */}
                 <summary>Erica Meltzer - Reading (10 Chapters)</summary>
-                <div class="section-content">
+                <div class="content-body"> {/* Changed class */}
                     <ul>
                         <li><span class="icon">📖</span> <a title="Overview of SAT Reading - Lesson Resources (R - C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub">Chapter 1: Overview of SAT Reading</a></li>
                         <li><span class="icon">📖</span> <a title="Vocabulary in Context - Lesson Resources (R - C2)" href="content/viewer.html?subject=reading&chapter=R-C2-Vocabulary-in-Context&type=hub">Chapter 2: Vocabulary in Context</a></li>
@@ -127,12 +105,22 @@
             </details>
         </div>
         <div class="footer-bar">
-            <div class="nav-button-bottom-left">
+            <div class="nav-button-bottom-left"> {/* Added class */}
                  <a title="View Course Schedule" href="course-schedule.html">← View Course Schedule</a>
             </div>
             <div class="logo-bottom-right"><img src="assets/logo.png" alt="The SAT Hub Logo" /></div>
         </div>
     </div>
     <script src="js/main.js"></script>
+    <script>
+        // Simple script to set the current year in the footer for index.html
+        // (Can be moved to main.js if preferred)
+        const currentYearSpan = document.querySelector('.footer-bar span#currentYear'); // Assuming you add id="currentYear" to a span in footer
+        if (currentYearSpan) { // Check if it exists to avoid errors on other pages
+            // This part is not in the original syllabus footer, if you want to add copyright year
+            // you'd add <p>© <span id="currentYear"></span> The SAT Hub...</p> to the footer-bar
+            // currentYearSpan.textContent = new Date().getFullYear();
+        }
+    </script>
 </body>
 </html>
