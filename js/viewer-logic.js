@@ -1,37 +1,51 @@
-// js/viewer-logic.js - V2.1 (Corrected for chapter-based content folders and 'container' error)
+// js/viewer-logic.js - V2.2 (Enhanced logging and checks)
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const contentDisplayArea = document.getElementById('content-display-area'); // Defined here
+    console.log('Viewer DOMContentLoaded: Script starting.');
+
+    const contentDisplayArea = document.getElementById('content-display-area');
     const viewerTitleElement = document.getElementById('viewer-title');
     const backButton = document.getElementById('viewer-back-button');
-    document.body.classList.add('viewer-body');
-
-    if (!contentDisplayArea || !viewerTitleElement || !backButton) {
-        console.error('Essential viewer elements not found!');
-        if (contentDisplayArea) {
-            contentDisplayArea.innerHTML = '<p style="color: red;">Error: Page structure is missing. Cannot load content.</p>';
-        }
-        return;
+    
+    if (document.body) { // Check if body exists before adding class
+        document.body.classList.add('viewer-body');
+    } else {
+        console.error('Viewer DOMContentLoaded: document.body is null at classList.add time.');
     }
 
-    backButton.addEventListener('click', () => {
-        history.back();
-    });
+    if (!contentDisplayArea) {
+        console.error('FATAL: contentDisplayArea element NOT FOUND in viewer.html!');
+        // Try to write to body if contentDisplayArea is missing
+        document.body.innerHTML = '<p style="color: red; font-size: 20px; padding: 20px;">FATAL ERROR: Essential page element "content-display-area" is missing. Check viewer.html.</p>';
+        return;
+    }
+    if (!viewerTitleElement) console.warn('viewerTitleElement not found.');
+    if (!backButton) console.warn('viewer-back-button not found.');
+
+    console.log('Viewer DOMContentLoaded: Essential elements checked. contentDisplayArea:', contentDisplayArea ? 'Found' : 'MISSING');
+
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            history.back();
+        });
+    }
 
     const params = new URLSearchParams(window.location.search);
     const subject = params.get('subject');
     const chapterSlug = params.get('chapter');
     const type = params.get('type');
 
+    console.log(`Viewer: Loading content for subject='${subject}', chapter='${chapterSlug}', type='${type}'`);
+
     if (!subject || !chapterSlug || !type) {
         contentDisplayArea.innerHTML = '<p style="color: red;">Error: Missing required parameters (subject, chapter, or type) to load content.</p>';
-        viewerTitleElement.textContent = 'Error';
+        if (viewerTitleElement) viewerTitleElement.textContent = 'Error';
         return;
     }
 
     const chapterTitleFriendly = chapterSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const typeFriendly = type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    viewerTitleElement.textContent = `${chapterTitleFriendly} - ${typeFriendly}`;
+    if (viewerTitleElement) viewerTitleElement.textContent = `${chapterTitleFriendly} - ${typeFriendly}`;
 
     const chapterFolderPath = `../data/content/${subject}/${chapterSlug}/`;
     let filePath = '';
@@ -51,12 +65,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         fileExtensionOrHandler = 'pdf';
     } else {
         contentDisplayArea.innerHTML = `<p style="color: red;">Error: Unknown content type requested: "${type}".</p>`;
-        viewerTitleElement.textContent = 'Unknown Content Type';
+        if (viewerTitleElement) viewerTitleElement.textContent = 'Unknown Content Type';
         return;
     }
 
+    console.log(`Viewer: Determined filePath='${filePath}', handler='${fileExtensionOrHandler}'`);
+
     try {
         if (fileExtensionOrHandler === 'pdf') {
+            console.log('Viewer: Handling PDF directly.');
             contentDisplayArea.innerHTML = `
                 <h2>Chapter Text: ${chapterTitleFriendly}</h2>
                 <p>Please view the chapter text PDF below.</p>
@@ -66,40 +83,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <p><em>If the PDF does not load, you can try accessing it directly: <a href="${filePath}" target="_blank" rel="noopener noreferrer">Download PDF</a></em></p>
             `;
         } else {
+            console.log(`Viewer: Fetching ${filePath}`);
             const response = await fetch(filePath);
+            console.log(`Viewer: Fetch response for ${filePath}:`, response.status, response.ok);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status} for ${filePath}`);
             }
 
             if (fileExtensionOrHandler === 'md') {
                 const markdownText = await response.text();
+                console.log(`Viewer: Fetched MD content (length: ${markdownText.length}). Parsing with marked.js.`);
                 if (typeof marked !== 'undefined') {
-                    marked.setOptions({
-                        gfm: true,
-                        breaks: true,
-                    });
+                    marked.setOptions({ gfm: true, breaks: true });
                     contentDisplayArea.innerHTML = marked.parse(markdownText);
+                    console.log('Viewer: MD content parsed and injected.');
                 } else {
                     console.error('Marked.js library not loaded.');
                     contentDisplayArea.textContent = 'Error: Markdown parser not available.\n\n' + markdownText;
                 }
             } else if (fileExtensionOrHandler === 'json_video_list') {
                 const jsonData = await response.json();
-                renderVideoList(jsonData, contentDisplayArea); // CORRECTED: Pass contentDisplayArea
+                console.log('Viewer: Fetched JSON for video list. Data:', jsonData);
+                if (!contentDisplayArea) console.error("CRITICAL: contentDisplayArea is null before calling renderVideoList");
+                renderVideoList(jsonData, contentDisplayArea);
             } else if (fileExtensionOrHandler === 'json_quiz_resource_list') {
                 const jsonData = await response.json();
-                renderQuizOrResourceList(jsonData, contentDisplayArea); // CORRECTED: Pass contentDisplayArea
+                console.log('Viewer: Fetched JSON for quiz/resource list. Data:', jsonData);
+                if (!contentDisplayArea) console.error("CRITICAL: contentDisplayArea is null before calling renderQuizOrResourceList");
+                renderQuizOrResourceList(jsonData, contentDisplayArea);
             }
         }
     } catch (error) {
-        console.error('Error fetching or rendering content:', error);
+        console.error(`Viewer: Error fetching or rendering content for ${filePath}:`, error);
         contentDisplayArea.innerHTML = `<p style="color: red;">Sorry, couldn't load the content for "${chapterTitleFriendly} - ${typeFriendly}".<br>Attempted Path: ${filePath}<br>Error: ${error.message}</p>`;
-        viewerTitleElement.textContent = 'Content Load Error';
+        if (viewerTitleElement) viewerTitleElement.textContent = 'Content Load Error';
     }
 });
 
-// 'container' parameter is added here
 function renderVideoList(videoArray, container) {
+    console.log('renderVideoList called. Container:', container ? 'Exists' : 'MISSING', 'Data:', videoArray);
+    if (!container) {
+        console.error("renderVideoList: container is null or undefined.");
+        return;
+    }
     let htmlContent = '<div class="video-list-container">';
     videoArray.forEach(video => {
         htmlContent += `
@@ -119,15 +145,16 @@ function renderVideoList(videoArray, container) {
         `;
     });
     htmlContent += '</div>';
-    if (container) { // Added check for safety
-        container.innerHTML = htmlContent;
-    } else {
-        console.error("Video list render function called without a valid container.");
-    }
+    container.innerHTML = htmlContent;
+    console.log('renderVideoList: HTML injected into container.');
 }
 
-// 'container' parameter is added here
 function renderQuizOrResourceList(listData, container) {
+    console.log('renderQuizOrResourceList called. Container:', container ? 'Exists' : 'MISSING', 'Data:', listData);
+    if (!container) {
+        console.error("renderQuizOrResourceList: container is null or undefined.");
+        return;
+    }
     let htmlContent = '<div class="quiz-list-container">';
     if (Array.isArray(listData)) {
         listData.forEach(categoryOrItem => {
@@ -148,14 +175,11 @@ function renderQuizOrResourceList(listData, container) {
     } else if (typeof listData === 'object' && listData !== null && listData.quizName) {
         htmlContent += renderListItemDetail(listData);
     } else {
-         htmlContent += '<p>Unsupported list format or empty list.</p>'; // Updated message for empty list
+         htmlContent += '<p>Unsupported list format or empty list.</p>';
     }
     htmlContent += '</div>';
-    if (container) { // Added check for safety
-        container.innerHTML = htmlContent;
-    } else {
-        console.error("Quiz/Resource list render function called without a valid container.");
-    }
+    container.innerHTML = htmlContent;
+    console.log('renderQuizOrResourceList: HTML injected into container.');
 }
 
 function renderListItemDetail(item) {
