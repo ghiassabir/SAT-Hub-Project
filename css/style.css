@@ -19,11 +19,12 @@ body {
 
 /* === Main Page Container (for index.html, course-schedule.html) === */
 .page-container {
-    max-width: 900px;
-    margin: 0 auto;
+    width: 95%; /* Use a percentage of the viewport width */
+    max-width: 1400px; /* Set a larger maximum, e.g., 1200px, 1400px, or even higher */
+    margin: 0 auto; /* Still keeps it centered */
     background-color: #ffffff;
-    padding-bottom: 20px;
-    flex-grow: 1; /* Allows footer to stick to bottom if content is short */
+    padding: 0 15px 20px 15px; /* Add some horizontal padding directly here */
+    flex-grow: 1;
 }
 
 /* === Shared Header/Footer Elements for index.html, course-schedule.html === */
@@ -261,7 +262,7 @@ body.viewer-body {
 .viewer-main-content {
     flex-grow: 1;
     width: 95%;
-    max-width: 900px;
+    max-width: 1400px;
     margin: 20px auto;
     padding: 25px 30px; /* More padding */
     background-color: #ffffff;
