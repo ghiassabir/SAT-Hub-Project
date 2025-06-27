@@ -191,6 +191,18 @@ function renderListItemDetail(item) {
         itemHtml += `<a href="${linkTarget}" target="_blank" rel="noopener noreferrer">${item.title || 'Untitled Resource'} 🔗</a>`;
     } else if (item.type === 'internal_quiz' || item.quizName) {
         linkTarget = `../quiz.html?quiz_name=${item.quizName}`;
+
+        // Re-add our origin parameters for the "Go Back" functionality
+        const currentViewerParams = new URLSearchParams(window.location.search);
+        const subjectForOrigin = currentViewerParams.get('subject');
+        const chapterSlugForOrigin = currentViewerParams.get('chapter');
+        const typeForOrigin = currentViewerParams.get('type');
+        
+        if (subjectForOrigin && chapterSlugForOrigin && typeForOrigin) {
+            const originId = `viewer_${subjectForOrigin}_${chapterSlugForOrigin}_${typeForOrigin}`;
+            linkTarget += `&originPageId=${encodeURIComponent(originId)}`;
+        }
+        
         if (item.source) linkTarget += `&source=${item.source}`;
         itemHtml += `<a href="${linkTarget}">${item.title || 'Untitled Quiz'}</a>`;
     } else {
