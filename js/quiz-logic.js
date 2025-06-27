@@ -1,4 +1,4 @@
-// --- script js phase 6 quiz and test view.txt (WITH TARGETED DEBUG LOGS) ---
+// --- script.js (Corrected & Consolidated - Parameter Driven Launch - Part 1 of 6) ---
 
 // --- Utility Functions (Define these FIRST) ---
 function toggleModal(modalElement, show) {
@@ -11,7 +11,7 @@ function toggleModal(modalElement, show) {
 // --- GLOBAL CONFIGURATION & STATE ---
 let currentQuizQuestions = []; 
 let currentTestFlow = [];      
-let currentView = 'home';
+let currentView = 'home'; 
 let currentModuleIndex = 0;
 let currentQuestionNumber = 1; 
 let userAnswers = {}; 
@@ -22,84 +22,89 @@ let questionStartTime = 0;
 let moduleTimerInterval;
 let currentModuleTimeLeft = 0;
 let currentModuleTimeUp = false; 
-let studentEmailForSubmission = "anonymous_student@example.com"; 
+let studentEmailForSubmission = null; 
 let currentInteractionMode = 'full_test'; 
 let practiceQuizTimerInterval;
 let practiceQuizTimeElapsed = 0;
-
+let globalOriginPageId = null; 
+let globalQuizSource = null;   
 
 const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwneCF0xq9X-F-9AIxAiHpYFmRTErCzCPXlsWRloLRDWBGqwLEZC4NldCCAuND0jxUL/exec'; 
 
+const fullTestDefinitions = {
+    "DT-T0": { 
+        flow: ["DT-T0-RW-M1", "DT-T0-RW-M2", "DT-T0-MT-M1", "DT-T0-MT-M2"],
+
+        name: "Digital SAT Practice Test 0 Preview" 
+    },
+    "CBT-T4": { flow: ["CBT-T4-RW-M1", "CBT-T4-RW-M2", "CBT-T4-MT-M1", "CBT-T4-MT-M2"], name: "Digital SAT Practice Test 4" },
+    "CBT-T5": { flow: ["CBT-T5-RW-M1", "CBT-T5-RW-M2", "CBT-T5-MT-M1", "CBT-T5-MT-M2"], name: "Digital SAT Practice Test 5" },
+    "CBT-T6": { flow: ["CBT-T6-RW-M1", "CBT-T6-RW-M2", "CBT-T6-MT-M1", "CBT-T6-MT-M2"], name: "Digital SAT Practice Test 6" },
+    "CBT-T7": { flow: ["CBT-T7-RW-M1", "CBT-T7-RW-M2", "CBT-T7-MT-M1", "CBT-T7-MT-M2"], name: "Digital SAT Practice Test 7" },
+    "CBT-T8": { flow: ["CBT-T8-RW-M1", "CBT-T8-RW-M2", "CBT-T8-MT-M1", "CBT-T8-MT-M2"], name: "Digital SAT Practice Test 8" },
+    "CBT-T9": { flow: ["CBT-T9-RW-M1", "CBT-T9-RW-M2", "CBT-T9-MT-M1", "CBT-T9-MT-M2"], name: "Digital SAT Practice Test 9" },
+    "CBT-T10": { flow: ["CBT-T10-RW-M1", "CBT-T10-RW-M2", "CBT-T10-MT-M1", "CBT-T10-MT-M2"], name: "Digital SAT Practice Test 10"}
+
+};
+
 const moduleMetadata = {
-    "DT-T0-RW-M1": {
-        name: "Reading & Writing - Module 1",
-        type: "RW",
-        durationSeconds: 30, 
-        directions: "The questions in this section address a number of important reading and writing skills...",
-        spr_directions: null,
-        spr_examples_table: null
-    },
-    "DT-T0-RW-M2": {
-        name: "Reading & Writing - Module 2",
-        type: "RW",
-        durationSeconds: 30, 
-        directions: "This is the second Reading & Writing module. Continue to read each passage and question carefully...",
-        spr_directions: null,
-        spr_examples_table: null
-    },
-    "DT-T0-MT-M1": { 
-        name: "Math - Module 1",
-        type: "Math",
-        durationSeconds: 30, 
-        directions: "The questions in this section address a number of important math skills...",
-        passageText: null, 
-        spr_directions: `<h3>Student-produced response directions</h3><ul><li>If you find <strong>more than one correct answer</strong>, enter only one answer.</li><li>You can enter up to 5 characters for a <strong>positive</strong> answer and up to 6 characters (including the negative sign) for a <strong>negative</strong> answer.</li><li>If your answer is a <strong>fraction</strong> that doesn’t fit in the provided space, enter the decimal equivalent.</li><li>If your answer is a <strong>decimal</strong> that doesn’t fit in the provided space, enter it by truncating or rounding at the fourth digit.</li><li>If your answer is a <strong>mixed number</strong> (such as 3 <span style="font-size: 0.7em; vertical-align: super;">1</span>/<span style="font-size: 0.7em; vertical-align: sub;">2</span>), enter it as an improper fraction (7/2) or its decimal equivalent (3.5).</li><li>Don’t enter <strong>symbols</strong> such as a percent sign, comma, or dollar sign.</li></ul>`,
-        spr_examples_table: `<table class="spr-examples-table"><thead><tr><th>Answer</th><th>Acceptable ways to enter answer</th><th>Unacceptable: will NOT receive credit</th></tr></thead><tbody><tr><td>3.5</td><td>3.5<br/>7/2</td><td>3 1/2</td></tr><tr><td>2/3</td><td>2/3<br/>.666<br/>.667</td><td>0.66<br/>0.67</td></tr><tr><td>-15</td><td>-15</td><td></td></tr></tbody></table>`
-    },
-    "DT-T0-MT-M2": {
-        name: "Math - Module 2",
-        type: "Math",
-        durationSeconds: 30, 
-        directions: "This is the second Math module. You may use the calculator for any question.",
-        passageText: null,
-        spr_directions: `<h3>Student-produced response directions</h3><ul><li>If you find <strong>more than one correct answer</strong>, enter only one answer.</li><li>You can enter up to 5 characters for a <strong>positive</strong> answer and up to 6 characters (including the negative sign) for a <strong>negative</strong> answer.</li><li>If your answer is a <strong>fraction</strong> that doesn’t fit in the provided space, enter the decimal equivalent.</li><li>If your answer is a <strong>decimal</strong> that doesn’t fit in the provided space, enter it by truncating or rounding at the fourth digit.</li><li>If your answer is a <strong>mixed number</strong> (such as 3 <span style="font-size: 0.7em; vertical-align: super;">1</span>/<span style="font-size: 0.7em; vertical-align: sub;">2</span>), enter it as an improper fraction (7/2) or its decimal equivalent (3.5).</li><li>Don’t enter <strong>symbols</strong> such as a percent sign, comma, or dollar sign.</li></ul>`,
-        spr_examples_table: `<table class="spr-examples-table"><thead><tr><th>Answer</th><th>Acceptable ways to enter answer</th><th>Unacceptable: will NOT receive credit</th></tr></thead><tbody><tr><td>3.5</td><td>3.5<br/>7/2</td><td>3 1/2</td></tr><tr><td>2/3</td><td>2/3<br/>.666<br/>.667</td><td>0.66<br/>0.67</td></tr><tr><td>-15</td><td>-15</td><td></td></tr></tbody></table>`
-    }
+    "DT-T0-RW-M1": { name: "Reading & Writing - Module 1", type: "RW", directions: "R&W M1 Directions...", spr_directions: null, spr_examples_table: null },
+    "DT-T0-RW-M2": { name: "Reading & Writing - Module 2", type: "RW", directions: "R&W M2 Directions...", spr_directions: null, spr_examples_table: null },
+    "DT-T0-MT-M1": { name: "Math - Module 1", type: "Math", directions: "Math M1 Directions...", passageText: null, spr_directions: `<h3>Student-produced response directions</h3><ul><li>If you find <strong>more than one correct answer</strong>, enter only one answer.</li><li>You can enter up to 5 characters for a <strong>positive</strong> answer and up to 6 characters (including the negative sign) for a <strong>negative</strong> answer.</li><li>If your answer is a <strong>fraction</strong> that doesn’t fit in the provided space, enter the decimal equivalent.</li><li>If your answer is a <strong>decimal</strong> that doesn’t fit in the provided space, enter it by truncating or rounding at the fourth digit.</li><li>If your answer is a <strong>mixed number</strong> (such as 3 <span style="font-size: 0.7em; vertical-align: super;">1</span>/<span style="font-size: 0.7em; vertical-align: sub;">2</span>), enter it as an improper fraction (7/2) or its decimal equivalent (3.5).</li><li>Don’t enter <strong>symbols</strong> such as a percent sign, comma, or dollar sign.</li></ul>`, spr_examples_table: `<table class="spr-examples-table"><thead><tr><th>Answer</th><th>Acceptable ways to enter answer</th><th>Unacceptable: will NOT receive credit</th></tr></thead><tbody><tr><td>3.5</td><td>3.5<br/>7/2</td><td>3 1/2</td></tr><tr><td>2/3</td><td>2/3<br/>.666<br/>.667</td><td>0.66<br/>0.67</td></tr><tr><td>-15</td><td>-15</td><td></td></tr></tbody></table>` },
+    "DT-T0-MT-M2": { name: "Math - Module 2", type: "Math", directions: "Math M2 Directions...", passageText: null, spr_directions: `<h3>Student-produced response directions</h3><ul><li>If you find <strong>more than one correct answer</strong>, enter only one answer.</li><li>You can enter up to 5 characters for a <strong>positive</strong> answer and up to 6 characters (including the negative sign) for a <strong>negative</strong> answer.</li><li>If your answer is a <strong>fraction</strong> that doesn’t fit in the provided space, enter the decimal equivalent.</li><li>If your answer is a <strong>decimal</strong> that doesn’t fit in the provided space, enter it by truncating or rounding at the fourth digit.</li><li>If your answer is a <strong>mixed number</strong> (such as 3 <span style="font-size: 0.7em; vertical-align: super;">1</span>/<span style="font-size: 0.7em; vertical-align: sub;">2</span>), enter it as an improper fraction (7/2) or its decimal equivalent (3.5).</li><li>Don’t enter <strong>symbols</strong> such as a percent sign, comma, or dollar sign.</li></ul>`, spr_examples_table: `<table class="spr-examples-table"><thead><tr><th>Answer</th><th>Acceptable ways to enter answer</th><th>Unacceptable: will NOT receive credit</th></tr></thead><tbody><tr><td>3.5</td><td>3.5<br/>7/2</td><td>3 1/2</td></tr><tr><td>2/3</td><td>2/3<br/>.666<br/>.667</td><td>0.66<br/>0.67</td></tr><tr><td>-15</td><td>-15</td><td></td></tr></tbody></table>` },
+    "CBT-T4-RW-M1": { name: "CBT Test 4: R&W Module 1", type: "RW", durationSeconds: 1920, directions: "Directions for CBT-T4 R&W M1..." },
+    "CBT-T4-RW-M2": { name: "CBT Test 4: R&W Module 2", type: "RW", durationSeconds: 1920, directions: "Directions for CBT-T4 R&W M2..." },
+    "CBT-T4-MT-M1": { name: "CBT Test 4: Math Module 1", type: "Math", durationSeconds: 2100, directions: "Directions for CBT-T4 Math M1...", spr_directions: `<h3>SPR Directions...</h3>`, spr_examples_table: `<table class="spr-examples-table">...</table>` },
+    "CBT-T4-MT-M2": { name: "CBT Test 4: Math Module 2", type: "Math", durationSeconds: 2100, directions: "Directions for CBT-T4 Math M2...", spr_directions: `<h3>SPR Directions...</h3>`, spr_examples_table: `<table class="spr-examples-table">...</table>` },
+    // ... (Ensure ALL modules for CBT-T5 to T10 are defined here similarly) ...
+    "SampleMathQuiz": { name: "Sample Math Practice", type: "Math", directions: "Solve these math problems.", spr_directions: `<h3>SPR Directions...</h3>`, spr_examples_table: `<table class="spr-examples-table">...</table>` }
 };
 
 const GITHUB_JSON_BASE_URL = 'https://raw.githubusercontent.com/ghiassabir/Bluebook-UI-UX-with-json-real-data-/main/data/json/'; 
 
+// CHANGED: Moved SESSION_STORAGE_KEY to global scope
+const SESSION_STORAGE_KEY = 'bluebookQuizSession'; 
+
 async function loadQuizData(quizName) {
-    const url = `${GITHUB_JSON_BASE_URL}${quizName}.json`;
-    // --- DEBUG --- 
-    console.log(`DEBUG loadQuizData: Fetching quiz data from: ${url}`);
+    
+    // This logic might need to be more robust based on your actual JSON file naming for series
+   // if (quizName && quizName.includes("-M2") && !moduleMetadata[quizName]?.actualFile) { // Basic check
+   //     let baseName = quizName.substring(0, quizName.lastIndexOf("-M2"));
+   //     if (quizName.includes("-RW-M2")) actualJsonFileToLoad = baseName + "-RW-M1";
+   //     else if (quizName.includes("-MT-M2")) actualJsonFileToLoad = baseName + "-MT-M1";
+   // }
+    let actualJsonFileToLoad = quizName;
+    
+    const url = `${GITHUB_JSON_BASE_URL}${actualJsonFileToLoad}.json`;
+    console.log(`DEBUG loadQuizData: Fetching from: ${url} (for requested quizName: ${quizName})`);
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            // --- DEBUG ---
-            console.error(`DEBUG loadQuizData: HTTP error! status: ${response.status} for ${quizName}.json`);
-            throw new Error(`HTTP error! status: ${response.status} for ${quizName}.json`);
+            console.error(`DEBUG loadQuizData: HTTP error! status: ${response.status} for ${actualJsonFileToLoad}.json`);
+            throw new Error(`HTTP error! status: ${response.status} for ${actualJsonFileToLoad}.json`);
         }
         const data = await response.json();
         if (!Array.isArray(data)) {
-            // --- DEBUG ---
-            console.error(`DEBUG loadQuizData: Data for ${quizName}.json is not an array. Check JSON structure.`);
-            throw new Error(`Data for ${quizName}.json is not an array. Check JSON structure.`);
+            console.error(`DEBUG loadQuizData: Data for ${actualJsonFileToLoad}.json is not an array.`);
+            throw new Error(`Data for ${actualJsonFileToLoad}.json is not an array. Check JSON structure.`);
         }
         currentQuizQuestions = data; 
-        // --- DEBUG ---
-        console.log(`DEBUG loadQuizData: Successfully loaded ${currentQuizQuestions.length} questions for quiz: ${quizName}. First q ID: ${currentQuizQuestions.length > 0 ? currentQuizQuestions[0].question_id : 'N/A'}`);
+         // --- ADD DEBUG LOG HERE ---
+        if (data.length > 0) {
+            console.log("DEBUG loadQuizData: First question object from fetched JSON:", JSON.stringify(data[0], null, 2));
+        }
+        // --- END DEBUG LOG ---
+        console.log(`DEBUG loadQuizData: Loaded ${currentQuizQuestions.length}q for ${quizName} (from ${actualJsonFileToLoad}.json).`);
         return true;
     } catch (error) {
-        console.error("Error loading quiz data:", error); // This one was already there, good.
-        alert(`Failed to load quiz data for ${quizName}: ${error.message}. Please check the console and ensure the JSON file is accessible and the GITHUB_JSON_BASE_URL is correct.`);
+        console.error("Error loading quiz data for " + quizName + ":", error); 
+        alert(`Failed to load data for ${quizName} (tried ${actualJsonFileToLoad}.json): ${error.message}.`);
         currentQuizQuestions = []; 
         return false;
     }
 }
 
 // --- DOM Elements ---
-// (Keep this section exactly as in your script js phase 6 quiz and test view.txt)
 const allAppViews = document.querySelectorAll('.app-view');
 const homeViewEl = document.getElementById('home-view');
 const testInterfaceViewEl = document.getElementById('test-interface-view');
@@ -107,7 +112,6 @@ const moduleOverViewEl = document.getElementById('module-over-view');
 const finishedViewEl = document.getElementById('finished-view');
 const reviewPageViewEl = document.getElementById('review-page-view');
 const confettiCanvas = document.getElementById('confetti-canvas');
-const startTestPreviewBtn = document.getElementById('start-test-preview-btn'); // Will be replaced by specific buttons
 const returnToHomeBtn = document.getElementById('return-to-home-btn');
 const reviewPageSectionName = document.getElementById('review-page-section-name');
 const reviewPageQNavGrid = document.getElementById('review-page-qnav-grid');
@@ -173,203 +177,54 @@ const unscheduledBreakCancelBtn = document.getElementById('unscheduled-break-can
 const exitExamConfirmModal = document.getElementById('exit-exam-confirm-modal');
 const exitExamConfirmBtn = document.getElementById('exit-exam-confirm-btn');
 const exitExamCancelBtn = document.getElementById('exit-exam-cancel-btn');
-const startFullPracticeTestBtn = document.getElementById('start-full-practice-test-btn');
-const startSinglePracticeQuizBtn = document.getElementById('start-single-practice-quiz-btn');
-const manualBreakViewEl = document.getElementById('manual-break-view');
-const continueAfterBreakBtn = document.getElementById('continue-after-break-btn');
+// Start buttons on internal home screen are now deprecated if using URL params for launch
+// const startFullPracticeTestBtn = document.getElementById('start-full-practice-test-btn');
+// const startSinglePracticeQuizBtn = document.getElementById('start-single-practice-quiz-btn');
+const manualBreakViewEl = document.getElementById('manual-break-view'); 
+const continueAfterBreakBtn = document.getElementById('continue-after-break-btn'); 
+const emailInputViewEl = document.getElementById('email-input-view'); 
+const studentEmailField = document.getElementById('student-email-field'); 
+const submitEmailBtn = document.getElementById('submit-email-btn'); 
 
-// Add listener for continueAfterBreakBtn (from your .txt file, ensure it's there)
-//if (continueAfterBreakBtn) { /* ... from your .txt file ... */ }
+// --- script.js (Corrected & Consolidated - Parameter Driven Launch - Part 2 of 6) ---
 
-if (continueAfterBreakBtn) {
-    // added 851
-    continueAfterBreakBtn.removeEventListener('click', continueAfterBreakBtnClickHandler); // Prevent multiple attachments
-    continueAfterBreakBtn.addEventListener('click', continueAfterBreakBtnClickHandler);
-    console.log("DEBUG: Event listener ATTACHED to continueAfterBreakBtn."); // Add this log
-//} else {
-  //  console.error("DEBUG ERROR: continueAfterBreakBtn element NOT FOUND when trying to attach listener.");
-    //added
-    
-    console.log("DEBUG: Checking continueAfterBreakBtn element:", continueAfterBreakBtn); // DEBUG Line 1
-    continueAfterBreakBtn.addEventListener('click', async () => {
-        console.log("DEBUG:Continue after manual break button clicked."); // DEBUG Line 2
-        console.log("DEBUG: currentModuleIndex at continue click:", currentModuleIndex); // DEBUG Line 3
-        // currentModuleIndex should be 2 here (for Math M1)
-
-        if (currentModuleIndex < currentTestFlow.length) {
-            currentQuestionNumber = 1;
-            currentModuleTimeUp = false; 
-
-            const nextQuizName = currentTestFlow[currentModuleIndex];
-            const nextModuleInfo = moduleMetadata[nextQuizName];
-
-            let jsonToLoadForNextModule = nextQuizName;
-                       
-            //console.log(`DEBUG ContinueBreak: Loading module ${nextQuizName} (data from ${jsonToLoadForNextModule})`);
-
-            console.log(`DEBUG ContinueBreak: Preparing to load module: ${nextQuizName} (using JSON data from: ${jsonToLoadForNextModule})`); // DEBUG Line 4
-            
-            continueAfterBreakBtn.textContent = "Loading next section...";
-            continueAfterBreakBtn.disabled = true;
-
-            const success = await loadQuizData(jsonToLoadForNextModule);
-            
-            continueAfterBreakBtn.textContent = "Continue to Next Section";
-            continueAfterBreakBtn.disabled = false;
-
-            if (success && currentQuizQuestions.length > 0) {
-                console.log(`DEBUG ContinueBreak: Successfully loaded data for ${nextQuizName}. Starting timer and showing view.`); // DEBUG Line 5
-                // Ensure correct timer is started for 'full_test' mode
-                if (currentInteractionMode === 'full_test' && nextModuleInfo && typeof nextModuleInfo.durationSeconds === 'number') {
-                    startModuleTimer(nextModuleInfo.durationSeconds);
-                } else {
-                    console.warn(`Timer mode/config issue for module ${nextQuizName} after break. Current mode: ${currentInteractionMode}`);
-                    // For full_test, a duration is expected. If single_quiz somehow got here, it would be an issue.
-                    updateModuleTimerDisplay(0); 
-                }
-                populateQNavGrid();
-                showView('test-interface-view');
-            } else {console.error(`DEBUG ContinueBreak: Failed to load quiz data for ${jsonToLoadForNextModule} or no questions. Success: ${success}, Questions length: ${currentQuizQuestions ? currentQuizQuestions.length : 'undefined'}`);
-                alert("Error loading the next section after break. Please try restarting the test.");
-                showView('home-view');
-               }
-          } else { 
-            console.error("DEBUG ContinueBreak: Clicked continue, but currentModuleIndex (" + currentModuleIndex + ") is out of bounds for currentTestFlow. Test flow length: " + currentTestFlow.length);
-            alert("Test flow error after break. Returning to home.");
-            showView('finished-view'); 
-        } 
-    });
-}  else { 
-    console.error("DEBUG: continue-after-break-btn was NOT FOUND in the DOM."); // DEBUG Line 6
-    }
-
-
-// added 851
-async function continueAfterBreakBtnClickHandler() { // Made it a named async function
-    console.log("DEBUG: Continue after manual break button CLICKED."); 
-    console.log("DEBUG: currentModuleIndex at continue click:", currentModuleIndex); 
-
-    if (currentModuleIndex < currentTestFlow.length) {
-        currentQuestionNumber = 1;
-        currentModuleTimeUp = false; 
-
-        const nextQuizName = currentTestFlow[currentModuleIndex];
-        const nextModuleInfo = moduleMetadata[nextQuizName];
-
-        let jsonToLoadForNextModule = nextQuizName;
-        if (nextQuizName === "DT-T0-RW-M2" && !moduleMetadata[nextQuizName]?.actualFileIfDifferent) { // Example if you had specific M2 files
-            jsonToLoadForNextModule = "DT-T0-RW-M1"; 
-        } else if (nextQuizName === "DT-T0-MT-M2" && !moduleMetadata[nextQuizName]?.actualFileIfDifferent) {
-            jsonToLoadForNextModule = "DT-T0-MT-M1";
-        }
-        
-        console.log(`DEBUG ContinueBreak: Preparing to load module: ${nextQuizName} (using JSON data from: ${jsonToLoadForNextModule})`);
-        
-        if(continueAfterBreakBtn) { // Check again in case of weirdness
-            continueAfterBreakBtn.textContent = "Loading next section...";
-            continueAfterBreakBtn.disabled = true;
-        }
-
-        const success = await loadQuizData(jsonToLoadForNextModule);
-        
-        if(continueAfterBreakBtn) {
-            continueAfterBreakBtn.textContent = "Continue to Next Section";
-            continueAfterBreakBtn.disabled = false;
-        }
-
-        if (success && currentQuizQuestions.length > 0) {
-            console.log(`DEBUG ContinueBreak: Successfully loaded data for ${nextQuizName}. Starting timer and showing view.`);
-            if (currentInteractionMode === 'full_test' && nextModuleInfo && typeof nextModuleInfo.durationSeconds === 'number') {
-                startModuleTimer(nextModuleInfo.durationSeconds);
-            } else {
-                console.warn(`Timer mode/config issue for module ${nextQuizName} after break. Current mode: ${currentInteractionMode}`);
-                updateModuleTimerDisplay(0); 
-            }
-            populateQNavGrid();
-            showView('test-interface-view');
-        } else { 
-            console.error(`DEBUG ContinueBreak: Failed to load quiz data for ${jsonToLoadForNextModule} or no questions. Success: ${success}, Questions length: ${currentQuizQuestions ? currentQuizQuestions.length : 'undefined'}`);
-            alert("Error loading the next section after break. Please try restarting the test.");
-            showView('home-view');
-        }
-    } else { 
-        console.error("DEBUG ContinueBreak: Clicked continue, but currentModuleIndex (" + currentModuleIndex + ") is out of bounds for currentTestFlow. Test flow length: " + currentTestFlow.length);
-        alert("Test flow error after break. Returning to home.");
-        showView('finished-view'); 
-    }
-}
-
-// --- Helper Functions --- (Keep all helper functions from your .txt file as they are for now)
-function initializeStudentIdentifier() { /* ... from your .txt file ... */ 
+// --- Helper Functions ---
+function initializeStudentIdentifier() { 
     const storedEmail = localStorage.getItem('bluebookStudentEmail'); 
-    if (storedEmail && storedEmail.trim() !== "") { 
+    if (storedEmail && storedEmail.trim() !== "" && storedEmail.includes('@')) { 
         studentEmailForSubmission = storedEmail;
         console.log(`Student identifier initialized from localStorage: ${studentEmailForSubmission}`);
+        return true; 
     } else {
-        studentEmailForSubmission = "anonymous_student@example.com"; 
-        console.log(`No valid student identifier found in localStorage. Using default: ${studentEmailForSubmission}`);
+        studentEmailForSubmission = null; 
+        console.log(`No valid student identifier found in localStorage. Defaulting to prompt or anonymous.`);
+        return false; 
     }
 }
-function getCurrentModule() { /* ... from your .txt file ... */ 
-    if (currentTestFlow.length > 0 && currentModuleIndex < currentTestFlow.length) {
+
+function getCurrentModule() { 
+    if (currentTestFlow && currentTestFlow.length > 0 && currentModuleIndex < currentTestFlow.length) {
         const currentQuizName = currentTestFlow[currentModuleIndex];
         return moduleMetadata[currentQuizName] || null;
     }
     return null;
 }
-function getCurrentQuestionData() { /* ... from your .txt file ... */ 
+
+function getCurrentQuestionData() { 
     if (currentQuizQuestions && currentQuizQuestions.length > 0 && currentQuestionNumber > 0 && currentQuestionNumber <= currentQuizQuestions.length) {
         return currentQuizQuestions[currentQuestionNumber - 1];
     }
     return null;
 }
-function getAnswerStateKey(moduleIdx = currentModuleIndex, qNum = currentQuestionNumber) { /* ... from your .txt file ... */ 
-    return `${moduleIdx}-${qNum}`;
-}
-function updateModuleTimerDisplay(seconds) { /* ... from your .txt file ... */ 
-    if (!timerTextEl) return; 
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    const displayString = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-    timerTextEl.textContent = displayString;
-    if (reviewTimerText) reviewTimerText.textContent = displayString; 
-}
-function startModuleTimer(durationSeconds) { /* ... from your .txt file ... */ 
-    if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval); 
-    if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
 
-    currentModuleTimeLeft = durationSeconds;
-    currentModuleTimeUp = false; 
-    updateModuleTimerDisplay(currentModuleTimeLeft);
-    updateNavigation(); 
-
-    console.log(`Module timer (countdown) started for ${durationSeconds} seconds.`);
-
-    moduleTimerInterval = setInterval(() => {
-        currentModuleTimeLeft--;
-        updateModuleTimerDisplay(currentModuleTimeLeft);
-
-        if (currentModuleTimeLeft <= 0) {
-            clearInterval(moduleTimerInterval);
-            currentModuleTimeLeft = 0; 
-            currentModuleTimeUp = true; 
-            updateModuleTimerDisplay(currentModuleTimeLeft); 
-            console.log("Module time is up!");
-            alert("Time for this module is up! You will be taken to the review page.");
-            
-            recordTimeOnCurrentQuestion(); 
-            
-            if (currentView !== 'review-page-view') {
-                showView('review-page-view');
-            }
-            updateNavigation(); 
-        }
-    }, 1000);
+function getAnswerStateKey(moduleIdx = currentModuleIndex, qNum = currentQuestionNumber) { 
+    return `${moduleIdx}-${qNum}`; 
 }
 
-function getAnswerState(moduleIdx = currentModuleIndex, qNum = currentQuestionNumber) { /* ... from your .txt file ... */ 
+function getAnswerState(moduleIdx = currentModuleIndex, qNum = currentQuestionNumber) { 
     const key = getAnswerStateKey(moduleIdx, qNum);
     if (!userAnswers[key]) {
+        const currentQuizNameForState = (currentTestFlow && currentTestFlow[moduleIdx]) ? currentTestFlow[moduleIdx] : "UNKNOWN_QUIZ";
         const questionDetails = (moduleIdx === currentModuleIndex && currentQuizQuestions && currentQuizQuestions[qNum - 1]) 
                                ? currentQuizQuestions[qNum - 1] 
                                : null;
@@ -383,139 +238,128 @@ function getAnswerState(moduleIdx = currentModuleIndex, qNum = currentQuestionNu
             q_id: questionDetails ? questionDetails.question_id : `M${moduleIdx}-Q${qNum}-tmp`, 
             correct_ans: questionDetails ? questionDetails.correct_answer : null,
             question_type_from_json: questionDetails ? questionDetails.question_type : null,
-            quizName_from_flow: (currentTestFlow && currentTestFlow[moduleIdx]) ? currentTestFlow[moduleIdx] : "UNKNOWN_QUIZ_AT_GETSTATE"
+            quizName_from_flow: currentQuizNameForState,
+            selectionChanges: 0 
         };
     }
-    if (userAnswers[key] && (userAnswers[key].q_id.endsWith('-tmp') || !userAnswers[key].correct_ans)) {
-         const questionDetails = (moduleIdx === currentModuleIndex && currentQuizQuestions && currentQuizQuestions[qNum - 1]) 
-                               ? currentQuizQuestions[qNum - 1] 
-                               : null;
-        if (questionDetails) {
-            userAnswers[key].q_id = questionDetails.question_id;
-            userAnswers[key].correct_ans = questionDetails.correct_answer;
-            userAnswers[key].question_type_from_json = questionDetails.question_type;
-            if(currentTestFlow && currentTestFlow[moduleIdx]) userAnswers[key].quizName_from_flow = currentTestFlow[moduleIdx];
+    // Ensure details are populated if they were missing at creation (e.g. if getAnswerState was called before loadQuestion for that q)
+    if (userAnswers[key]) {
+        const answerState = userAnswers[key];
+        if (answerState.q_id && answerState.q_id.endsWith('-tmp') || !answerState.correct_ans || answerState.quizName_from_flow === "UNKNOWN_QUIZ_AT_GETSTATE" || answerState.quizName_from_flow === "UNKNOWN_QUIZ_AT_GETSTATE_UPDATE") {
+            const questionDetails = (moduleIdx === currentModuleIndex && currentQuizQuestions && currentQuizQuestions[qNum - 1]) 
+                                ? currentQuizQuestions[qNum - 1] 
+                                : null;
+            if (questionDetails) {
+                answerState.q_id = questionDetails.question_id;
+                answerState.correct_ans = questionDetails.correct_answer;
+                answerState.question_type_from_json = questionDetails.question_type;
+            }
+            if(currentTestFlow && currentTestFlow[moduleIdx]) {
+                 answerState.quizName_from_flow = currentTestFlow[moduleIdx];
+            }
         }
     }
     return userAnswers[key];
 }
 
-// --- START OF ADDITION ---
-// ADD THIS FUNCTION DEFINITION AFTER getAnswerState
-function recordTimeOnCurrentQuestion() {
-    if (questionStartTime > 0 && currentQuizQuestions.length > 0 && currentQuestionNumber > 0 && currentQuestionNumber <= currentQuizQuestions.length) {
-        // Ensure currentQuestionNumber is valid for currentQuizQuestions array
-        if (currentQuizQuestions[currentQuestionNumber - 1]) { // Check if question data exists
+function recordTimeOnCurrentQuestion() { 
+    if (questionStartTime > 0 && currentQuizQuestions && currentQuizQuestions.length > 0 && currentQuestionNumber > 0 && currentQuestionNumber <= currentQuizQuestions.length) {
+        if (currentQuizQuestions[currentQuestionNumber - 1]) { 
             const endTime = Date.now();
             const timeSpentSeconds = (endTime - questionStartTime) / 1000;
-            
-            // Get answer state for the *actual current question* being timed
             const answerState = getAnswerState(currentModuleIndex, currentQuestionNumber); 
-            
             if (answerState) { 
                 answerState.timeSpent = (parseFloat(answerState.timeSpent) || 0) + timeSpentSeconds;
-                // console.log(`DEBUG recordTime: QKey: ${currentModuleIndex}-${currentQuestionNumber}, TimeAdded: ${timeSpentSeconds.toFixed(2)}, NewTotal: ${answerState.timeSpent.toFixed(2)}`);
-            } else {
-                // console.warn(`DEBUG recordTime: Could not get answerState for ${currentModuleIndex}-${currentQuestionNumber}`);
             }
-        } else {
-            // console.warn(`DEBUG recordTime: currentQuestionDetails not found for CMI: ${currentModuleIndex}, CQN: ${currentQuestionNumber}. Time not recorded.`);
         }
     }
-    questionStartTime = 0; // Reset for the next question or interaction
+    questionStartTime = 0; 
 }
-// --- END OF ADDITION ---
 
+function updateModuleTimerDisplay(seconds) { 
+    if (!timerTextEl) return; 
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    const displayString = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`; 
+    timerTextEl.textContent = displayString;
+    if (reviewTimerText) reviewTimerText.textContent = displayString; 
+}
 
-// REPLACE your entire updateNavigation_OLD function with this new updateNavigation
-function updateNavigation() {
-   console.log("DEBUG: updateNavigation CALLED. CurrentView:", currentView, "Q#:", currentQuestionNumber, "ModuleTimeUp:", currentModuleTimeUp); // DEBUG START
-    
-    if (!backBtnFooter || !nextBtnFooter || !currentQFooterEl || !totalQFooterEl) {
-        console.error("Navigation elements missing for updateNavigation.");
-        return;
-    }
+function startModuleTimer(durationSeconds) { 
+    if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval); 
+    if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
 
-    const moduleIsLoaded = currentQuizQuestions && currentQuizQuestions.length > 0;
-    const totalQuestionsInModule = moduleIsLoaded ? currentQuizQuestions.length : 0;
+    currentModuleTimeLeft = durationSeconds;
+    currentModuleTimeUp = false; 
+    updateModuleTimerDisplay(currentModuleTimeLeft);
+    updateNavigation(); 
 
-    currentQFooterEl.textContent = moduleIsLoaded ? currentQuestionNumber : '0';
-    totalQFooterEl.textContent = totalQuestionsInModule;
-    
-    // Back button logic (no change for module rule here, just within module)
-    backBtnFooter.disabled = (currentQuestionNumber === 1);
+    const currentQuizName = currentTestFlow[currentModuleIndex] || "Current Module";
+    console.log(`Module timer (countdown) started for ${durationSeconds} seconds for module ${currentQuizName}.`);
 
-    // Default visibility
-    nextBtnFooter.style.display = 'none';
-    backBtnFooter.style.display = 'none';
-    if (reviewNextBtnFooter) reviewNextBtnFooter.style.display = 'none';
-    if (reviewBackBtnFooter) reviewBackBtnFooter.style.display = 'none';
+    moduleTimerInterval = setInterval(() => {
+        currentModuleTimeLeft--;
+        updateModuleTimerDisplay(currentModuleTimeLeft);
 
-    if (currentView === 'test-interface-view') {
-        nextBtnFooter.style.display = 'inline-block';
-        backBtnFooter.style.display = 'inline-block';
-        if (!moduleIsLoaded) {
-            nextBtnFooter.textContent = "Next";
-            nextBtnFooter.disabled = true;
-        } else if (currentQuestionNumber < totalQuestionsInModule) {
-            nextBtnFooter.textContent = "Next";
-            nextBtnFooter.disabled = false;
-        } else { // Last question of the module
-            nextBtnFooter.textContent = "Review Section";
-             // --- START OF MODIFICATION ---
-            if (currentInteractionMode === 'full_test') {
-                const currentMod = getCurrentModule();
-                nextBtnFooter.disabled = !currentModuleTimeUp && (currentMod && typeof currentMod.durationSeconds === 'number' && currentMod.durationSeconds > 0);
-            } else { // single_quiz mode
-                nextBtnFooter.disabled = false; // Always enabled for single quiz
+        if (currentModuleTimeLeft <= 0) {
+            clearInterval(moduleTimerInterval);
+            currentModuleTimeLeft = 0; 
+            currentModuleTimeUp = true; 
+            updateModuleTimerDisplay(currentModuleTimeLeft); 
+            const completedModuleIndexForTimer = currentModuleIndex; // Capture before any async changes
+            const completedQuizNameForTimer = currentTestFlow[completedModuleIndexForTimer];
+            console.log(`Module time is up for ${completedQuizNameForTimer}!`);
+            //console.log(`Module time is up for ${currentTestFlow[currentModuleIndex]}!`);
+            //alert("Time for this module is up! You will be taken to the review page.");
+            
+            recordTimeOnCurrentQuestion(); 
+
+            // CHANGED: Submit data for the module whose time just ran out
+           // console.log(`DEBUG startModuleTimer: Time up for module ${completedQuizNameForTimer} (index ${completedModuleIndexForTimer}). Submitting its data.`);
+            // Fire-and-forget for UI responsiveness
+           // submitCurrentModuleData(completedModuleIndexForTimer, (completedModuleIndexForTimer === currentTestFlow.length - 1 && currentInteractionMode === 'full_test')); 
+
+            alert("Time for this module is up! You will be taken to the review page.");
+            //recordTimeOnCurrentQuestion(); 
+        //submitCurrentModuleData(completedModuleIndexForTimer, (completedModuleIndexForTimer === currentTestFlow.length - 1 && currentInteractionMode === 'full_test')); 
+
+            
+            if (currentView !== 'review-page-view') {
+                showView('review-page-view');
             }
-            // --- END OF MODIFICATION ---
+            updateNavigation(); 
         }
-    } else if (currentView === 'review-page-view') {
-        if (reviewBackBtnFooter) reviewBackBtnFooter.style.display = 'inline-block';
-        if (reviewNextBtnFooter) reviewNextBtnFooter.style.display = 'inline-block';
-        
-        if (reviewBackBtnFooter) reviewBackBtnFooter.disabled = false; // Can always go back to test interface from review
-
-        //if (reviewNextBtnFooter) {
-            //if (currentModuleIndex < currentTestFlow.length - 1) {
-              //  reviewNextBtnFooter.textContent = "Next Module";
-           // } else {
-             //   reviewNextBtnFooter.textContent = "Finish Test";
-           // }
-            // CHANGED: Disable "Next Module" / "Finish Test" from review page if module time is not up
-            //reviewNextBtnFooter.disabled = !currentModuleTimeUp && (getCurrentModule()?.durationSeconds > 0);
-           // }
-
-        if (reviewNextBtnFooter) {
-                if (currentInteractionMode === 'single_quiz') {
-                    reviewNextBtnFooter.textContent = "Finish Quiz";
-                    // --- START OF FIX 1 ---
-                    reviewNextBtnFooter.disabled = false; // Always enabled to finish a single quiz
-                    // --- END OF FIX 1 ---
-                } else { // full_test mode
-                    if (currentModuleIndex < currentTestFlow.length - 1) {
-                        reviewNextBtnFooter.textContent = "Next Module";
-                    } else {
-                        reviewNextBtnFooter.textContent = "Finish Test";
-                    }
-                    const currentMod = getCurrentModule();
-                    reviewNextBtnFooter.disabled = !currentModuleTimeUp && (currentMod && typeof currentMod.durationSeconds === 'number' && currentMod.durationSeconds > 0);
-                }
-            }
-    } else if (currentView === 'home-view' || currentView === 'finished-view' || currentView === 'module-over-view') {
-        // No primary nav buttons needed, or handled by specific view buttons
-    }
-    // Add console log for button states
-    // console.log(`UpdateNav: NextBtn Disabled: ${nextBtnFooter.disabled}, ReviewNextBtn Disabled: ${reviewNextBtnFooter ? reviewNextBtnFooter.disabled : 'N/A'}, TimeUp: ${currentModuleTimeUp}`);
-
-console.log("DEBUG: updateNavigation COMPLETED."); // DEBUG END
-
+    }, 1000);
 }
 
+function updatePracticeQuizTimerDisplay(seconds) {  
+    if (!timerTextEl) return;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    const displayString = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    timerTextEl.textContent = displayString;
+    if (reviewTimerText && reviewTimerText !== timerTextEl) {
+        reviewTimerText.textContent = displayString;
+    } 
+}
 
+function startPracticeQuizTimer() { 
+    if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
+    if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
 
-function populateQNavGrid() {
+    practiceQuizTimeElapsed = 0;
+    updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
+    console.log("Practice quiz timer (upward counting) started for quiz: " + (currentTestFlow[0] || "Unknown Quiz"));
+
+    practiceQuizTimerInterval = setInterval(() => {
+        practiceQuizTimeElapsed++;
+        updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
+    }, 1000);
+}
+
+// --- script.js (Corrected & Consolidated - Parameter Driven Launch - Part 3 of 6) ---
+
+function populateQNavGrid() { 
     if (!qNavGridMain || !qNavTitle) { console.error("QNav grid or title element not found for populating."); return; }
     qNavGridMain.innerHTML = '';
     
@@ -566,9 +410,10 @@ function populateQNavGrid() {
         qNavGridMain.appendChild(btn);
     }
 } 
-function renderReviewPage() { // (Unchanged from Phase 3)
+
+function renderReviewPage() { 
     if (!reviewPageViewEl || !reviewPageViewEl.classList.contains('active')) return;
-    console.log("Rendering Review Page (Phase 3)...");
+    console.log("DEBUG renderReviewPage: Rendering for module index", currentModuleIndex);
     
     const moduleInfo = getCurrentModule();
     if(!moduleInfo || !currentQuizQuestions || currentQuizQuestions.length === 0) {
@@ -580,9 +425,13 @@ function renderReviewPage() { // (Unchanged from Phase 3)
     }
     if(reviewPageSectionName) reviewPageSectionName.textContent = `Section ${currentModuleIndex + 1}: ${moduleInfo.name} Questions`;
     
-    if(timerTextEl && reviewTimerText) reviewTimerText.textContent = timerTextEl.textContent;
-    if(timerClockIconEl && reviewTimerClockIcon) reviewTimerClockIcon.className = timerClockIconEl.className;
-    if(timerToggleBtn && reviewTimerToggleBtn) reviewTimerToggleBtn.textContent = timerToggleBtn.textContent;
+    if (currentInteractionMode === 'full_test') {
+        updateModuleTimerDisplay(currentModuleTimeLeft);
+    } else { 
+        updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
+    }
+    if(timerClockIconEl && reviewTimerClockIcon) reviewTimerClockIcon.className = timerClockIconEl.className; 
+    if(timerToggleBtn && reviewTimerToggleBtn) reviewTimerToggleBtn.textContent = timerToggleBtn.textContent; 
 
     if(reviewPageQNavGrid) reviewPageQNavGrid.innerHTML = ''; else { console.error("Review page QNav grid not found."); return;}
 
@@ -614,77 +463,35 @@ function renderReviewPage() { // (Unchanged from Phase 3)
         });
         reviewPageQNavGrid.appendChild(btn);
     }
-    updateNavigation();
+    updateNavigation(); 
 }
 
 let confettiAnimationId; 
 const confettiParticles = []; 
+function startConfetti() { 
+    const canvas = confettiCanvas; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const colors = ["#facc15", "#ef4444", "#2563eb", "#10b981", "#ec4899"];
+    class Particle { constructor(x, y) { this.x = x; this.y = y; this.size = Math.random() * 7 + 3; this.weight = Math.random() * 1.5 + 0.5; this.directionX = (Math.random() * 2 - 1) * 2; this.color = colors[Math.floor(Math.random() * colors.length)]; } update() { this.y += this.weight; this.x += this.directionX; if (this.y > canvas.height) { this.y = 0 - this.size; this.x = Math.random() * canvas.width; } if (this.x > canvas.width) { this.x = 0 - this.size; } if (this.x < 0 - this.size ) { this.x = canvas.width; } } draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.rect(this.x, this.y, this.size, this.size * 1.5); ctx.closePath(); ctx.fill(); } }
+    function initConfetti() { confettiParticles.length = 0; for (let i = 0; i < 150; i++) confettiParticles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height - canvas.height)); }
+    function animateConfetti() { if(!finishedViewEl || !finishedViewEl.classList.contains('active')) return; ctx.clearRect(0,0,canvas.width, canvas.height); confettiParticles.forEach(p => { p.update(); p.draw(); }); confettiAnimationId = requestAnimationFrame(animateConfetti); }
+    if (finishedViewEl && finishedViewEl.classList.contains('active')) { initConfetti(); animateConfetti(); }
+}
+function stopConfetti() { if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId); if (confettiCanvas && confettiCanvas.getContext('2d')) confettiCanvas.getContext('2d').clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
 
-function startConfetti() { /* ... from your .txt file ... */ }
-
-function stopConfetti() { /* ... from your .txt file ... */ }
-
-//function handleTimerToggle(textEl, iconEl, btnEl) {  // (Unchanged from Phase 3)
-   // if (!textEl || !iconEl || !btnEl) return;
-   // isTimerHidden = !isTimerHidden; 
-   // textEl.classList.toggle('hidden', isTimerHidden); 
-   // iconEl.classList.toggle('hidden', !isTimerHidden);
-  //  btnEl.textContent = isTimerHidden ? '[Show]' : '[Hide]';
-//}
-
-// Ensure this function exists and is correct
 function handleTimerToggle(textEl, iconEl, btnEl) {
-console.log("DEBUG: handleTimerToggle called. isTimerHidden before toggle:", isTimerHidden);
-if (!textEl || !iconEl || !btnEl) {
-console.warn("DEBUG handleTimerToggle: one or more elements missing");
-return;
-}
-isTimerHidden = !isTimerHidden;
-textEl.classList.toggle('hidden', isTimerHidden);
-iconEl.classList.toggle('hidden', !isTimerHidden);
-btnEl.textContent = isTimerHidden ? '[Show]' : '[Hide]';
+    if (!textEl || !iconEl || !btnEl) { return; }
+    isTimerHidden = !isTimerHidden; 
+    textEl.classList.toggle('hidden', isTimerHidden); 
+    iconEl.classList.toggle('hidden', !isTimerHidden);
+    btnEl.textContent = isTimerHidden ? '[Show]' : '[Hide]';
 }
 
-
-function updatePracticeQuizTimerDisplay(seconds) {  
-    if (!timerTextEl) { 
-          // console.log("DEBUG updatePracticeQuizTimerDisplay: timerTextEl not found"); 
-          return;
-      }
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = seconds % 60;
-      const displayString = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-      timerTextEl.textContent = displayString;
-      // console.log("DEBUG updatePracticeQuizTimerDisplay: Set timerTextEl to", displayString);
-      
-      // Also update the review page timer text if it exists and is different
-      if (reviewTimerText && reviewTimerText !== timerTextEl) {
-        reviewTimerText.textContent = displayString;
-        // console.log("DEBUG updatePracticeQuizTimerDisplay: Set reviewTimerText to", displayString);
-      } 
-}
-
-function startPracticeQuizTimer() { 
-    if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
-      if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
-
-      practiceQuizTimeElapsed = 0;
-      updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
-      console.log("Practice quiz timer (upward counting) started.");
-
-      practiceQuizTimerInterval = setInterval(() => {
-          practiceQuizTimeElapsed++;
-          // console.log("DEBUG: Practice quiz timer tick. Elapsed:", practiceQuizTimeElapsed); // Keep for debug
-          updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
-      }, 1000);
-}
-
-// In showView:
+// --- View Management ---
 function showView(viewId) {
-    // --- DEBUG ---
-    console.log(`DEBUG showView: Attempting to switch to view: ${viewId}. Current module index: ${currentModuleIndex}, Q#: ${currentQuestionNumber}`);
+    console.log(`DEBUG showView: Switching to view: ${viewId}. Mode: ${currentInteractionMode}, ModuleIdx: ${currentModuleIndex}, Q#: ${currentQuestionNumber}`);
     
-    currentView = viewId; // Keep this
+    currentView = viewId; 
     allAppViews.forEach(view => view.classList.remove('active'));
     const targetView = document.getElementById(viewId);
     if (targetView) {
@@ -698,11 +505,11 @@ function showView(viewId) {
         viewId !== 'module-over-view' && viewId !== 'manual-break-view') {
         if (moduleTimerInterval) {
             clearInterval(moduleTimerInterval);
-            console.log("Module countdown timer stopped due to view change.");
+            console.log("Module countdown timer stopped: Navigating away from test context.");
         }
         if (practiceQuizTimerInterval) {
             clearInterval(practiceQuizTimerInterval);
-            console.log("Practice quiz (upward) timer stopped due to view change.");
+            console.log("Practice quiz (upward) timer stopped: Navigating away from test context.");
         }
     }
 
@@ -710,8 +517,7 @@ function showView(viewId) {
         if(qNavBtnFooter) qNavBtnFooter.style.display = 'flex';
         if(backBtnFooter) backBtnFooter.style.display = 'inline-block';
         if(nextBtnFooter) nextBtnFooter.style.display = 'inline-block';
-        // --- DEBUG ---
-        console.log(`DEBUG showView: About to call loadQuestion. CMI: ${currentModuleIndex}, CQN: ${currentQuestionNumber}, CQQ.length: ${currentQuizQuestions ? currentQuizQuestions.length : 'N/A'}`);
+        console.log(`DEBUG showView (test-interface): About to call loadQuestion. CMI: ${currentModuleIndex}, CQN: ${currentQuestionNumber}, CQQ.length: ${currentQuizQuestions ? currentQuizQuestions.length : 'N/A'}`);
         loadQuestion();
     } else if (viewId === 'review-page-view') {
         if(qNavBtnFooter) qNavBtnFooter.style.display = 'none';
@@ -720,69 +526,79 @@ function showView(viewId) {
         startConfetti();
         if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
         if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
-        submitQuizData(); 
+        //submitQuizData(); 
     } else if (viewId === 'home-view') {
         stopConfetti();
-        currentTestFlow = [];
-        currentQuizQuestions = [];
-        currentModuleIndex = 0;
-        currentQuestionNumber = 1;
+        currentTestFlow = []; currentQuizQuestions = [];
+        currentModuleIndex = 0; currentQuestionNumber = 1;
         userAnswers = {};
-        updateModuleTimerDisplay(0); 
-        updatePracticeQuizTimerDisplay(0);
-    } else if (viewId === 'manual-break-view') {
-        console.log("Now in manual break view.");
+        currentInteractionMode = 'full_test'; 
         if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
         if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
+        updateModuleTimerDisplay(0); 
+        updatePracticeQuizTimerDisplay(0);
+    } else if (viewId === 'manual-break-view') { // Logic for when break view is shown
+        console.log("DEBUG showView: Now in manual break view. Current module index for NEXT module is " + currentModuleIndex);
+        if (moduleTimerInterval) clearInterval(moduleTimerInterval); // Stop previous module timer
+        if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
+        // We would start the 10-min break timer here
+        // Example: startBreakTimer(600); // 10 minutes
+    } else if (viewId === 'email-input-view') {
+        // Any specific logic when showing email input view
+        console.log("DEBUG showView: Displaying email input view.");
     }
     updateNavigation();
 }
 
-// At the VERY START of loadQuestion:
+// --- script.js (Corrected & Consolidated - Parameter Driven Launch - Part 4 of 6) ---
+
+// --- Core UI Update `loadQuestion()` ---
 function loadQuestion() {
-    // --- DEBUG ---
     console.log(`DEBUG loadQuestion: CALLED. CMI: ${currentModuleIndex}, CQN: ${currentQuestionNumber}, Mode: ${currentInteractionMode}`);
-    console.log(`DEBUG loadQuestion: currentQuizQuestions first item ID (if exists): ${currentQuizQuestions && currentQuizQuestions.length > 0 && currentQuizQuestions[currentQuestionNumber-1] ? currentQuizQuestions[currentQuestionNumber-1].question_id : "No questions or out of bounds"}`);
-
-    // ... (rest of your existing loadQuestion function from the .txt file)
-    // Ensure the DEBUG logs I previously suggested for inside loadQuestion are also present
-    // specifically after currentModuleInfo and currentQuestionDetails are defined, and before MathJax call.
-
+    
     if (!testInterfaceViewEl.classList.contains('active')) {
+        console.warn("DEBUG loadQuestion: Not in test-interface-view, exiting.");
         return;
     }
     
     const currentModuleInfo = getCurrentModule(); 
     const currentQuestionDetails = getCurrentQuestionData(); 
-    // --- DEBUG ---
+
     console.log("DEBUG loadQuestion (after getting details) - currentModuleInfo:", currentModuleInfo ? currentModuleInfo.name : "null");
     console.log("DEBUG loadQuestion (after getting details) - currentQuestionDetails:", currentQuestionDetails ? currentQuestionDetails.question_id : "null");
 
-
     if (!currentModuleInfo || !currentQuestionDetails) {
         console.error("loadQuestion: ModuleInfo or Question data is null/undefined. Aborting question load.");
-        if (questionTextMainEl) questionTextMainEl.innerHTML = "<p>Error: Critical data missing for question display.</p>";
+        if (questionTextMainEl) questionTextMainEl.innerHTML = "<p>Error: Critical data missing.</p>";
         if (answerOptionsMainEl) answerOptionsMainEl.innerHTML = "";
         if(totalQFooterEl && currentQFooterEl) {
             currentQFooterEl.textContent = currentQuestionNumber;
-            totalQFooterEl.textContent = currentQuizQuestions ? currentQuizQuestions.length : 0;
+            totalQFooterEl.textContent = (currentQuizQuestions && currentQuizQuestions.length > 0) ? currentQuizQuestions.length : 0;
         }
         updateNavigation();
         return;
     }
     
     const answerState = getAnswerState(); 
-    if (answerState && (typeof answerState.q_id === 'undefined' || (answerState.q_id && answerState.q_id.endsWith('-tmp')))) {
-        answerState.q_id = currentQuestionDetails.question_id;
-        answerState.correct_ans = currentQuestionDetails.correct_answer;
-        answerState.question_type_from_json = currentQuestionDetails.question_type;
+    if (answerState) { // Ensure answerState is not null
+        if (answerState.q_id && answerState.q_id.endsWith('-tmp') || !answerState.correct_ans || (answerState.quizName_from_flow && (answerState.quizName_from_flow.includes("UNKNOWN") || (!answerState.quizName_from_flow.startsWith("D") && !answerState.quizName_from_flow.startsWith("CBT")))) ) {
+            answerState.q_id = currentQuestionDetails.question_id;
+            answerState.correct_ans = currentQuestionDetails.correct_answer;
+            answerState.question_type_from_json = currentQuestionDetails.question_type;
+            if(currentTestFlow && currentTestFlow[currentModuleIndex]) {
+                answerState.quizName_from_flow = currentTestFlow[currentModuleIndex];
+            }
+        }
+        answerState.timeSpent = parseFloat(answerState.timeSpent) || 0;
+    } else {
+        console.error("CRITICAL: answerState is null in loadQuestion. This should not happen.");
+        // Handle this gracefully, perhaps by showing an error or trying to reinitialize.
+        // For now, we'll log and try to continue, but this indicates a deeper issue if it occurs.
+        if (questionTextMainEl) questionTextMainEl.innerHTML = "<p>Error: Internal state error.</p>";
+        updateNavigation();
+        return;
     }
-    answerState.timeSpent = parseFloat(answerState.timeSpent) || 0;
     questionStartTime = Date.now();
-
-    // ... (Keep the rest of your loadQuestion DOM manipulation logic from the .txt file)
-    // ... from "if(sectionTitleHeader) sectionTitleHeader.textContent = ..."
-    // ... down to just BEFORE the MathJax block ...
 
     if(sectionTitleHeader) sectionTitleHeader.textContent = `Section ${currentModuleIndex + 1}: ${currentModuleInfo.name}`;
     if(questionNumberBoxMainEl) questionNumberBoxMainEl.textContent = currentQuestionDetails.question_number || currentQuestionNumber;
@@ -812,46 +628,144 @@ function loadQuestion() {
     mainContentAreaDynamic.classList.remove('single-pane');
     answerOptionsMainEl.style.display = 'none'; 
     sprInputContainerMain.style.display = 'none'; 
+    // ADDED: Get new fields from JSON for passage and stem
+const passageTextFromJson = currentQuestionDetails.passage_content;
+const stemTextFromJson = currentQuestionDetails.question_stem;
+console.log("DEBUG loadQuestion: passageTextFromJson:", passageTextFromJson ? passageTextFromJson.substring(0,30)+"..." : "null/empty");
+console.log("DEBUG loadQuestion: stemTextFromJson:", stemTextFromJson ? stemTextFromJson.substring(0,30)+"..." : "null/empty");
 
-
+    /*
     if (currentQuestionDetails.question_type === 'student_produced_response') {
         mainContentAreaDynamic.classList.remove('single-pane');
         sprInstructionsPane.style.display = 'flex';
         passagePane.style.display = 'none'; 
         paneDivider.style.display = 'block';
         if(sprInstructionsContent) sprInstructionsContent.innerHTML = (currentModuleInfo.spr_directions || 'SPR Directions Missing') + (currentModuleInfo.spr_examples_table || '');
-        
         if(questionTextMainEl) questionTextMainEl.innerHTML = currentQuestionDetails.question_text || '<p>Question text missing.</p>';
         sprInputContainerMain.style.display = 'block';
         if(sprInputFieldMain) sprInputFieldMain.value = answerState.spr_answer || '';
         if(sprAnswerPreviewMain) sprAnswerPreviewMain.textContent = `Answer Preview: ${answerState.spr_answer || ''}`;
         answerOptionsMainEl.style.display = 'none';
-
-    } else if (currentModuleInfo.type === "RW" && currentQuestionDetails.question_type.includes('multiple_choice')) {
+    } else if (currentModuleInfo.type === "RW" && currentQuestionDetails.question_type && currentQuestionDetails.question_type.includes('multiple_choice')) {
         mainContentAreaDynamic.classList.remove('single-pane');
         passagePane.style.display = 'flex'; 
         paneDivider.style.display = 'block'; 
-        
-        if(passageContentEl) passageContentEl.innerHTML = currentQuestionDetails.question_text || '<p>Question text missing.</p>';
-
+        if(passageContentEl) passageContentEl.innerHTML = currentQuestionDetails.question_text || '<p>Question/Passage text missing.</p>';
         if(questionTextMainEl) questionTextMainEl.innerHTML = ''; 
         answerOptionsMainEl.style.display = 'flex'; 
         sprInputContainerMain.style.display = 'none';
-
     } else { 
         mainContentAreaDynamic.classList.add('single-pane');
         passagePane.style.display = 'none';
         sprInstructionsPane.style.display = 'none';
         paneDivider.style.display = 'none';
-
         if(questionTextMainEl) questionTextMainEl.innerHTML = currentQuestionDetails.question_text || '<p>Question text missing.</p>';
         answerOptionsMainEl.style.display = 'flex'; 
         sprInputContainerMain.style.display = 'none';
     }
+    */
 
+    // --- START OF NEW REPLACEMENT LOGIC FOR PANE/CONTENT ---
+if (currentQuestionDetails.question_type === 'student_produced_response') {
+    // SPR Question: Instructions Left (from metadata), Question Stem Right
+    mainContentAreaDynamic.classList.remove('single-pane');
+    sprInstructionsPane.style.display = 'flex';
+    passagePane.style.display = 'none'; 
+    paneDivider.style.display = 'block';
+    if(sprInstructionsContent) {
+        sprInstructionsContent.innerHTML = (currentModuleInfo.spr_directions || 'SPR Directions Missing') + (currentModuleInfo.spr_examples_table || '');
+    }
+    if(questionTextMainEl) { // Right pane question area
+        questionTextMainEl.innerHTML = stemTextFromJson ? `<p>${stemTextFromJson}</p>` : '<p>Question stem missing.</p>';
+    }
+    sprInputContainerMain.style.display = 'block';
+    if(sprInputFieldMain) sprInputFieldMain.value = answerState.spr_answer || '';
+    if(sprAnswerPreviewMain) sprAnswerPreviewMain.textContent = `Answer Preview: ${answerState.spr_answer || ''}`;
+    answerOptionsMainEl.style.display = 'none'; // No MC options for SPR
+
+} else if (currentQuestionDetails.question_type && currentQuestionDetails.question_type.includes('multiple_choice')) {
+    // This handles both R&W MCQs and Math MCQs
+    if (passageTextFromJson && passageTextFromJson.trim() !== "") {
+        // Distinct passage content exists (Typical for R&W with passage)
+        mainContentAreaDynamic.classList.remove('single-pane'); // Ensure two-pane
+        passagePane.style.display = 'flex'; 
+        paneDivider.style.display = 'block'; 
+        if(passageContentEl) passageContentEl.innerHTML = passageTextFromJson;
+        if(questionTextMainEl) questionTextMainEl.innerHTML = stemTextFromJson ? `<p>${stemTextFromJson}</p>` : '<p>Question stem missing.</p>';
+    } else {
+        // No distinct passage_content, or it's empty. Treat as single-pane.
+        // (Covers Math MCQs where passage_content is null, and R&W stem-only questions)
+        mainContentAreaDynamic.classList.add('single-pane');
+        passagePane.style.display = 'none';
+        sprInstructionsPane.style.display = 'none'; // Ensure SPR pane is also hidden
+        paneDivider.style.display = 'none';
+        if(questionTextMainEl) questionTextMainEl.innerHTML = stemTextFromJson ? `<p>${stemTextFromJson}</p>` : '<p>Question content missing.</p>';
+    }
+    answerOptionsMainEl.style.display = 'flex'; // Show MCQ options
+    sprInputContainerMain.style.display = 'none'; // Hide SPR input
+
+    // MCQ Option rendering logic (this part of your script from line ~631 onwards should be mostly fine)
+    // Ensure it's within this else if block for MCQs
+    if (answerOptionsMainEl) answerOptionsMainEl.innerHTML = ''; 
+    const options = {};
+    // ... (your existing code to populate `options` object from option_a, option_b, etc.)
+    if (currentQuestionDetails.option_a !== undefined && currentQuestionDetails.option_a !== null) options['A'] = currentQuestionDetails.option_a;
+    if (currentQuestionDetails.option_b !== undefined && currentQuestionDetails.option_b !== null) options['B'] = currentQuestionDetails.option_b;
+    if (currentQuestionDetails.option_c !== undefined && currentQuestionDetails.option_c !== null) options['C'] = currentQuestionDetails.option_c;
+    if (currentQuestionDetails.option_d !== undefined && currentQuestionDetails.option_d !== null) options['D'] = currentQuestionDetails.option_d;
+    if (currentQuestionDetails.option_e !== undefined && currentQuestionDetails.option_e !== null && String(currentQuestionDetails.option_e).trim() !== "") options['E'] = currentQuestionDetails.option_e;
+
+    for (const [key, value] of Object.entries(options)) {
+        // ... (your existing code to create and append option elements)
+        // Ensure `const isSelected = (answerState.selected === value);` is used
+        const isSelected = (answerState.selected === value);
+        const isCrossedOut = answerState.crossedOut.includes(key);
+        
+        const containerDiv = document.createElement('div');
+        containerDiv.className = 'answer-option-container';
+        containerDiv.dataset.optionKey = key;
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'answer-option';
+        if (isSelected && !isCrossedOut) optionDiv.classList.add('selected');
+        if (isCrossedOut) optionDiv.classList.add('crossed-out');
+        const answerLetterDiv = document.createElement('div');
+        answerLetterDiv.className = 'answer-letter';
+        if (isSelected && !isCrossedOut) answerLetterDiv.classList.add('selected');
+        answerLetterDiv.textContent = key;
+        const answerTextSpan = document.createElement('span');
+        answerTextSpan.className = 'answer-text';
+        if (isCrossedOut) answerTextSpan.classList.add('text-dimmed-for-crossout');
+        answerTextSpan.innerHTML = value; 
+        optionDiv.appendChild(answerLetterDiv);
+        optionDiv.appendChild(answerTextSpan);
+        containerDiv.appendChild(optionDiv);
+        if (isCrossOutToolActive && !isCrossedOut) {
+            const crossOutBtnIndividual = document.createElement('button');
+            crossOutBtnIndividual.className = 'individual-cross-out-btn';
+            crossOutBtnIndividual.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            crossOutBtnIndividual.title = `Cross out option ${key}`;
+            crossOutBtnIndividual.dataset.action = 'cross-out-individual';
+            containerDiv.appendChild(crossOutBtnIndividual);
+        } else if (isCrossedOut) {
+            const undoBtn = document.createElement('button');
+            undoBtn.className = 'undo-cross-out-btn';
+            undoBtn.textContent = 'Undo';
+            undoBtn.title = `Undo cross out for option ${key}`;
+            undoBtn.dataset.action = 'undo-cross-out';
+            containerDiv.appendChild(undoBtn);
+        }
+        if (answerOptionsMainEl) answerOptionsMainEl.appendChild(containerDiv);
+    }
+} else {
+    // Fallback for any other unexpected question types
+    console.warn("loadQuestion: Unhandled question type or configuration:", currentQuestionDetails.question_type);
+    if(questionTextMainEl) questionTextMainEl.innerHTML = `<p>Error: Unknown question type.</p>`;
+    mainContentAreaDynamic.classList.add('single-pane'); // Default to single pane
+}
+// --- END OF NEW REPLACEMENT LOGIC FOR PANE/CONTENT ---
+    
     if (currentQuestionDetails.question_type && currentQuestionDetails.question_type.includes('multiple_choice')) {
         if (answerOptionsMainEl) answerOptionsMainEl.innerHTML = ''; 
-        
         const options = {};
         if (currentQuestionDetails.option_a !== undefined && currentQuestionDetails.option_a !== null) options['A'] = currentQuestionDetails.option_a;
         if (currentQuestionDetails.option_b !== undefined && currentQuestionDetails.option_b !== null) options['B'] = currentQuestionDetails.option_b;
@@ -862,36 +776,21 @@ function loadQuestion() {
         for (const [key, value] of Object.entries(options)) {
             const isSelected = (answerState.selected === value);
             const isCrossedOut = answerState.crossedOut.includes(key);
-            
-            // --- DEBUG ---
-            // console.log(`DEBUG loadQuestion - Option ${key} (text: "${value}"): isSelected check (answerState.selected: "${answerState.selected}" vs value: "${value}") -> ${isSelected}`);
-
             const containerDiv = document.createElement('div');
             containerDiv.className = 'answer-option-container';
             containerDiv.dataset.optionKey = key;
             const optionDiv = document.createElement('div');
             optionDiv.className = 'answer-option';
-            if (isSelected && !isCrossedOut) {
-                optionDiv.classList.add('selected');
-                // --- DEBUG ---
-                // console.log(`DEBUG loadQuestion - Applied .selected class to option ${key}`);
-            }
-            if (isCrossedOut) {
-                optionDiv.classList.add('crossed-out');
-            }
-            
+            if (isSelected && !isCrossedOut) optionDiv.classList.add('selected');
+            if (isCrossedOut) optionDiv.classList.add('crossed-out');
             const answerLetterDiv = document.createElement('div');
             answerLetterDiv.className = 'answer-letter';
-            if (isSelected && !isCrossedOut) {
-                 answerLetterDiv.classList.add('selected');
-            }
+            if (isSelected && !isCrossedOut) answerLetterDiv.classList.add('selected');
             answerLetterDiv.textContent = key;
-
             const answerTextSpan = document.createElement('span');
             answerTextSpan.className = 'answer-text';
             if (isCrossedOut) answerTextSpan.classList.add('text-dimmed-for-crossout');
             answerTextSpan.innerHTML = value; 
-
             optionDiv.appendChild(answerLetterDiv);
             optionDiv.appendChild(answerTextSpan);
             containerDiv.appendChild(optionDiv);
@@ -913,15 +812,8 @@ function loadQuestion() {
             if (answerOptionsMainEl) answerOptionsMainEl.appendChild(containerDiv);
         }
     }
-
-    // --- DEBUG ---
-    // console.log("DEBUG: loadQuestion - DOM population for question text and options should be complete.");
-    // console.log("DEBUG: passageContentEl.innerHTML length:", passageContentEl ? passageContentEl.innerHTML.length : "N/A");
-    // console.log("DEBUG: questionTextMainEl.innerHTML length:", questionTextMainEl ? questionTextMainEl.innerHTML.length : "N/A");
-    // console.log("DEBUG: answerOptionsMainEl.innerHTML length:", answerOptionsMainEl ? answerOptionsMainEl.innerHTML.length : "N/A");
-
+    
     if (typeof MathJax !== "undefined") {
-        // ... (Keep the robust MathJax call from your .txt file) ...
         if (MathJax.typesetPromise) {
             MathJax.typesetPromise([passageContentEl, questionTextMainEl, answerOptionsMainEl, sprInstructionsContent])
                 .catch(function (err) { console.error('MathJax Typesetting Error:', err); });
@@ -938,7 +830,6 @@ function loadQuestion() {
             console.warn("MathJax is defined, but neither typesetPromise nor startup.promise is available. Typesetting may fail.");
             setTimeout(() => {
                 if (typeof MathJax !== "undefined" && MathJax.typesetPromise) {
-                    console.log("Attempting MathJax typesetting after a short delay.");
                     MathJax.typesetPromise([passageContentEl, questionTextMainEl, answerOptionsMainEl, sprInstructionsContent])
                         .catch(function (err) { console.error('MathJax Typesetting Error (after delay):', err); });
                 } else {
@@ -952,214 +843,61 @@ function loadQuestion() {
     updateNavigation();
 }
 
-
-// Event Listeners for start buttons:
-// Keep the if(startFullPracticeTestBtn) and if(startSinglePracticeQuizBtn) blocks
-// from your .txt file. They contain the new logic for mode handling.
-// Make sure the old if(startTestPreviewBtn) listener is removed or commented out.
-
-if(startFullPracticeTestBtn) {
-    startFullPracticeTestBtn.addEventListener('click', async () => {
-        initializeStudentIdentifier(); 
-        console.log("Start Full Practice Test button clicked."); 
-        
-        currentInteractionMode = 'full_test';
-        currentModuleIndex = 0;
-        currentQuestionNumber = 1;
-        userAnswers = {}; 
-        isTimerHidden = false; 
-        isCrossOutToolActive = false;
-        isHighlightingActive = false; if(highlightsNotesBtn) highlightsNotesBtn.classList.remove('active');
-        if(calculatorOverlay) calculatorOverlay.classList.remove('visible');
-        if(referenceSheetPanel) referenceSheetPanel.classList.remove('visible');
-        currentModuleTimeUp = false; 
-
-        currentTestFlow = ["DT-T0-RW-M1", "DT-T0-RW-M2", "DT-T0-MT-M1", "DT-T0-MT-M2"]; 
-        console.log("Test flow set for Full Practice Test:", currentTestFlow); 
-
-        if (currentTestFlow.length > 0) {
-            const firstQuizName = currentTestFlow[currentModuleIndex];
-            const moduleInfo = moduleMetadata[firstQuizName];
-            
-            // --- DEBUG ---
-            console.log(`DEBUG startFullPracticeTestBtn: Initializing. First quiz: ${firstQuizName}. ModuleInfo found:`, !!moduleInfo);
-
-            startFullPracticeTestBtn.textContent = "Loading...";
-            startFullPracticeTestBtn.disabled = true;
-            
-            let jsonToLoad = firstQuizName;
-            if (firstQuizName === "DT-T0-RW-M2") jsonToLoad = "DT-T0-RW-M1";
-            else if (firstQuizName === "DT-T0-MT-M2") jsonToLoad = "DT-T0-MT-M1";
-            
-            const success = await loadQuizData(jsonToLoad); 
-            
-            startFullPracticeTestBtn.textContent = "Start Full Test"; 
-            startFullPracticeTestBtn.disabled = false; 
-
-            if (success && currentQuizQuestions.length > 0) {
-                 // --- DEBUG ---
-                console.log("DEBUG startFullPracticeTestBtn: Data loaded. Starting timer and showing view.");
-                if (moduleInfo && typeof moduleInfo.durationSeconds === 'number') {
-                    startModuleTimer(moduleInfo.durationSeconds); 
-                } else {
-                    console.warn(`Full Test Mode: No duration for module ${firstQuizName}. Timer not started or showing 00:00.`);
-                    updateModuleTimerDisplay(0); 
-                }
-                populateQNavGrid(); 
-                showView('test-interface-view'); 
-            } else {
-                console.error("Failed to load initial quiz data for full test.");
-                alert("Could not start the full test. Check console.");
-                showView('home-view'); 
-            }
-        } else { 
-            console.error("Full test flow is empty.");
-            alert("Full test configuration error.");
-        }
-    });
-}
-
-if(startSinglePracticeQuizBtn) {
-    startSinglePracticeQuizBtn.addEventListener('click', async () => {
-        initializeStudentIdentifier();
-        console.log("Start Single Practice Quiz button clicked.");
-
-        currentInteractionMode = 'single_quiz';
-        currentModuleIndex = 0; 
-        currentQuestionNumber = 1;
-        userAnswers = {};
-        isTimerHidden = false;
-        isCrossOutToolActive = false;
-        isHighlightingActive = false; if(highlightsNotesBtn) highlightsNotesBtn.classList.remove('active');
-        if(calculatorOverlay) calculatorOverlay.classList.remove('visible');
-        if(referenceSheetPanel) referenceSheetPanel.classList.remove('visible');
-
-        currentTestFlow = ["DT-T0-MT-M1"]; 
-        console.log("Test flow set for Single Practice Quiz:", currentTestFlow);
-
-        if (currentTestFlow.length > 0) {
-            const quizName = currentTestFlow[0];
-            // --- DEBUG ---
-            console.log(`DEBUG startSinglePracticeQuizBtn: Initializing. Quiz: ${quizName}`);
-            
-            startSinglePracticeQuizBtn.textContent = "Loading...";
-            startSinglePracticeQuizBtn.disabled = true;
-
-            const success = await loadQuizData(quizName);
-
-            startSinglePracticeQuizBtn.textContent = "Start Single Quiz";
-            startSinglePracticeQuizBtn.disabled = false;
-
-            if (success && currentQuizQuestions.length > 0) {
-                 // --- DEBUG ---
-                console.log("DEBUG startSinglePracticeQuizBtn: Data loaded. Starting timer and showing view.");
-                startPracticeQuizTimer(); 
-                populateQNavGrid();
-                showView('test-interface-view');
-            } else {
-                console.error("Failed to load data for single practice quiz.");
-                alert("Could not start the practice quiz. Check console.");
-                showView('home-view');
-            }
-        } else { 
-            console.error("Single quiz flow is empty.");
-            alert("Single quiz configuration error.");
-        }
-    });
-}
-
-
-
-// Keep all other functions and event listeners from your .txt file as they were,
-// including:
-// recordTimeOnCurrentQuestion, handleAnswerSelect, handleAnswerCrossOut, handleAnswerUndoCrossOut,
-// crossOutToolBtnMain listener, sprInputFieldMain listeners,
-// updateNavigation, nextButtonClickHandler, reviewNextButtonClickHandler, backButtonClickHandler,
-// all modal button listeners, more menu listeners, submitQuizData, DOMContentLoaded listener.
-// Basically, only the loadQuizData, showView, loadQuestion, and start button listeners
-// were targeted for adding DEBUG logs in this step. The structure for other parts remains.
-
-// The Gist script ends with the DOMContentLoaded listener.
-// Make sure your .txt file also has that, and it correctly calls initializeStudentIdentifier and updateNavigation.
-// For example:
-/*
-document.addEventListener('DOMContentLoaded', () => {
-    initializeStudentIdentifier(); 
-    updateNavigation(); 
-});
-*/
-// If your .txt script already had this, keep it. If not, add it.
-
-// =======================================================================
-// === ADD THE FOLLOWING CODE AFTER LINE 768 OF YOUR EXISTING SCRIPT ===
-// This restores missing event listeners and handlers, adapted for Phase 6
-// =======================================================================
+// --- script.js (Corrected & Consolidated - Parameter Driven Launch - Part 5 of 6) ---
 
 // --- Event Listeners for Answer Interaction & Tools ---
 if(answerOptionsMainEl) {
     answerOptionsMainEl.addEventListener('click', function(event) {
         const target = event.target;
         const answerContainer = target.closest('.answer-option-container');
-        
-        // console.log("Answer option area clicked. Target:", target, "Container:", answerContainer); // Keep for debug
-
-        if (!answerContainer) {
-            // console.log("Click was outside an answer-option-container. Exiting listener."); // Keep for debug
-            return; 
-        }
+        if (!answerContainer) { return; }
         const optionKey = answerContainer.dataset.optionKey;
-        // console.log("Option key identified:", optionKey); // Keep for debug
-        
         const actionElement = target.closest('[data-action]');
         const action = actionElement ? actionElement.dataset.action : null;
-        // console.log("Action identified:", action); // Keep for debug
         
-        // Record time if the main option area was clicked (intending selection or interaction)
-        // and not just an auxiliary action button like the individual cross-out.
         if (!action && target.closest('.answer-option')) { 
             recordTimeOnCurrentQuestion(); 
         }
 
         if (action === 'cross-out-individual') {
-            // console.log("Calling handleAnswerCrossOut for individual cross-out."); // Keep for debug
             handleAnswerCrossOut(optionKey);
         } else if (action === 'undo-cross-out') {
-            // console.log("Calling handleAnswerUndoCrossOut for undo cross-out."); // Keep for debug
             handleAnswerUndoCrossOut(optionKey);
         } else if (target.closest('.answer-option')) { 
-            // console.log("Attempting to call handleAnswerSelect."); // Keep for debug
             handleAnswerSelect(optionKey);
-        } else {
-            // console.log("Click did not match any known action or target for selection."); // Keep for debug
         }
     });
 }
 
 function handleAnswerSelect(optionKey) {
     const answerState = getAnswerState();
-    if (!answerState) {
-        console.error("handleAnswerSelect: No answer state found for current question.");
-        return;
-    }
+    if (!answerState) { console.error("handleAnswerSelect: No answer state found."); return; }
 
     if (isCrossOutToolActive) {
-        console.log("handleAnswerSelect: Cross-out tool is currently ACTIVE. Proceeding with selection (will also remove cross-out).");
+        // Per Bluebook, selection overrides cross-out tool's "mode" for THIS click.
+        // The tool remains active for subsequent individual cross-out button clicks.
+        console.log("handleAnswerSelect: Cross-out tool IS ACTIVE. Click on option body selects & un-crosses.");
     } else {
         console.log("handleAnswerSelect: Cross-out tool is INACTIVE. Proceeding with selection.");
     }
     
     const currentQDetails = getCurrentQuestionData();
-    let selectedOptionText = optionKey; 
+    let newSelectedOptionText = optionKey; 
     
     const jsonOptionKey = `option_${optionKey.toLowerCase()}`;
     if (currentQDetails && currentQDetails.hasOwnProperty(jsonOptionKey) && currentQDetails[jsonOptionKey] !== null) {
-        selectedOptionText = currentQDetails[jsonOptionKey];
+        newSelectedOptionText = currentQDetails[jsonOptionKey];
     } else {
         console.warn(`handleAnswerSelect: Could not find option text for key ${optionKey} (tried ${jsonOptionKey}). Storing key itself ('${optionKey}') as selected value.`);
     }
 
-    console.log(`handleAnswerSelect: Setting selected answer to: "${selectedOptionText}" (original key: ${optionKey})`);
-    answerState.selected = selectedOptionText; 
+    if (answerState.selected !== null && answerState.selected !== newSelectedOptionText) {
+        answerState.selectionChanges = (answerState.selectionChanges || 0) + 1;
+        console.log(`Answer changed for QKey ${getAnswerStateKey()}. New count: ${answerState.selectionChanges}. Old: "${answerState.selected}", New: "${newSelectedOptionText}"`);
+    }
+    
+    console.log(`handleAnswerSelect: Setting selected answer to: "${newSelectedOptionText}" (original key: ${optionKey})`);
+    answerState.selected = newSelectedOptionText; 
 
     if (answerState.crossedOut.includes(optionKey)) {
         console.log(`handleAnswerSelect: Option ${optionKey} was selected, removing it from crossedOut list.`);
@@ -1172,11 +910,9 @@ function handleAnswerSelect(optionKey) {
 function handleAnswerCrossOut(optionKey) { 
      const answerState = getAnswerState();
      if (!answerState) return;
-
      if (!answerState.crossedOut.includes(optionKey)) {
          answerState.crossedOut.push(optionKey);
      } 
-     // Selected answer remains selected even if crossed out by individual button
      loadQuestion(); 
 }
 
@@ -1209,87 +945,490 @@ if(sprInputFieldMain) {
     });
 }
 
-// --- Navigation Button Click Handlers & Listeners ---
-// (These include the Phase 6 mode-aware logic)
+// --- script.js ---
+
+// CHANGED: Renamed and modified function to submit data for a specific module
+async function submitCurrentModuleData(moduleIndexToSubmit, isFinalSubmission = false) {
+    console.log(`DEBUG submitCurrentModuleData: Attempting to submit data for module index: ${moduleIndexToSubmit}. Is final: ${isFinalSubmission}`);
+    
+    if (moduleIndexToSubmit === currentModuleIndex) {
+        recordTimeOnCurrentQuestion(); 
+    }
+
+    const submissions = [];
+    const timestamp = new Date().toISOString();
+    // Ensure quizNameForSubmission is correctly derived for the module being submitted
+    const quizNameForSubmission = (currentTestFlow && currentTestFlow[moduleIndexToSubmit]) ? currentTestFlow[moduleIndexToSubmit] : "UNKNOWN_MODULE_NAME";
+
+
+    if (!quizNameForSubmission || quizNameForSubmission === "UNKNOWN_MODULE_NAME") {
+        console.error(`DEBUG submitCurrentModuleData: Could not determine quizName for module index ${moduleIndexToSubmit}. Aborting submission for this module.`);
+        return false; 
+    }
+
+    console.log(`DEBUG submitCurrentModuleData: Submitting for quizName: ${quizNameForSubmission}`);
+
+    for (const key in userAnswers) {
+        if (userAnswers.hasOwnProperty(key)) {
+            const keyModuleIndex = parseInt(key.split('-')[0]);
+            
+            if (keyModuleIndex === moduleIndexToSubmit) {
+                const answerState = userAnswers[key];
+                
+                if (!answerState.q_id || answerState.q_id.endsWith('-tmp') || typeof answerState.correct_ans === 'undefined' || answerState.correct_ans === null || typeof answerState.question_type_from_json === 'undefined') {
+                    console.warn(`DEBUG submitCurrentModuleData: Data incomplete for answer key ${key} in module ${quizNameForSubmission}. Skipping this answer. Q_ID: ${answerState.q_id}, CorrectAns: ${answerState.correct_ans}, Type: ${answerState.question_type_from_json}`);
+                    continue; 
+                }
+
+                let studentAnswerForSubmission = "";
+                let isCorrect = false;
+
+                if (answerState.question_type_from_json === 'student_produced_response') {
+                    studentAnswerForSubmission = answerState.spr_answer || "NO_ANSWER";
+                    if (answerState.correct_ans && studentAnswerForSubmission !== "NO_ANSWER") {
+                        const correctSprAnswers = String(answerState.correct_ans).split('|').map(s => s.trim().toLowerCase());
+                        if (correctSprAnswers.includes(studentAnswerForSubmission.trim().toLowerCase())) {
+                            isCorrect = true;
+                        }
+                    }
+                } else { 
+                    studentAnswerForSubmission = answerState.selected || "NO_ANSWER"; 
+                    if (answerState.correct_ans && studentAnswerForSubmission !== "NO_ANSWER") {
+                        isCorrect = (String(studentAnswerForSubmission).trim().toLowerCase() === String(answerState.correct_ans).trim().toLowerCase());
+                    }
+                }
+                
+                submissions.push({
+                    timestamp: timestamp,
+                    student_gmail_id: studentEmailForSubmission, 
+                    quiz_name: quizNameForSubmission, 
+                    question_id: answerState.q_id, 
+                    student_answer: studentAnswerForSubmission,
+                    is_correct: isCorrect, 
+                    time_spent_seconds: parseFloat(answerState.timeSpent || 0).toFixed(2),
+                    selection_changes: answerState.selectionChanges || 0,
+                    source: globalQuizSource || '' 
+                });
+            }
+        }
+    }
+
+    if (submissions.length === 0) {
+        console.log(`DEBUG submitCurrentModuleData: No answers recorded for module ${quizNameForSubmission}. Nothing to submit for this module.`);
+        return true; 
+    }
+
+    console.log(`DEBUG submitCurrentModuleData: Submitting for module ${quizNameForSubmission}:`, submissions);
+
+    if (APPS_SCRIPT_WEB_APP_URL === 'YOUR_CORRECT_BLUEBOOK_APPS_SCRIPT_URL_HERE' || !APPS_SCRIPT_WEB_APP_URL.startsWith('https://script.google.com/')) {
+        console.warn("APPS_SCRIPT_WEB_APP_URL not set or invalid. Submission will not proceed for module " + quizNameForSubmission);
+        alert("Submission URL not configured. Data for module " + quizNameForSubmission + " logged to console.");
+        return false; 
+    }
+
+    try {
+        fetch(APPS_SCRIPT_WEB_APP_URL, { // Removed await here for fire-and-forget
+            method: 'POST', mode: 'no-cors', cache: 'no-cache',
+            headers: {'Content-Type': 'text/plain'},
+            redirect: 'follow', body: JSON.stringify(submissions) 
+        })
+        .then(() => {
+            console.log(`DEBUG submitCurrentModuleData: Submission attempt finished for module ${quizNameForSubmission} (no-cors mode).`);
+        })
+        .catch((error) => {
+            console.error(`DEBUG submitCurrentModuleData: Error submitting data for module ${quizNameForSubmission}:`, error);
+        });
+        return true; 
+    } catch (error) { 
+        console.error('DEBUG submitCurrentModuleData: Synchronous error setting up fetch for module ' + quizNameForSubmission + ':', error);
+        return false;
+    }
+}
+
+/*
+// --- Navigation ---
+function updateNavigation() {
+    console.log("DEBUG: updateNavigation CALLED. View:", currentView, "Q#:", currentQuestionNumber, "ModTimeUp:", currentModuleTimeUp, "Mode:", currentInteractionMode);
+    
+    if (!backBtnFooter || !nextBtnFooter || !currentQFooterEl || !totalQFooterEl) {
+        console.error("Navigation elements missing for updateNavigation.");
+        return;
+    }
+
+    const moduleIsLoaded = currentQuizQuestions && currentQuizQuestions.length > 0;
+    const totalQuestionsInModule = moduleIsLoaded ? currentQuizQuestions.length : 0;
+
+    currentQFooterEl.textContent = moduleIsLoaded ? currentQuestionNumber : '0';
+    totalQFooterEl.textContent = totalQuestionsInModule;
+    backBtnFooter.disabled = (currentQuestionNumber === 1);
+
+    nextBtnFooter.style.display = 'none';
+    backBtnFooter.style.display = 'none';
+    if (reviewNextBtnFooter) reviewNextBtnFooter.style.display = 'none';
+    if (reviewBackBtnFooter) reviewBackBtnFooter.style.display = 'none';
+
+    const currentMod = getCurrentModule();
+    const isDtT0Module = currentMod && currentMod.name && currentMod.name.includes("(Diagnostic)"); // Check if it's a DT-T0 module
+    
+    if (currentView === 'test-interface-view') {
+        nextBtnFooter.style.display = 'inline-block';
+        backBtnFooter.style.display = 'inline-block';
+        if (!moduleIsLoaded) {
+            nextBtnFooter.textContent = "Next";
+            nextBtnFooter.disabled = true;
+        } else if (currentQuestionNumber < totalQuestionsInModule) {
+            nextBtnFooter.textContent = "Next";
+            nextBtnFooter.disabled = false;
+        } else {
+            
+            nextBtnFooter.textContent = "Review Section";
+            if (currentInteractionMode === 'full_test') {
+                // CHANGED: For DT-T0, "Review Section" button is not disabled by timer
+            if (isDtT0Module) {
+                nextBtnFooter.disabled = false; // Always enabled if it's last question
+            } else {
+                nextBtnFooter.disabled = !currentModuleTimeUp && (currentMod && typeof currentMod.durationSeconds === 'number' && currentMod.durationSeconds > 0);
+            } 
+            }
+        }    
+            else { 
+                nextBtnFooter.disabled = false; 
+            }
+            } else if (currentView === 'review-page-view') {
+        if (reviewBackBtnFooter) reviewBackBtnFooter.style.display = 'inline-block';
+        if (reviewNextBtnFooter) reviewNextBtnFooter.style.display = 'inline-block';
+        if (reviewBackBtnFooter) reviewBackBtnFooter.disabled = false;
+        if (reviewNextBtnFooter) {
+            if (currentInteractionMode === 'single_quiz') {
+                reviewNextBtnFooter.textContent = "Finish Quiz";
+                reviewNextBtnFooter.disabled = false; 
+            } else { 
+                if (currentModuleIndex < currentTestFlow.length - 1) {
+                    reviewNextBtnFooter.textContent = "Next Module";
+                } else {
+                    reviewNextBtnFooter.textContent = "Finish Test";
+                }
+                const currentMod = getCurrentModule();
+                // For full_test, next module/finish test is only enabled if time is up for the current module.
+                 // CHANGED: For DT-T0, "Next Module/Finish Test" not disabled by timer
+                if (isDtT0Module) {
+                    reviewNextBtnFooter.disabled = false;
+                } else {
+                reviewNextBtnFooter.disabled = !currentModuleTimeUp && (currentMod && typeof currentMod.durationSeconds === 'number' && currentMod.durationSeconds > 0);
+            }
+        }
+      // console.log("DEBUG: updateNavigation COMPLETED. NextBtn disabled:", nextBtnFooter.disabled, "ReviewNextBtn disabled:", reviewNextBtnFooter ? reviewNextBtnFooter.disabled : "N/A");
+}
+}
+*/
+
+// --- Navigation ---
+function updateNavigation() {
+    console.log("DEBUG: updateNavigation CALLED. View:", currentView, "Q#:", currentQuestionNumber, "ModTimeUp:", currentModuleTimeUp, "Mode:", currentInteractionMode);
+    
+    if (!backBtnFooter || !nextBtnFooter || !currentQFooterEl || !totalQFooterEl) {
+        console.error("Navigation elements missing for updateNavigation.");
+        return;
+    }
+
+    const moduleIsLoaded = currentQuizQuestions && currentQuizQuestions.length > 0;
+    const totalQuestionsInModule = moduleIsLoaded ? currentQuizQuestions.length : 0;
+
+    currentQFooterEl.textContent = moduleIsLoaded ? currentQuestionNumber : '0';
+    totalQFooterEl.textContent = totalQuestionsInModule;
+    backBtnFooter.disabled = (currentQuestionNumber === 1);
+
+    // Default visibility - hide all primary nav buttons first
+    nextBtnFooter.style.display = 'none';
+    backBtnFooter.style.display = 'none';
+    if (reviewNextBtnFooter) reviewNextBtnFooter.style.display = 'none';
+    if (reviewBackBtnFooter) reviewBackBtnFooter.style.display = 'none';
+
+    // Get module info once, as it might be used in multiple conditions
+    const currentMod = getCurrentModule();
+    const isDtT0Module = currentMod && currentMod.name && currentMod.name.includes("(Diagnostic)");
+
+    if (currentView === 'test-interface-view') {
+        nextBtnFooter.style.display = 'inline-block';
+        backBtnFooter.style.display = 'inline-block';
+
+        if (!moduleIsLoaded) {
+            nextBtnFooter.textContent = "Next";
+            nextBtnFooter.disabled = true;
+        } else if (currentQuestionNumber < totalQuestionsInModule) {
+            nextBtnFooter.textContent = "Next";
+            nextBtnFooter.disabled = false;
+        } else { // This is the last question of the current module
+            nextBtnFooter.textContent = "Review Section";
+            if (currentInteractionMode === 'full_test') {
+                if (isDtT0Module) {
+                    // For DT-T0 diagnostic modules, allow proceeding to review immediately
+                    nextBtnFooter.disabled = false; 
+                } else {
+                    // For other timed full_test modules, disable if time is not up
+                    nextBtnFooter.disabled = !currentModuleTimeUp && (currentMod && typeof currentMod.durationSeconds === 'number' && currentMod.durationSeconds > 0);
+                }
+            } else { // This is for 'single_quiz' mode on the last question
+                nextBtnFooter.disabled = false; 
+            }
+        } 
+    } else if (currentView === 'review-page-view') {
+        if (reviewBackBtnFooter) reviewBackBtnFooter.style.display = 'inline-block';
+        if (reviewNextBtnFooter) reviewNextBtnFooter.style.display = 'inline-block';
+        
+        if (reviewBackBtnFooter) reviewBackBtnFooter.disabled = false; // Can always go back to test interface from review
+
+        if (reviewNextBtnFooter) {
+            if (currentInteractionMode === 'single_quiz') {
+                reviewNextBtnFooter.textContent = "Finish Quiz";
+                reviewNextBtnFooter.disabled = false; // Always enabled for single quiz to finish
+            } else { // currentInteractionMode === 'full_test'
+                if (currentModuleIndex < currentTestFlow.length - 1) {
+                    reviewNextBtnFooter.textContent = "Next Module";
+                } else {
+                    reviewNextBtnFooter.textContent = "Finish Test";
+                }
+                
+                if (isDtT0Module) {
+                    // For DT-T0 diagnostic modules, allow proceeding immediately
+                    reviewNextBtnFooter.disabled = false;
+                } else {
+                    // For other timed full_test modules, disable if time is not up
+                    reviewNextBtnFooter.disabled = !currentModuleTimeUp && (currentMod && typeof currentMod.durationSeconds === 'number' && currentMod.durationSeconds > 0);
+                }
+            }
+        }
+    } else if (currentView === 'home-view' || currentView === 'finished-view' || currentView === 'module-over-view' || currentView === 'email-input-view' || currentView === 'manual-break-view') {
+        // No primary footer navigation buttons (Next/Back) are typically active or needed in these views.
+        // Specific buttons within these views (e.g., "Return to Home", "Continue After Break") are handled by their own listeners.
+    }
+    
+    // console.log(`DEBUG: updateNavigation COMPLETED. NextBtn.text: "${nextBtnFooter.textContent}", NextBtn.disabled: ${nextBtnFooter.disabled}, ReviewNextBtn.text: "${reviewNextBtnFooter ? reviewNextBtnFooter.textContent : 'N/A'}", ReviewNextBtn.disabled: ${reviewNextBtnFooter ? reviewNextBtnFooter.disabled : "N/A"}`);
+}
+
 
 function nextButtonClickHandler() {
     if (currentView !== 'test-interface-view') return; 
     console.log("DEBUG: nextButtonClickHandler CALLED");
     recordTimeOnCurrentQuestion(); 
-    const totalQuestionsInModule = currentQuizQuestions.length;
+    const totalQuestionsInModule = currentQuizQuestions ? currentQuizQuestions.length : 0;
     if (currentQuestionNumber < totalQuestionsInModule) {
         currentQuestionNumber++;
         isCrossOutToolActive = false; 
         isHighlightingActive = false; if(highlightsNotesBtn) highlightsNotesBtn.classList.remove('active');
         loadQuestion();
-    } else if (currentQuestionNumber === totalQuestionsInModule) {
+    } else if (currentQuestionNumber === totalQuestionsInModule && totalQuestionsInModule > 0) {
         showView('review-page-view');
     }
 }
 
+//async function reviewNextButtonClickHandler() { 
+  //  if (currentView !== 'review-page-view') return;
+    //console.log("DEBUG: reviewNextButtonClickHandler CALLED. Mode:", currentInteractionMode, "CMI:", currentModuleIndex, "FlowLength:", currentTestFlow.length);
+    //recordTimeOnCurrentQuestion(); 
+/*
+    async function reviewNextButtonClickHandler() { 
+        if (currentView !== 'review-page-view') return;
+        console.log("DEBUG: reviewNextButtonClickHandler CALLED. Mode:", currentInteractionMode, "CMI:", currentModuleIndex, "FlowLength:", currentTestFlow.length);
+        
+        // Data for the module just reviewed needs to be submitted.
+        // currentModuleIndex at this point is the index of the module whose review page we are on.
+        const moduleIndexJustCompleted = currentModuleIndex; 
+        
+        // Record time for any final interaction if the last question was viewed on review page (though typically time is for test-interface)
+        // recordTimeOnCurrentQuestion(); // This might double-record if called also by module timer up.
+                                      // submitCurrentModuleData already calls it if needed.
+    if (currentInteractionMode === 'single_quiz') {
+            console.log("DEBUG reviewNextBtnHandler: Single quiz finished. Submitting module data.");
+            await submitCurrentModuleData(moduleIndexJustCompleted, true); // true for isFinalSubmission
+            if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
+            showView('finished-view'); 
+            return; 
+        }
+        
+    //if (currentInteractionMode === 'single_quiz') {
+      //  console.log("Single practice quiz finished from review page. Transitioning to finished view.");
+      //  if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
+      //  showView('finished-view'); 
+      //  return; 
+   // }
+
+    // Logic for full_test mode (bypassing manual break screen for now)
+     console.log(`DEBUG reviewNextBtnHandler: Submitting data for completed module: ${currentTestFlow[moduleIndexJustCompleted]} (index ${moduleIndexJustCompleted})`);
+        // The second param indicates if it's the final module of the whole test.
+        await submitCurrentModuleData(moduleIndexJustCompleted, (moduleIndexJustCompleted === currentTestFlow.length - 1)); 
+                
+    currentModuleIndex++;
+    console.log("DEBUG reviewNextBtn: Advanced currentModuleIndex to:", currentModuleIndex);
+
+    if (currentModuleIndex < currentTestFlow.length) {
+        showView('module-over-view'); 
+        setTimeout(async () => {
+            currentQuestionNumber = 1; 
+            currentModuleTimeUp = false; 
+            const nextQuizName = currentTestFlow[currentModuleIndex];
+            const nextModuleInfo = moduleMetadata[nextQuizName];
+
+            // CHANGED: Simplify to directly use nextQuizName, assuming your JSON files are named correctly.
+            // If you truly need to load M1 data for M2, ensure the replace logic is perfect.
+            // For now, let's assume direct mapping.
+            let jsonToLoadForNextModule = nextQuizName;
+            // Adjust for M2 placeholders
+            //if (nextQuizName.endsWith("RW-M2") && (!moduleMetadata[nextQuizName] || !moduleMetadata[nextQuizName].actualFileIfDifferent)) jsonToLoadForNextModule = nextQuizName.replace("RW-M2", "RW-M1");
+            //else if (nextQuizName.endsWith("MT-M2") && (!moduleMetadata[nextQuizName] || !moduleMetadata[nextQuizName].actualFileIfDifferent)) jsonToLoadForNextModule = nextQuizName.replace("MT-M2", "MT-M1");
+            //else if (nextQuizName.includes("-RW-M2") && !moduleMetadata[nextQuizName]?.actualFile) jsonToLoadForNextModule = nextQuizName.replace("-RW-M2", "-RW-M1");
+            //else if (nextQuizName.includes("-MT-M2") && !moduleMetadata[nextQuizName]?.actualFile) jsonToLoadForNextModule = nextQuizName.replace("-MT-M2", "-MT-M1");
+
+            //console.log(`DEBUG reviewNextBtn: Preparing to load module: ${nextQuizName} (using JSON: ${jsonToLoadForNextModule})`);
+            //const success = await loadQuizData(jsonToLoadForNextModule);
+
+            console.log(`DEBUG reviewNextBtnHandler: Preparing to load module: ${nextQuizName} (resolved JSON file to load: ${jsonToLoadForNextModule})`);
+            const success = await loadQuizData(jsonToLoadForNextModule); // Use the resolved filename
+            
+            if (success && currentQuizQuestions.length > 0) {
+               // if (currentInteractionMode === 'full_test' && nextModuleInfo && typeof nextModuleInfo.durationSeconds === 'number') {
+                //    startModuleTimer(nextModuleInfo.durationSeconds);
+              //  } else { 
+                   // console.warn(`Timer Mode/Config issue for module ${nextQuizName}. No countdown timer started.`);
+                 //   updateModuleTimerDisplay(0); 
+               //     updatePracticeQuizTimerDisplay(0); 
+             //   }
+
+            // CHANGED: Conditional timer start for next module, including DT-T0
+            const currentTestId = urlParams.get('test_id'); // Or get from a global variable if set at start
+
+            if (currentInteractionMode === 'full_test' && currentTestId === "DT-T0") {
+                console.log(`DEBUG reviewNextButton: Starting DT-T0 module ${nextQuizName} with upward counting timer.`);
+                startPracticeQuizTimer();
+                currentModuleTimeUp = true; // Allow immediate progression
+            } else if (currentInteractionMode === 'full_test' && nextModuleInfo && typeof nextModuleInfo.durationSeconds === 'number' && nextModuleInfo.durationSeconds > 0) {
+                console.log(`DEBUG reviewNextButton: Starting timed module ${nextQuizName} with duration ${nextModuleInfo.durationSeconds}.`);
+                startModuleTimer(nextModuleInfo.durationSeconds);
+            } else if (currentInteractionMode === 'single_quiz') {
+                // This case shouldn't be hit if single_quiz goes to finished-view from review
+                // but if it could, it would restart its upward timer here.
+                // For single_quiz, reviewNextButtonClickHandler leads to finished-view, so timer is stopped.
+                console.log("DEBUG reviewNextButton: Single quiz mode, should not be starting another module timer here normally.");
+            } else { // Fallback for other full_test modules without duration
+                console.warn(`Timer Mode/Config issue for next module ${nextQuizName}. Defaulting state.`);
+                updateModuleTimerDisplay(0); 
+                updatePracticeQuizTimerDisplay(0);
+                currentModuleTimeUp = true; // Allow immediate progression
+            }
+            // END CHANGED
+                
+                populateQNavGrid(); 
+                showView('test-interface-view');
+            } else {
+                console.error("Failed to load next module or module has no questions.");
+                alert("Error loading the next module. Returning to home.");
+                showView('home-view'); 
+            }
+        }, 1000); 
+    } else {
+        console.log("All modules finished (from review page). Transitioning to finished view.");
+        if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
+        if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
+        showView('finished-view'); 
+    }
+}
+*/
+
+// Replace your ENTIRE existing async function reviewNextButtonClickHandler() with this corrected version:
+
 async function reviewNextButtonClickHandler() { 
     if (currentView !== 'review-page-view') return;
-    console.log("DEBUG: reviewNextButtonClickHandler CALLED");
-    recordTimeOnCurrentQuestion(); 
-
+    console.log(`DEBUG: reviewNextButtonClickHandler CALLED. Mode: ${currentInteractionMode}, CMI: ${currentModuleIndex}, FlowLength: ${currentTestFlow.length}`);
+    
+    const moduleIndexJustCompleted = currentModuleIndex; 
+    
     if (currentInteractionMode === 'single_quiz') {
-        console.log("Single practice quiz finished from review page. Transitioning to finished view.");
+        console.log("DEBUG reviewNextBtnHandler: Single quiz finished. Submitting module data.");
+        await submitCurrentModuleData(moduleIndexJustCompleted, true); // true for isFinalSubmission
         if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
         showView('finished-view'); 
         return; 
     }
-
-    // Logic for full_test mode
-   // const IS_MANUAL_BREAK_TIME = (currentModuleIndex === 1 && currentTestFlow.length === 4 && currentInteractionMode === 'full_test'); 
-
-    //if (IS_MANUAL_BREAK_TIME) {
-        //console.log("Transitioning to manual break instruction screen from review page for module:", currentTestFlow[currentModuleIndex]);
-      //  console.log("Transitioning to manual break. currentModuleIndex BEFORE increment for break:", currentModuleIndex);
-        //currentModuleIndex++; // Advance index to prepare for Math M1 (index 2) after break
-        //console.log("Transitioning to manual break. currentModuleIndex AFTER increment for break:", currentModuleIndex); // Should be 2
-        //showView('manual-break-view'); 
-    //} else {
-        currentModuleIndex++;
     
+    // Logic for full_test mode
+    console.log(`DEBUG reviewNextBtnHandler: Submitting data for completed module: ${currentTestFlow[moduleIndexJustCompleted]} (index ${moduleIndexJustCompleted})`);
+    await submitCurrentModuleData(moduleIndexJustCompleted, (moduleIndexJustCompleted === currentTestFlow.length - 1)); 
+            
+    currentModuleIndex++;
     console.log("DEBUG reviewNextBtn: Advanced currentModuleIndex to:", currentModuleIndex);
 
     if (currentModuleIndex < currentTestFlow.length) {
-            showView('module-over-view'); 
-            setTimeout(async () => {
-                currentQuestionNumber = 1; 
-                currentModuleTimeUp = false; 
+        // Check if the next module is R&W M2, which is typically followed by a break in a 4-module test
+        const isEndOfRwSection = (currentTestFlow[moduleIndexJustCompleted].includes("-RW-M2")); // Example check
+        // For DT-T0, which has no break, we'll bypass this for now.
+        // More robust break logic would involve checking a 'breakAfterThisModule' flag in moduleMetadata
+        const currentTestIsDtT0 = currentTestFlow.length > 0 && currentTestFlow[0].startsWith("DT-T0-");
 
-                const nextQuizName = currentTestFlow[currentModuleIndex];
-                const nextModuleInfo = moduleMetadata[nextQuizName];
-                
-                let jsonToLoadForNextModule = nextQuizName;
 
-               console.log(`DEBUG reviewNextBtn: Preparing to load module: ${nextQuizName} (using JSON: ${jsonToLoadForNextModule})`);
-                const success = await loadQuizData(jsonToLoadForNextModule);
-
-                if (success && currentQuizQuestions.length > 0) {
-                    if (currentInteractionMode === 'full_test' && nextModuleInfo && typeof nextModuleInfo.durationSeconds === 'number') {
-                        startModuleTimer(nextModuleInfo.durationSeconds);
-                    } else { // Should not happen in full_test if durations are set
-                        console.warn(`Timer Mode/Config issue for module ${nextQuizName}. No countdown timer started.`);
-                        updateModuleTimerDisplay(0); 
-                        updatePracticeQuizTimerDisplay(0); // Also reset practice timer display
-                    }
-                    populateQNavGrid(); 
-                    showView('test-interface-view');
-                } else {
-                    console.error("Failed to load next module or module has no questions.");
-                    alert("Error loading the next module. Returning to home.");
-                    showView('home-view'); 
-                }
-            }, 1000); 
-        } else {
-            console.log("All modules finished (from review page). Transitioning to finished view.");
-            if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
-            if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
-            showView('finished-view'); 
+        if (currentInteractionMode === 'full_test' && isEndOfRwSection && !currentTestIsDtT0) { // Example for a 4-module test, break after 2nd module if not DT-T0
+            console.log("DEBUG reviewNextBtnHandler: End of R&W section. Showing manual break view.");
+            showView('manual-break-view'); // Show the break screen
+            // The continueAfterBreakBtn will handle loading the next (Math) module
+            return; // Stop further processing here until user continues from break
         }
+
+        // If not a scheduled break point, or if it's DT-T0, proceed to next module
+        showView('module-over-view'); 
+        setTimeout(async () => {
+            currentQuestionNumber = 1; 
+            currentModuleTimeUp = false; 
+            const nextQuizName = currentTestFlow[currentModuleIndex];
+            const nextModuleInfo = moduleMetadata[nextQuizName];
+
+            let jsonToLoadForNextModule = nextQuizName;
+            // Example placeholder logic if M2 uses M1's JSON (adjust if your M2 JSONs are distinct)
+            // if (nextQuizName.endsWith("-RW-M2") && (!nextModuleInfo || !nextModuleInfo.actualFile)) jsonToLoadForNextModule = nextQuizName.replace("-RW-M2", "-RW-M1");
+            // else if (nextQuizName.endsWith("-MT-M2") && (!nextModuleInfo || !nextModuleInfo.actualFile)) jsonToLoadForNextModule = nextQuizName.replace("-MT-M2", "-MT-M1");
+
+            console.log(`DEBUG reviewNextBtnHandler: Preparing to load module: ${nextQuizName} (resolved JSON file to load: ${jsonToLoadForNextModule})`);
+            const success = await loadQuizData(jsonToLoadForNextModule); 
+            
+            if (success && currentQuizQuestions.length > 0) {
+                // Timer logic for the NEWLY loaded module (nextModuleInfo refers to this new module)
+                if (currentInteractionMode === 'full_test') {
+                    if (nextModuleInfo && (typeof nextModuleInfo.durationSeconds === 'undefined' || nextModuleInfo.durationSeconds === null || nextModuleInfo.durationSeconds <= 0)) {
+                        // This module is part of DT-T0 or explicitly marked as untimed
+                        console.log(`DEBUG reviewNextButton: Starting module ${nextQuizName} (part of DT-T0 or untimed) with upward counting timer.`);
+                        startPracticeQuizTimer();
+                        currentModuleTimeUp = true; // For untimed modules, effectively "time is up" for navigation
+                    } else if (nextModuleInfo && typeof nextModuleInfo.durationSeconds === 'number' && nextModuleInfo.durationSeconds > 0) {
+                        // This is a standard timed module in a full test
+                        console.log(`DEBUG reviewNextButton: Starting timed module ${nextQuizName} with duration ${nextModuleInfo.durationSeconds}.`);
+                        startModuleTimer(nextModuleInfo.durationSeconds);
+                    } else {
+                        // Fallback if metadata is incomplete for a full_test module
+                        console.warn(`Timer Mode/Config issue for full_test module ${nextQuizName}. Defaulting to untimed.`);
+                        updateModuleTimerDisplay(0); 
+                        updatePracticeQuizTimerDisplay(0);
+                        currentModuleTimeUp = true;
+                    }
+                }
+                // No explicit timer start here for 'single_quiz' because this function is only for advancing in 'full_test' 
+                // or finishing a 'single_quiz'. A 'single_quiz' doesn't have a "next module".
+                
+                populateQNavGrid(); 
+                showView('test-interface-view');
+            } else {
+                console.error("Failed to load next module or module has no questions.");
+                alert("Error loading the next module. Returning to home.");
+                showView('home-view'); 
+            }
+        }, 1000); // Delay for module-over-view
+    } else { // All modules in currentTestFlow are completed
+        console.log("All modules finished (from review page). Transitioning to finished view.");
+        if (moduleTimerInterval) clearInterval(moduleTimerInterval); 
+        if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
+        // The last module's data was already submitted before currentModuleIndex was incremented.
+        showView('finished-view'); 
     }
+}
+
+// --- script.js (Corrected & Consolidated - Parameter Driven Launch - Part 6 of 6) ---
 
 function backButtonClickHandler() {
     if (currentView !== 'test-interface-view') return;
@@ -1323,7 +1462,7 @@ if(calculatorCloseBtn) calculatorCloseBtn.addEventListener('click', () => toggle
 if(referenceBtnHeader) referenceBtnHeader.addEventListener('click', () => toggleModal(referenceSheetPanel, true));
 if(referenceSheetCloseBtn) referenceSheetCloseBtn.addEventListener('click', () => toggleModal(referenceSheetPanel, false));
 
-let isCalcDragging = false; // Renamed to avoid conflict if Gist had different var names
+let isCalcDragging = false; 
 let currentX_calc_drag, currentY_calc_drag, initialX_calc_drag, initialY_calc_drag, xOffset_calc_drag = 0, yOffset_calc_drag = 0;
 if(calculatorHeaderDraggable) {
     calculatorHeaderDraggable.addEventListener('mousedown', (e) => { 
@@ -1344,7 +1483,7 @@ if(calculatorHeaderDraggable) {
     document.addEventListener('mouseup', () => isCalcDragging = false );
 }
 
-if(highlightsNotesBtn && (passageContentEl || questionTextMainEl) ) {
+if(highlightsNotesBtn && (passageContentEl || questionTextMainEl || sprInstructionsContent) ) { // Added sprInstructionsContent
     highlightsNotesBtn.addEventListener('click', () => {
         isHighlightingActive = !isHighlightingActive;
         highlightsNotesBtn.classList.toggle('active', isHighlightingActive);
@@ -1361,24 +1500,16 @@ function handleTextSelection() {
     if (!isHighlightingActive) return;
     const selection = window.getSelection();
     if (!selection.rangeCount || selection.isCollapsed) return;
-    
     const range = selection.getRangeAt(0);
     const container = range.commonAncestorContainer;
-
     const isWithinPassagePane = passagePane && passagePane.style.display !== 'none' && passagePane.contains(container);
-    const isWithinQuestionTextPane = questionPane && questionPane.contains(container) && questionTextMainEl.contains(container);
+    const isWithinQuestionTextPane = questionPane && questionPane.contains(container) && questionTextMainEl.contains(container); // More specific
     const isWithinSprInstructions = sprInstructionsPane && sprInstructionsPane.style.display !== 'none' && sprInstructionsPane.contains(container);
     if (!isWithinPassagePane && !isWithinQuestionTextPane && !isWithinSprInstructions) return;
-
     const span = document.createElement('span');
     span.className = 'text-highlight';
-    try {
-        range.surroundContents(span);
-    } catch (e) { 
-        span.appendChild(range.extractContents());
-        range.insertNode(span);
-        console.warn("Highlighting across complex nodes, used extract/insert fallback.", e);
-    }
+    try { range.surroundContents(span); } 
+    catch (e) { span.appendChild(range.extractContents()); range.insertNode(span); console.warn("Highlighting fallback.", e); }
     selection.removeAllRanges();
 }
 
@@ -1395,7 +1526,7 @@ if(directionsModal) directionsModal.addEventListener('click', (e) => { if (e.tar
 
 if(qNavBtnFooter) {
     qNavBtnFooter.addEventListener('click', () => { 
-        if (currentQuizQuestions.length > 0) { populateQNavGrid(); toggleModal(qNavPopup, true); } 
+        if (currentQuizQuestions && currentQuizQuestions.length > 0) { populateQNavGrid(); toggleModal(qNavPopup, true); } 
         else { console.warn("QNav: no questions loaded."); }
     });
 }
@@ -1403,7 +1534,7 @@ if(qNavCloseBtn) qNavCloseBtn.addEventListener('click', () => toggleModal(qNavPo
 if(qNavGotoReviewBtn) {
     qNavGotoReviewBtn.addEventListener('click', () => { 
         toggleModal(qNavPopup, false); 
-        if (currentQuizQuestions.length > 0) { showView('review-page-view'); }
+        if (currentQuizQuestions && currentQuizQuestions.length > 0) { showView('review-page-view'); }
     }); 
 }
 
@@ -1417,14 +1548,14 @@ if(markReviewCheckboxMain) {
             flagIconMain.style.color = answerState.marked ? 'var(--bluebook-red-flag)' : '#9ca3af';
         }
         if (qNavPopup && qNavPopup.classList.contains('visible')) populateQNavGrid();
+        if (reviewPageViewEl && reviewPageViewEl.classList.contains('active')) renderReviewPage(); // Update review page grid if active
     });
 }
 
 if(timerToggleBtn) timerToggleBtn.addEventListener('click', () => handleTimerToggle(timerTextEl, timerClockIconEl, timerToggleBtn));
-
-if(reviewDirectionsBtn) { // Already handled by its own listener in Gist logic
+if(reviewDirectionsBtn) { 
     reviewDirectionsBtn.addEventListener('click', () => {
-        const moduleInfo = getCurrentModule(); // Use current module logic
+        const moduleInfo = getCurrentModule(); 
         if (moduleInfo && directionsModalTitle) directionsModalTitle.textContent = `Section ${currentModuleIndex + 1}: ${moduleInfo.name} Directions`;
         if (moduleInfo && directionsModalText) directionsModalText.innerHTML = moduleInfo.directions || "General directions for review.";
         toggleModal(directionsModal, true);
@@ -1438,12 +1569,8 @@ if(reviewBackBtnFooter) {
     });
 }
 
-
 if(moreBtn) { 
-    moreBtn.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        if(moreMenuDropdown) moreMenuDropdown.classList.toggle('visible'); 
-    });
+    moreBtn.addEventListener('click', (e) => { e.stopPropagation(); if(moreMenuDropdown) moreMenuDropdown.classList.toggle('visible'); });
 }
 document.body.addEventListener('click', (e) => { 
     if (moreMenuDropdown && moreBtn && !moreBtn.contains(e.target) && !moreMenuDropdown.contains(e.target) && moreMenuDropdown.classList.contains('visible')) {
@@ -1453,196 +1580,117 @@ document.body.addEventListener('click', (e) => {
 if(moreMenuDropdown) moreMenuDropdown.addEventListener('click', (e) => e.stopPropagation()); 
 
 if(moreUnscheduledBreakBtn) {
-    moreUnscheduledBreakBtn.addEventListener('click', () => { 
-        toggleModal(unscheduledBreakConfirmModal, true); 
-        if(moreMenuDropdown) moreMenuDropdown.classList.remove('visible'); 
-        if(understandLoseTimeCheckbox) understandLoseTimeCheckbox.checked = false; 
-        if(unscheduledBreakConfirmBtn) unscheduledBreakConfirmBtn.disabled = true; 
-    });
+    moreUnscheduledBreakBtn.addEventListener('click', () => { toggleModal(unscheduledBreakConfirmModal, true); if(moreMenuDropdown) moreMenuDropdown.classList.remove('visible'); if(understandLoseTimeCheckbox) understandLoseTimeCheckbox.checked = false; if(unscheduledBreakConfirmBtn) unscheduledBreakConfirmBtn.disabled = true; });
 }
 if(understandLoseTimeCheckbox) {
-    understandLoseTimeCheckbox.addEventListener('change', () => { 
-        if(unscheduledBreakConfirmBtn) unscheduledBreakConfirmBtn.disabled = !understandLoseTimeCheckbox.checked; 
-    });
+    understandLoseTimeCheckbox.addEventListener('change', () => { if(unscheduledBreakConfirmBtn) unscheduledBreakConfirmBtn.disabled = !understandLoseTimeCheckbox.checked; });
 }
 if(unscheduledBreakCancelBtn) unscheduledBreakCancelBtn.addEventListener('click', () => toggleModal(unscheduledBreakConfirmModal, false));
 if(unscheduledBreakConfirmBtn) {
-    unscheduledBreakConfirmBtn.addEventListener('click', () => { 
-        alert("Unscheduled Break screen: Future"); 
-        toggleModal(unscheduledBreakConfirmModal, false); 
-    });
+    unscheduledBreakConfirmBtn.addEventListener('click', () => { alert("Unscheduled Break screen: Future"); toggleModal(unscheduledBreakConfirmModal, false); });
 }
 
 if(moreExitExamBtn) {
-    moreExitExamBtn.addEventListener('click', () => { 
-        toggleModal(exitExamConfirmModal, true); 
-        if(moreMenuDropdown) moreMenuDropdown.classList.remove('visible'); 
-    });
+    moreExitExamBtn.addEventListener('click', () => { toggleModal(exitExamConfirmModal, true); if(moreMenuDropdown) moreMenuDropdown.classList.remove('visible'); });
 }
 if(exitExamCancelBtn) exitExamCancelBtn.addEventListener('click', () => toggleModal(exitExamConfirmModal, false));
 if(exitExamConfirmBtn) {
     exitExamConfirmBtn.addEventListener('click', () => { 
+        recordTimeOnCurrentQuestion(); // Record time before exiting
+        if (moduleTimerInterval) clearInterval(moduleTimerInterval);
+        if (practiceQuizTimerInterval) clearInterval(practiceQuizTimerInterval);
         toggleModal(exitExamConfirmModal, false); 
         showView('home-view'); 
     });
 }
 
-// Start Button Listeners (These are from your .txt file - they define mode behavior)
-if(startFullPracticeTestBtn) {
-    startFullPracticeTestBtn.addEventListener('click', async () => {
-        initializeStudentIdentifier(); 
-        console.log("Start Full Practice Test button clicked."); 
-        
-        currentInteractionMode = 'full_test';
-        currentModuleIndex = 0;
-        currentQuestionNumber = 1;
-        userAnswers = {}; 
-        isTimerHidden = false;
-        isCrossOutToolActive = false;
-        isHighlightingActive = false; if(highlightsNotesBtn) highlightsNotesBtn.classList.remove('active');
-        if(calculatorOverlay) calculatorOverlay.classList.remove('visible');
-        if(referenceSheetPanel) referenceSheetPanel.classList.remove('visible');
-        currentModuleTimeUp = false; 
-
-        currentTestFlow = ["DT-T0-RW-M1", "DT-T0-RW-M2", "DT-T0-MT-M1", "DT-T0-MT-M2"]; 
-        console.log("Test flow set for Full Practice Test:", currentTestFlow); 
-
-        if (currentTestFlow.length > 0) {
-            const firstQuizName = currentTestFlow[currentModuleIndex];
-            const moduleInfo = moduleMetadata[firstQuizName];
+// Listener for the Email Submission Button
+if (submitEmailBtn) {
+    submitEmailBtn.addEventListener('click', async () => { 
+        if (studentEmailField && studentEmailField.value.trim() !== "" && studentEmailField.value.includes('@')) {
+            studentEmailForSubmission = studentEmailField.value.trim();
+            localStorage.setItem('bluebookStudentEmail', studentEmailForSubmission);
+            console.log(`DEBUG submitEmailBtn: Email submitted: ${studentEmailForSubmission}, saved.`);
             
-            console.log(`DEBUG startFullPracticeTestBtn: Initializing. First quiz: ${firstQuizName}. ModuleInfo found:`, !!moduleInfo);
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizNameFromUrl = urlParams.get('quiz_name');
+            const testIdFromUrl = urlParams.get('test_id'); 
+            globalOriginPageId = urlParams.get('originPageId') || globalOriginPageId; 
+            globalQuizSource = urlParams.get('source') || globalQuizSource;
 
-            startFullPracticeTestBtn.textContent = "Loading...";
-            startFullPracticeTestBtn.disabled = true;
-            
-            let jsonToLoad = firstQuizName;
-            if (firstQuizName === "DT-T0-RW-M2") jsonToLoad = "DT-T0-RW-M1";
-            else if (firstQuizName === "DT-T0-MT-M2") jsonToLoad = "DT-T0-MT-M1";
-            
-            const success = await loadQuizData(jsonToLoad); 
-            
-            startFullPracticeTestBtn.textContent = "Start Full Test"; 
-            startFullPracticeTestBtn.disabled = false; 
+            console.log(`DEBUG submitEmailBtn: After email. quizName: ${quizNameFromUrl}, testId: ${testIdFromUrl}`);
 
-            if (success && currentQuizQuestions.length > 0) {
-                console.log("DEBUG startFullPracticeTestBtn: Data loaded. Starting timer and showing view.");
-                if (moduleInfo && typeof moduleInfo.durationSeconds === 'number') {
-                    startModuleTimer(moduleInfo.durationSeconds); 
-                } else {
-                    console.warn(`Full Test Mode: No duration for module ${firstQuizName}. Timer not started or showing 00:00.`);
-                    updateModuleTimerDisplay(0); 
-                }
-                populateQNavGrid(); 
-                showView('test-interface-view'); 
+            if (testIdFromUrl) { 
+                console.log(`DEBUG submitEmailBtn: Launching full test '${testIdFromUrl}' after email.`);
+                if (fullTestDefinitions[testIdFromUrl]) {
+                    currentInteractionMode = 'full_test';
+                    currentTestFlow = fullTestDefinitions[testIdFromUrl].flow;
+                    currentModuleIndex = 0; currentQuestionNumber = 1; userAnswers = {};
+                    isTimerHidden = false; isCrossOutToolActive = false; isHighlightingActive = false;
+                    if(highlightsNotesBtn) highlightsNotesBtn.classList.remove('active');
+                    currentModuleTimeUp = false; 
+
+                    if (currentTestFlow && currentTestFlow.length > 0) {
+                        const firstQuizName = currentTestFlow[currentModuleIndex];
+                        const moduleInfo = moduleMetadata[firstQuizName];
+                        let jsonToLoad = firstQuizName; 
+                      //  if (firstQuizName.endsWith("RW-M2") && !moduleMetadata[firstQuizName]?.actualFile) jsonToLoad = firstQuizName.replace("RW-M2", "RW-M1");
+                      //  else if (firstQuizName.endsWith("MT-M2") && !moduleMetadata[firstQuizName]?.actualFile) jsonToLoad = firstQuizName.replace("MT-M2", "MT-M1");
+
+                        const success = await loadQuizData(jsonToLoad);
+                        if (success && currentQuizQuestions.length > 0) {
+                           // if (moduleInfo && typeof moduleInfo.durationSeconds === 'number') {
+                           //     startModuleTimer(moduleInfo.durationSeconds);
+                          //  } else { updateModuleTimerDisplay(0); }
+                            
+                            // CHANGED: Conditional timer start for DT-T0
+                        if (currentInteractionMode === 'full_test' && testIdFromUrl === "DT-T0") {
+                            console.log(`DEBUG submitEmailBtn: Starting DT-T0 module ${firstQuizName} with upward counting timer.`);
+                            startPracticeQuizTimer(); // Use upward timer for DT-T0 modules
+                            currentModuleTimeUp = true; // Effectively makes it behave like untimed for navigation
+                        } else if (currentInteractionMode === 'full_test' && moduleInfo && typeof moduleInfo.durationSeconds === 'number' && moduleInfo.durationSeconds > 0) {
+                            console.log(`DEBUG submitEmailBtn: Starting timed module ${firstQuizName} with duration ${moduleInfo.durationSeconds}.`);
+                            startModuleTimer(moduleInfo.durationSeconds);
+                        } else if (currentInteractionMode === 'single_quiz') {
+                            // This block was already here and is correct for single_quiz
+                            startPracticeQuizTimer();
+                        } else { // Fallback or non-timed full_test module (if any other than DT-T0)
+                            console.warn(`Timer Mode/Config issue for module ${firstQuizName}. No specific timer started. Defaulting to 00:00 or upward if logic permits.`);
+                            updateModuleTimerDisplay(0); 
+                            updatePracticeQuizTimerDisplay(0);
+                            currentModuleTimeUp = true; // Allow immediate progression if no countdown
+                        }
+                        // END CHANGED
+                            
+                            populateQNavGrid(); showView('test-interface-view');
+                        } else { alert(`Could not load initial module for test: ${testIdFromUrl}.`); showView('home-view'); }
+                    } else { alert(`Test ID '${testIdFromUrl}' has no defined flow.`); showView('home-view');}
+                } else { alert(`Unknown Test ID: ${testIdFromUrl}.`); showView('home-view'); }
+            } else if (quizNameFromUrl) {
+                console.log(`DEBUG submitEmailBtn: Launching single quiz '${quizNameFromUrl}' after email.`);
+                currentInteractionMode = 'single_quiz';
+                currentTestFlow = [quizNameFromUrl];
+                currentModuleIndex = 0; currentQuestionNumber = 1; userAnswers = {};
+                isTimerHidden = false; isCrossOutToolActive = false; isHighlightingActive = false;
+                currentModuleTimeUp = false; 
+                const success = await loadQuizData(quizNameFromUrl);
+                if (success && currentQuizQuestions.length > 0) {
+                    startPracticeQuizTimer(); populateQNavGrid(); showView('test-interface-view');
+                } else { alert(`Could not load quiz: ${quizNameFromUrl}.`); showView('home-view'); }
             } else {
-                console.error("Failed to load initial quiz data for full test.");
-                alert("Could not start the full test. Check console.");
-                showView('home-view'); 
-            }
-        } else { 
-            console.error("Full test flow is empty.");
-            alert("Full test configuration error.");
-        }
-    });
-}
-
-if(startSinglePracticeQuizBtn) {
-    startSinglePracticeQuizBtn.addEventListener('click', async () => {
-        initializeStudentIdentifier();
-        console.log("Start Single Practice Quiz button clicked.");
-
-        currentInteractionMode = 'single_quiz';
-        currentModuleIndex = 0; 
-        currentQuestionNumber = 1;
-        userAnswers = {};
-        isTimerHidden = false;
-        isCrossOutToolActive = false;
-        isHighlightingActive = false; if(highlightsNotesBtn) highlightsNotesBtn.classList.remove('active');
-        if(calculatorOverlay) calculatorOverlay.classList.remove('visible');
-        if(referenceSheetPanel) referenceSheetPanel.classList.remove('visible');
-
-        currentTestFlow = ["DT-T0-MT-M1"]; 
-        console.log("Test flow set for Single Practice Quiz:", currentTestFlow);
-
-        if (currentTestFlow.length > 0) {
-            const quizName = currentTestFlow[0];
-            console.log(`DEBUG startSinglePracticeQuizBtn: Initializing. Quiz: ${quizName}`);
-            
-            startSinglePracticeQuizBtn.textContent = "Loading...";
-            startSinglePracticeQuizBtn.disabled = true;
-
-            const success = await loadQuizData(quizName);
-
-            startSinglePracticeQuizBtn.textContent = "Start Single Quiz";
-            startSinglePracticeQuizBtn.disabled = false;
-
-            if (success && currentQuizQuestions.length > 0) {
-                console.log("DEBUG startSinglePracticeQuizBtn: Data loaded. Starting timer and showing view.");
-                startPracticeQuizTimer(); 
-                populateQNavGrid();
-                showView('test-interface-view');
-            } else {
-                console.error("Failed to load data for single practice quiz.");
-                alert("Could not start the practice quiz. Check console.");
-                showView('home-view');
-            }
-        } else { 
-            console.error("Single quiz flow is empty.");
-            alert("Single quiz configuration error.");
-        }
-    });
-}
-
-// Listener for continue-after-break-btn (Manual Break)
-if (continueAfterBreakBtn) {
-    continueAfterBreakBtn.addEventListener('click', async () => {
-        console.log("Continue after manual break button clicked.");
-        
-        if (currentModuleIndex < currentTestFlow.length) {
-            currentQuestionNumber = 1;
-            currentModuleTimeUp = false; 
-
-            const nextQuizName = currentTestFlow[currentModuleIndex];
-            const nextModuleInfo = moduleMetadata[nextQuizName];
-
-            let jsonToLoadForNextModule = nextQuizName;
-            if (nextQuizName === "DT-T0-RW-M2") jsonToLoadForNextModule = "DT-T0-RW-M1";
-            else if (nextQuizName === "DT-T0-MT-M2") jsonToLoadForNextModule = "DT-T0-MT-M1";
-            
-            continueAfterBreakBtn.textContent = "Loading next section...";
-            continueAfterBreakBtn.disabled = true;
-
-            const success = await loadQuizData(jsonToLoadForNextModule);
-            
-            continueAfterBreakBtn.textContent = "Continue to Next Section";
-            continueAfterBreakBtn.disabled = false;
-
-            if (success && currentQuizQuestions.length > 0) {
-                if (currentInteractionMode === 'full_test' && nextModuleInfo && typeof nextModuleInfo.durationSeconds === 'number') {
-                    startModuleTimer(nextModuleInfo.durationSeconds);
-                } else { 
-                    console.warn(`Timer mode/config issue for module ${nextQuizName} after break. Defaulting to practice timer or no timer.`);
-                    startPracticeQuizTimer(); // Fallback or if single_quiz somehow reached here
-                }
-                populateQNavGrid();
-                showView('test-interface-view');
-            } else {
-                console.error("Failed to load next module after break or module has no questions.");
-                alert("Error loading the next module after break. Returning to home.");
+                console.log("DEBUG submitEmailBtn: No quiz/test in URL. Showing home view.");
                 showView('home-view');
             }
         } else {
-            console.error("Continue after break clicked, but no more modules in flow. This is unexpected.");
-            showView('finished-view'); 
+            alert("Please enter a valid email address.");
         }
     });
 }
 
 // --- Submission Logic ---
-async function submitQuizData() {
-console.log("Attempting to submit quiz data (Phase 4 - Corrected Logic)...");
-    recordTimeOnCurrentQuestion(); // Ensure time for the very last interaction is recorded
+async function submitQuizData() { 
+    console.log("Attempting to submit quiz data...");
+    recordTimeOnCurrentQuestion(); 
 
     const submissions = [];
     const timestamp = new Date().toISOString();
@@ -1650,16 +1698,12 @@ console.log("Attempting to submit quiz data (Phase 4 - Corrected Logic)...");
     for (const key in userAnswers) {
         if (userAnswers.hasOwnProperty(key)) {
             const answerState = userAnswers[key];
-            
-            // Critical check: Ensure all needed data is present in answerState
             if (!answerState.q_id || answerState.q_id.endsWith('-tmp') || typeof answerState.correct_ans === 'undefined' || answerState.correct_ans === null || typeof answerState.question_type_from_json === 'undefined' || !answerState.quizName_from_flow) {
-                console.warn(`Submission data incomplete for answer key ${key}:`, answerState, `. QuizName found: ${answerState.quizName_from_flow}. Question ID: ${answerState.q_id}. Correct Ans: ${answerState.correct_ans}. Type: ${answerState.question_type_from_json}. Skipping this answer.`);
+                console.warn(`Submission data incomplete for answer key ${key}:`, answerState, `Skipping.`);
                 continue; 
             }
-
             let studentAnswerForSubmission = "";
             let isCorrect = false;
-
             if (answerState.question_type_from_json === 'student_produced_response') {
                 studentAnswerForSubmission = answerState.spr_answer || "NO_ANSWER";
                 if (answerState.correct_ans && studentAnswerForSubmission !== "NO_ANSWER") {
@@ -1668,116 +1712,241 @@ console.log("Attempting to submit quiz data (Phase 4 - Corrected Logic)...");
                         isCorrect = true;
                     }
                 }
-            } else { // Assuming multiple_choice or similar
-                studentAnswerForSubmission = answerState.selected || "NO_ANSWER";
-                // For MCQs, the JSON 'correct_answer' field contains the text of the correct option.
-                // 'answerState.selected' stores the letter (A, B, C, D) of the chosen option.
-                // We need to get the text of the selected option to compare.
-                if (answerState.selected && studentAnswerForSubmission !== "NO_ANSWER") {
-                    // Find the original question data to get the text of the selected option
-                    // This is a bit complex here because currentQuizQuestions might be for a different module
-                    // if submission happens after all modules are done.
-                    // This highlights a potential need to store option texts or have a map.
-                    // For now, this part of is_correct for MCQ might be inaccurate if not handled carefully
-                    // during the actual quiz flow.
-                    // HOWEVER, the OLD SCRIPT compared `userAnswerData.answer` (which was the option text) 
-                    // with `question.correct_answer` (also option text).
-                    // Our Bluebook `answerState.selected` stores the KEY ('A', 'B').
-                    // This is a mismatch that needs addressing if we want accurate `is_correct` for MCQs.
-                    
-                    // TEMPORARY: For now, to make submission proceed, we'll set isCorrect for MCQ to false
-                    // This needs to be fixed by ensuring answerState.selected either stores full text,
-                    // or we can retrieve the option text based on the key at submission time.
-                    // Given the structure, let's assume correct_ans is the option TEXT.
-                    // We need to map answerState.selected ('A') to currentQuestionDetails['option_a']
-                    // This is difficult to do generically in submitQuizData without loading original question.
-                    // Let's assume `answerState.correct_ans` IS the text of the correct option from JSON.
-                    // If `answerState.selected` stored the TEXT of the selected option, this would work:
-                    // isCorrect = (String(studentAnswerForSubmission).trim() === String(answerState.correct_ans).trim());
-                    
-                    // For the OLD script, `studentAnswers[questionId].answer` was the *value* (text) of the selected option.
-                    // Our `answerState.selected` is the *key* ('A', 'B', etc.).
-                    // To fix this properly, when recording MCQ answers, we should store the TEXT of the selected option.
-                    // For now, to make the structure match the old script for `is_correct`:
-                    // This is_correct for MCQ WILL BE WRONG until we store option text in answerState.selected or similar.
-                    // We'll assume `answerState.selected` is already the option text for this fetch call.
-                    // THIS WILL BE FIXED IN THE NEXT STEP IF `studentAnswerForSubmission` is an option key ('A')
-                    // and `answerState.correct_ans` is option text.
-
-                    // Correct approach for MCQ is_correct:
-                    // 1. `answerState.selected` should store the *text* of the selected option, not the key.
-                    //    This change needs to be made in `handleAnswerSelect`.
-                    // OR
-                    // 2. At submission, retrieve the question details to map the key to text. (More complex here)
-
-                    // For now, to match old script's direct comparison:
-                    if (answerState.correct_ans && studentAnswerForSubmission !== "NO_ANSWER") {
-                        isCorrect = (String(studentAnswerForSubmission).trim().toLowerCase() === String(answerState.correct_ans).trim().toLowerCase());
-                    }
+            } else { 
+                studentAnswerForSubmission = answerState.selected || "NO_ANSWER"; // This now holds the text
+                if (answerState.correct_ans && studentAnswerForSubmission !== "NO_ANSWER") {
+                    isCorrect = (String(studentAnswerForSubmission).trim().toLowerCase() === String(answerState.correct_ans).trim().toLowerCase());
                 }
             }
             
             submissions.push({
                 timestamp: timestamp,
                 student_gmail_id: studentEmailForSubmission, 
-                quiz_name: answerState.quizName_from_flow, // Use stored quizName
+                quiz_name: answerState.quizName_from_flow, 
                 question_id: answerState.q_id, 
                 student_answer: studentAnswerForSubmission,
-                is_correct: isCorrect, // Boolean, Apps Script handles conversion to string if necessary
-                time_spent_seconds: parseFloat(answerState.timeSpent || 0).toFixed(2)
+                is_correct: isCorrect, 
+                time_spent_seconds: parseFloat(answerState.timeSpent || 0).toFixed(2),
+                selection_changes: answerState.selectionChanges || 0,
+                source: globalQuizSource || '' 
             });
         }
     }
 
     if (submissions.length === 0) {
-        console.log("No valid answers with complete data found. Nothing to submit.");
-        alert("No answers were recorded properly to submit.");
+        console.log("No valid answers recorded. Nothing to submit.");
+        alert("No answers were recorded to submit.");
         return;
     }
-
-    console.log("Submitting the following data (Phase 4 Corrected):", submissions);
-
+    console.log("Submitting the following data:", submissions);
     if (APPS_SCRIPT_WEB_APP_URL === 'YOUR_CORRECT_BLUEBOOK_APPS_SCRIPT_URL_HERE' || !APPS_SCRIPT_WEB_APP_URL.startsWith('https://script.google.com/')) {
-        console.warn("APPS_SCRIPT_WEB_APP_URL is not set or invalid. Submission will not proceed.");
+        console.warn("APPS_SCRIPT_WEB_APP_URL not set or invalid. Data logged to console.");
         alert("Submission URL not configured. Data logged to console.");
         return;
     }
-
     try {
-        const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors', 
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'text/plain', 
-            },
-            redirect: 'follow',
-            body: JSON.stringify(submissions) 
+        await fetch(APPS_SCRIPT_WEB_APP_URL, {
+            method: 'POST', mode: 'no-cors', cache: 'no-cache',
+            headers: {'Content-Type': 'text/plain'},
+            redirect: 'follow', body: JSON.stringify(submissions) 
         });
-        
-        // With 'no-cors', we don't get a meaningful response object here.
-        // The request is "fire and forget" from the browser's perspective regarding success/failure details from the server.
-        console.log('Submission attempt finished (no-cors mode). Please verify in the Google Sheet.');
-        alert('Your answers have been submitted! Please check the Google Sheet to confirm.');
-
+        console.log('Submission attempt finished (no-cors mode). Verify in Google Sheet.');
+        alert('Your answers have been submitted! Please check the Google Sheet.');
     } catch (error) {
-        // This catch block will primarily catch network errors if the request couldn't even be made (e.g., DNS, no internet)
-        // or if there's a fundamental issue with the fetch setup itself.
-        // It won't typically catch server-side errors from Apps Script when using 'no-cors'.
         console.error('Error submitting quiz data (fetch failed):', error);
-        alert(`There was an error sending your quiz data: ${error.message}. Please check your internet connection and the console.`);
+        alert(`Error sending data: ${error.message}. Check console.`);
     }
 }
 
-    
-
-
 // --- DOMContentLoaded ---
-document.addEventListener('DOMContentLoaded', () => {
-    initializeStudentIdentifier(); 
-    updateNavigation(); 
-});
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("DEBUG DOMContentLoaded: Initializing application.");
+    const emailIsValid = initializeStudentIdentifier(); 
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizNameFromUrl = urlParams.get('quiz_name');
+    const testIdFromUrl = urlParams.get('test_id');
+    const sourceFromUrl = urlParams.get('source'); 
+    globalOriginPageId = urlParams.get('originPageId'); 
 
-// =======================================================================
-// === END OF ADDED/RESTORED CODE                                      ===
-// =======================================================================
+    if (sourceFromUrl) {
+        globalQuizSource = sourceFromUrl; 
+        console.log(`DEBUG DOMContentLoaded: URL 'source' parameter found: ${globalQuizSource}`);
+    }
+    if (globalOriginPageId) {
+        console.log(`DEBUG DOMContentLoaded: URL 'originPageId' parameter found: ${globalOriginPageId}`);
+    }
+
+    const savedSessionJSON = localStorage.getItem(SESSION_STORAGE_KEY);
+    let sessionResumed = false;
+
+    if (savedSessionJSON) {
+        console.log("DEBUG DOMContentLoaded: Found saved session data.");
+        try {
+            const savedSession = JSON.parse(savedSessionJSON);
+
+            if (savedSession && typeof savedSession.currentModuleIndex === 'number' && savedSession.currentTestFlow && savedSession.currentTestFlow.length > 0) {
+                
+                // --- START OF INSERTED/CORRECTED resumeConfirmation LOGIC ---
+                const resumeConfirmation = confirm("An unfinished session was found. Would you like to resume it?");
+                
+                if (resumeConfirmation) {
+                    console.log("DEBUG DOMContentLoaded: User chose to RESUME session.");
+                    sessionResumed = true; // Set flag that we are attempting to resume
+
+                    // Restore studentEmail if it was part of the session and consistent
+                    if (savedSession.studentEmailForSubmission) {
+                        if (studentEmailForSubmission && studentEmailForSubmission !== savedSession.studentEmailForSubmission) {
+                            console.warn(`Mismatch localStorage email (${studentEmailForSubmission}) vs session email (${savedSession.studentEmailForSubmission}). Using session email.`);
+                        }
+                        studentEmailForSubmission = savedSession.studentEmailForSubmission;
+                        localStorage.setItem('bluebookStudentEmail', studentEmailForSubmission); // Ensure localStorage is also up-to-date
+                        const homeUserNameEl = document.getElementById('home-user-name');
+                        if(homeUserNameEl && studentEmailForSubmission) homeUserNameEl.textContent = studentEmailForSubmission.split('@')[0];
+                        console.log(`DEBUG DOMContentLoaded Resume: studentEmailForSubmission set to ${studentEmailForSubmission}`);
+                    } else if (!studentEmailForSubmission) {
+                         console.warn("DEBUG DOMContentLoaded Resume: Session has no email, and localStorage had no email. This might lead to email prompt later if not handled by URL params.");
+                    }
+
+
+                    // Restore state variables
+                    currentInteractionMode = savedSession.currentInteractionMode || 'full_test';
+                    currentTestFlow = savedSession.currentTestFlow;
+                    currentModuleIndex = savedSession.currentModuleIndex;
+                    currentQuestionNumber = savedSession.currentQuestionNumber;
+                    userAnswers = savedSession.userAnswers || {};
+                    currentModuleTimeLeft = savedSession.currentModuleTimeLeft || 0;
+                    practiceQuizTimeElapsed = savedSession.practiceQuizTimeElapsed || 0;
+                    isTimerHidden = savedSession.isTimerHidden || false;
+                    globalOriginPageId = savedSession.globalOriginPageId || globalOriginPageId; 
+                    globalQuizSource = savedSession.globalQuizSource || globalQuizSource;     
+                    
+                    if (timerTextEl && timerClockIconEl && timerToggleBtn) { /* ... restore timer visibility ... */ }
+                    // ... (copy timer visibility restoration from your working script if it was there)
+
+                    console.log("DEBUG DOMContentLoaded: Session state restored for resume:", { /* ... log details ... */ });
+
+                    const quizNameToLoadForResume = currentTestFlow[currentModuleIndex];
+                    if (quizNameToLoadForResume) {
+                        let jsonToLoadForResume = quizNameToLoadForResume; // Placeholder for M2 mapping if needed
+                        // Add your M2 mapping logic here if it was present in the working version
+                        // e.g., if (quizNameToLoadForResume.endsWith("RW-M2") && ...) jsonToLoadForResume = ...;
+
+                        const success = await loadQuizData(jsonToLoadForResume);
+                        if (success && currentQuizQuestions.length > 0) {
+                            console.log(`DEBUG DOMContentLoaded: Data for resumed module ${quizNameToLoadForResume} loaded.`);
+                            
+                            const currentModInfoForResume = getCurrentModule(); // Get module info for resumed module
+                            const isResumedDtT0Module = currentModInfoForResume && currentModInfoForResume.name && currentModInfoForResume.name.includes("(Diagnostic)");
+
+                            if (currentInteractionMode === 'full_test') {
+                                if (isResumedDtT0Module) {
+                                    console.log(`DEBUG DOMContentLoaded Resume: Resuming DT-T0 module ${currentTestFlow[currentModuleIndex]} with upward timer.`);
+                                    startPracticeQuizTimer();
+                                    practiceQuizTimeElapsed = savedSession.practiceQuizTimeElapsed || 0;
+                                    updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
+                                    currentModuleTimeUp = true; 
+                                } else if (currentModInfoForResume && typeof currentModInfoForResume.durationSeconds === 'number' && currentModInfoForResume.durationSeconds > 0) {
+                                    console.log(`DEBUG DOMContentLoaded Resume: Resuming timed module ${currentTestFlow[currentModuleIndex]} with ${currentModuleTimeLeft}s left.`);
+                                    startModuleTimer(currentModuleTimeLeft); 
+                                } else { // Fallback if duration is missing for a non-DT-T0 full_test module
+                                    console.warn(`DEBUG DOMContentLoaded Resume: Full_test module ${currentTestFlow[currentModuleIndex]} missing duration. Using upward timer or no timer.`);
+                                    startPracticeQuizTimer(); // Or handle as error / default to untimed
+                                    practiceQuizTimeElapsed = savedSession.practiceQuizTimeElapsed || 0;
+                                    updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
+                                    currentModuleTimeUp = true;
+                                }
+                            } else if (currentInteractionMode === 'single_quiz') {
+                                startPracticeQuizTimer(); 
+                                practiceQuizTimeElapsed = savedSession.practiceQuizTimeElapsed || 0;
+                                updatePracticeQuizTimerDisplay(practiceQuizTimeElapsed);
+                            }
+                            populateQNavGrid();
+                            showView('test-interface-view');
+                            // sessionResumed = true; // Already set
+                        } else {
+                            console.error(`DEBUG DOMContentLoaded: Failed to load data for resumed module ${quizNameToLoadForResume}. Clearing session.`);
+                            alert("Could not resume session: error loading quiz data. Starting fresh.");
+                            clearSessionState(); 
+                            sessionResumed = false; // Indicate resume failed
+                        }
+                    } else {
+                        console.error("DEBUG DOMContentLoaded: Invalid quizNameInFlow for resume. Clearing session.");
+                        alert("Could not resume session: invalid session data. Starting fresh.");
+                        clearSessionState();
+                        sessionResumed = false; // Indicate resume failed
+                    }
+                } else { // User chose NOT to resume
+                    console.log("DEBUG DOMContentLoaded: User chose NOT to resume. Clearing saved session.");
+                    clearSessionState(); 
+                    sessionResumed = false; // Explicitly set, though default is false
+                }
+                // --- END OF INSERTED/CORRECTED resumeConfirmation LOGIC ---
+            } else {
+                console.warn("DEBUG DOMContentLoaded: Saved session data is invalid or incomplete. Clearing it.");
+                clearSessionState();
+            }
+        } catch (parseError) {
+            console.error("DEBUG DOMContentLoaded: Error parsing saved session JSON. Clearing it.", parseError);
+            clearSessionState();
+        }
+    } else {
+        console.log("DEBUG DOMContentLoaded: No saved session found.");
+    }
+
+    if (!sessionResumed) { 
+        console.log("DEBUG DOMContentLoaded: No session resumed. Proceeding with standard launch checks (email/URL).");
+    
+    if (!emailIsValid) {
+        console.log(`DEBUG DOMContentLoaded: No valid email. Showing email input. URL params: quiz_name=${quizNameFromUrl}, test_id=${testIdFromUrl}`);
+        showView('email-input-view');
+    } else {
+        console.log(`DEBUG DOMContentLoaded: Email is valid (${studentEmailForSubmission}). Checking direct launch params.`);
+        if (testIdFromUrl) { 
+            console.log(`DEBUG DOMContentLoaded: Launching full test from URL: ${testIdFromUrl}`);
+            if (fullTestDefinitions[testIdFromUrl]) {
+                currentInteractionMode = 'full_test';
+                currentTestFlow = fullTestDefinitions[testIdFromUrl].flow;
+                currentModuleIndex = 0; currentQuestionNumber = 1; userAnswers = {};
+                isTimerHidden = false; isCrossOutToolActive = false; isHighlightingActive = false;
+                currentModuleTimeUp = false; 
+                if (currentTestFlow && currentTestFlow.length > 0) {
+                    const firstQuizName = currentTestFlow[currentModuleIndex];
+                    const moduleInfo = moduleMetadata[firstQuizName];
+                    let jsonToLoad = firstQuizName; 
+                   // if (firstQuizName.endsWith("RW-M2") && (!moduleMetadata[firstQuizName] || !moduleMetadata[firstQuizName].actualFileIfDifferent)) jsonToLoad = firstQuizName.replace("RW-M2", "RW-M1");
+                   // else if (firstQuizName.endsWith("MT-M2") && (!moduleMetadata[firstQuizName] || !moduleMetadata[firstQuizName].actualFileIfDifferent)) jsonToLoad = firstQuizName.replace("MT-M2", "MT-M1");
+
+                    const isDtT0Module = firstQuizName.startsWith("DT-T0-");
+                    
+                    const success = await loadQuizData(jsonToLoad);
+                    if (success && currentQuizQuestions.length > 0) {
+                       if (isDtT0Module) {
+                                startPracticeQuizTimer(); currentModuleTimeUp = true;
+                       } else if (moduleInfo && typeof moduleInfo.durationSeconds === 'number') { startModuleTimer(moduleInfo.durationSeconds); } 
+                        else { updateModuleTimerDisplay(0); currentModuleTimeUp = true; }
+                        populateQNavGrid(); showView('test-interface-view');
+                    } else { alert(`Could not load initial module for test: ${testIdFromUrl}.`); showView('home-view'); }
+                } else { alert(`Test ID '${testIdFromUrl}' has no defined flow.`); showView('home-view');}
+            } else { alert(`Unknown Test ID: ${testIdFromUrl}.`); showView('home-view'); }
+        } else if (quizNameFromUrl) {
+            console.log(`DEBUG DOMContentLoaded: Launching single quiz from URL: ${quizNameFromUrl}`);
+            currentInteractionMode = 'single_quiz'; 
+            currentTestFlow = [quizNameFromUrl];
+            currentModuleIndex = 0; currentQuestionNumber = 1; userAnswers = {};
+            isTimerHidden = false; isCrossOutToolActive = false; isHighlightingActive = false;
+            currentModuleTimeUp = false; questionStartTime = 0;
+            currentModuleTimeLeft = 0; practiceQuizTimeElapsed = 0;
+            
+            const success = await loadQuizData(quizNameFromUrl);
+            if (success && currentQuizQuestions.length > 0) {
+                startPracticeQuizTimer(); populateQNavGrid(); showView('test-interface-view'); 
+            } else { alert(`Could not load quiz: ${quizNameFromUrl}.`); showView('home-view'); }
+        } else {
+            console.log("DEBUG DOMContentLoaded: Email valid, no direct launch params. Displaying home screen (informational message).");
+            showView('home-view'); 
+        }
+    }
+    }
+    });
+
+
