@@ -447,39 +447,39 @@
       
 
         <!-- Home Screen View -->
+        <!-- Add this new view within your app-wrapper -->
+  <div class="app-view fullscreen-transition-view" id="email-input-view" style="background-color: var(--bluebook-home-bg); justify-content: center; align-items: center; text-align: center; padding: 2rem;">
+    <div style="background-color: white; padding: 2.5rem; border-radius: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px;">
+        <h2 style="font-size: 1.75rem; font-weight: bold; margin-bottom: 1rem; color: var(--bluebook-dark-blue);">Enter Your Email</h2>
+        <p style="font-size: 1rem; color: var(--bluebook-light-text); margin-bottom: 1.5rem;">
+            Please enter your email to start or continue your session.
+        </p>
+        <input type="email" id="student-email-field" placeholder="your.email@example.com" style="width: 100%; padding: 0.75rem; border: 1px solid var(--bluebook-border-color); border-radius: 0.375rem; margin-bottom: 1.5rem; font-size: 1rem;">
+        <button id="submit-email-btn" class="modal-button yellow" style="padding: 0.75rem 3rem; width: 100%;">Continue</button>
+    </div>
+</div>
+        
         <div class="app-view home-screen-view active" id="home-view">
             <header class="app-header">
                 <div class="logo">Bluebook</div>
                 <div class="user-info">
                     <div class="user-avatar">SG</div>
-                    <span>Sabir Ghias</span>
+                    <span id="home-user-name">Sabir Ghias</span> 
                 </div>
             </header>
-            <main class="main-home-content custom-scrollbar">
-                <h1>Welcome, Sabir!</h1>
-                <p class="subtitle">Good luck on test day!</p>
-                <h2>Practice and Prepare</h2>
-                <div class="home-practice-cards">
-                    <div class="home-practice-card">
-                        <!-- MODIFIED for Phase 6: Button for Full Practice Test -->
-                        <h3>Full Practice Test</h3>
-                        <p>Simulate a full Bluebook test with timed sections.</p>
-                        <button class="start-btn" id="start-full-practice-test-btn">Start Full Test</button>
-                    </div>
-                    <div class="home-practice-card">
-                        <!-- ADDED for Phase 6: Button for Single Practice Quiz -->
-                        <h3>Single Practice Quiz</h3>
-                        <p>Focus on a specific set of questions with no time limit (timer counts up).</p>
-                        <button class="start-btn" id="start-single-practice-quiz-btn">Start Single Quiz</button>
-                    </div>
-                    <!-- You can remove or keep this third card as you see fit -->
-                    <div class="home-practice-card">
-                        <h3>Example Card (Disabled)</h3>
-                        <p>Another type of practice or resource placeholder.</p>
-                        <button class="start-btn disabled" disabled>Coming Soon</button>
-                    </div>
-                </div>
-            </main>
+            <main class="main-home-content custom-scrollbar" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+               <!-- MODIFIED CONTENT FOR FALLBACK HOME VIEW -->
+                <h1 style="font-size: 1.75rem; font-weight: bold; margin-bottom: 1rem; color: var(--bluebook-dark-blue);">
+                    Bluebook Quiz Player
+                </h1>
+                <p class="subtitle" style="font-size: 1rem; color: var(--bluebook-light-text); margin-bottom: 1.5rem; max-width: 500px;">
+                    Please access tests and quizzes through the main SAT Hub portal or specific links provided by your instructor.
+                </p>
+                <p class="subtitle" style="font-size: 0.9rem; color: var(--bluebook-light-text); margin-top: 1rem; max-width: 500px;">
+                    If you were trying to start a specific test or quiz and landed here unexpectedly, please check the link you used or ensure you have entered your email if prompted.
+                </p>
+                
+               </main>
         </div> 
 
         <!-- Test Interface View (Content dynamically loaded by script.js) -->
@@ -637,10 +637,10 @@
         </div>
 
         <div class="calculator-overlay" id="calculator-overlay-main"> <div class="calculator-header" id="calculator-header-draggable"> <strong>Calculator</strong> <button class="calculator-close-btn" id="calculator-overlay-close-btn">×</button> </div> <div class="calculator-body"> Desmos Calculator Placeholder </div> </div>
-        <div class="reference-sheet-panel" id="reference-sheet-panel-main"> <div class="reference-header"> <h3>Reference</h3> <button class="reference-close-btn" id="reference-sheet-close-btn">×</button> </div> <div class="reference-body"> <img src="assets/math-refernce-sheet.png" alt="Math Reference Sheet"> </div> </div>
+        <div class="reference-sheet-panel" id="reference-sheet-panel-main"> <div class="reference-header"> <h3>Reference</h3> <button class="reference-close-btn" id="reference-sheet-close-btn">×</button> </div> <div class="reference-body"> <img src="https://i.postimg.cc/V6R7xL8k/sat-math-formula-sheet-sample.png" alt="Math Reference Sheet"> </div> </div>
     </div>
 
-    <script src="js/quiz-logic.js"></script> 
+    <script src="/js/quiz-logic.js"></script> 
     <!-- Make sure this script.js is the one I am providing in my next message -->
 </body>
 </html>
