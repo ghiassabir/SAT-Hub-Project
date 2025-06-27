@@ -1474,7 +1474,7 @@ if(returnToHomeBtn)
         } else {
             // Fallback to internal home-view of quiz app
             console.log("DEBUG: No complete origin params found, defaulting to internal home-view.");
-    showView('home-view')); 
+    showView('home-view'); 
     }    
   });
 
