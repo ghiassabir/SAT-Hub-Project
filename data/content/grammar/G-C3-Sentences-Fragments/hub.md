@@ -14,7 +14,7 @@ Explore the following resources to master sentences and fragments. Each section 
 *   [Cheat Sheet](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=cheatsheet)
 
 ## ✏️ Practice & Quizzes
-*   [End-of-Chapter Quiz](/SAT-Hub-Project/quiz.html?quiz_name=G-C3-EOC) <!-- Corrected path -->
+*   [End-of-Chapter Quiz](../quiz.html?quiz_name=G-C3-EOC&source=eoc&originSubject=grammar&originChapter=G-C3-Sentences-Fragments&originType=hub)
 *   [College Board Practice Quizzes](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=cb-quiz-list)
 *   [Khan Academy Resources](?subject=grammar&chapter=G-C3-Sentences-Fragments&type=khan-resources)
 
