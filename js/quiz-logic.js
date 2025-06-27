@@ -60,7 +60,8 @@ const moduleMetadata = {
     "SampleMathQuiz": { name: "Sample Math Practice", type: "Math", directions: "Solve these math problems.", spr_directions: `<h3>SPR Directions...</h3>`, spr_examples_table: `<table class="spr-examples-table">...</table>` }
 };
 
-const GITHUB_JSON_BASE_URL = 'https://raw.githubusercontent.com/ghiassabir/Bluebook-UI-UX-with-json-real-data-/main/data/json/'; 
+//const GITHUB_JSON_BASE_URL = 'https://raw.githubusercontent.com/ghiassabir/Bluebook-UI-UX-with-json-real-data-/main/data/json/'; 
+const LOCAL_JSON_BASE_URL = 'data/json/'; // NEW
 
 // CHANGED: Moved SESSION_STORAGE_KEY to global scope
 const SESSION_STORAGE_KEY = 'bluebookQuizSession'; 
@@ -75,7 +76,9 @@ async function loadQuizData(quizName) {
    // }
     let actualJsonFileToLoad = quizName;
     
-    const url = `${GITHUB_JSON_BASE_URL}${actualJsonFileToLoad}.json`;
+    // const url = `${GITHUB_JSON_BASE_URL}${actualJsonFileToLoad}.json`; // OLD
+    const url = `${LOCAL_JSON_BASE_URL}${actualJsonFileToLoad}.json`; // NEW
+    
     console.log(`DEBUG loadQuizData: Fetching from: ${url} (for requested quizName: ${quizName})`);
     try {
         const response = await fetch(url);
