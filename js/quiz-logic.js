@@ -27,7 +27,10 @@ let currentInteractionMode = 'full_test';
 let practiceQuizTimerInterval;
 let practiceQuizTimeElapsed = 0;
 let globalOriginPageId = null; 
-let globalQuizSource = null;   
+let globalQuizSource = null;
+let globalOriginSubject = null;
+let globalOriginChapter = null;
+let globalOriginType = null;
 
 const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwneCF0xq9X-F-9AIxAiHpYFmRTErCzCPXlsWRloLRDWBGqwLEZC4NldCCAuND0jxUL/exec'; 
 
@@ -1459,7 +1462,22 @@ if(backBtnFooter) {
 }
 
 // --- Event Listeners for other UI elements ---
-if(returnToHomeBtn) returnToHomeBtn.addEventListener('click', () => showView('home-view')); 
+if(returnToHomeBtn) 
+    returnToHomeBtn.addEventListener('click', () => {
+    // ... clearSessionState(); ...
+        if (globalOriginSubject && globalOriginChapter && globalOriginType) {
+            // Reconstruct viewer.html URL
+            // Path from quiz.html (root) to viewer.html is "content/viewer.html"
+            const targetUrl = `content/viewer.html?subject=${globalOriginSubject}&chapter=${globalOriginChapter}&type=${globalOriginType}`;
+            console.log(`DEBUG: Navigating to origin viewer: ${targetUrl}`);
+            window.location.href = targetUrl;
+        } else {
+            // Fallback to internal home-view of quiz app
+            console.log("DEBUG: No complete origin params found, defaulting to internal home-view.");
+    showView('home-view')); 
+    }    
+  });
+
 if(calculatorBtnHeader) calculatorBtnHeader.addEventListener('click', () => toggleModal(calculatorOverlay, true));
 if(calculatorCloseBtn) calculatorCloseBtn.addEventListener('click', () => toggleModal(calculatorOverlay, false));
 if(referenceBtnHeader) referenceBtnHeader.addEventListener('click', () => toggleModal(referenceSheetPanel, true));
@@ -1764,13 +1782,19 @@ async function submitQuizData() {
 // --- DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DEBUG DOMContentLoaded: Initializing application.");
+    
     const emailIsValid = initializeStudentIdentifier(); 
     const urlParams = new URLSearchParams(window.location.search);
     const quizNameFromUrl = urlParams.get('quiz_name');
     const testIdFromUrl = urlParams.get('test_id');
     const sourceFromUrl = urlParams.get('source'); 
+    
     globalOriginPageId = urlParams.get('originPageId'); 
+    globalOriginSubject = urlParams.get('originSubject');
+    globalOriginChapter = urlParams.get('originChapter');
+    globalOriginType = urlParams.get('originType');
 
+    
     if (sourceFromUrl) {
         globalQuizSource = sourceFromUrl; 
         console.log(`DEBUG DOMContentLoaded: URL 'source' parameter found: ${globalQuizSource}`);
