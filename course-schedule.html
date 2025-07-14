@@ -21,7 +21,7 @@
 
         <details class="content-section" open> 
             <summary><span style="font-size: 18pt;">Week 1 : 23 Jun - 29 Jun, 2025</span></summary>
-            <div class="content-body"> {/* Changed class */}
+            <div class="content-body">
                 <details class="date-group-details" open>
                     <summary>23 June (Monday)</summary>
                     <ul>
@@ -364,5 +364,18 @@
     <script>
        
     </script>
+    <script>
+    // Select all the chapter links within the content sections
+    const chapterLinks = document.querySelectorAll('.content-section a');
+
+    // Loop through each link and disable it
+    chapterLinks.forEach(link => {
+        link.removeAttribute('href'); // Removes the link's destination
+        link.style.pointerEvents = 'none';
+        link.style.color = '#999';
+        link.style.cursor = 'default';
+        link.style.textDecoration = 'none';
+    });
+</script>
 </body>
 </html>
