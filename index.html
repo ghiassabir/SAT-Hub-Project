@@ -18,10 +18,10 @@
         <div class="syllabus-header"> 
             <h1 class="page-header-title">Course Syllabus</h1> 
             <p class="page-header-subtitle">Overview of topics and chapters covered in this SAT course.</p> 
-            <div class="app-links-container">
+         <!--   <div class="app-links-container">
                 <a href="dashboard.html">Analytics Dashboard</a>
                 <a href="quiz.html?test_id=DT-T0">Practice Quiz App</a>
-            </div>
+            </div> -->
         </div>
         <div class="syllabus-sections-container"> 
             
@@ -122,5 +122,18 @@
             // currentYearSpan.textContent = new Date().getFullYear();
         }
     </script>
+       <script>
+    // Select all the chapter links within the content sections
+    const chapterLinks = document.querySelectorAll('.content-section a');
+
+    // Loop through each link and disable it
+    chapterLinks.forEach(link => {
+        link.removeAttribute('href'); // Removes the link's destination
+        link.style.pointerEvents = 'none';
+        link.style.color = '#999';
+        link.style.cursor = 'default';
+        link.style.textDecoration = 'none';
+    });
+</script>
 </body>
 </html>
