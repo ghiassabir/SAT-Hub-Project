@@ -3,366 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAT Hub - Course Schedule & Lesson Plan</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Google Fonts import is now in style.css -->
+    <title>Course Syllabus At-a-Glance</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font for a clean, modern look, similar to SAT prep materials */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f7; /* Light background for the overall theme (SAT Hub feel) */
+            color: #333;
+            line-height: 1.6;
+            padding: 1rem; /* Add some padding around the body */
+        }
+        .container {
+            max-width: 1000px; /* Wider container for the table */
+            margin: 20px auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
+            border-radius: 12px; /* Rounded corners for the container */
+            overflow: hidden; /* Ensures rounded corners apply to inner content */
+        }
+        h2 {
+            text-align: center;
+            color: #2D3B45;
+            font-weight: 600; /* Slightly bolder for headings */
+            padding: 20px 0;
+            font-size: 1.875rem; /* text-3xl */
+            border-bottom: 1px solid #e2e8f0; /* Light separator */
+        }
+        table {
+            width: 100%;
+            border-collapse: separate; /* Use separate to allow border-spacing */
+            border-spacing: 0; /* Remove default spacing */
+            margin-top: 0; /* Remove top margin as it's handled by container padding */
+        }
+        thead th {
+            background-color: #e2e8f0; /* Light gray for week headers */
+            text-align: left;
+            padding: 14px 16px; /* More padding */
+            border-bottom: 2px solid #cbd5e1; /* Stronger bottom border for week headers */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600;
+        }
+        thead tr:nth-child(2) th { /* Day headers */
+            background-color: #f8fafc; /* Even lighter gray for day headers */
+            padding: 12px 16px;
+            font-weight: 500;
+            font-size: 1rem; /* text-base */
+            border-right: 1px solid #e2e8f0; /* Vertical lines for day headers */
+            border-bottom: 1px solid #e2e8f0; /* Horizontal line below day headers */
+        }
+        thead tr:nth-child(2) th:last-child {
+            border-right: none; /* No right border on last day header */
+        }
+        tbody td {
+            padding: 14px 16px; /* Consistent padding */
+            border: 1px solid #e2e8f0; /* Sleek, light borders for cells */
+            vertical-align: top;
+            font-size: 0.95rem; /* Slightly smaller for content for better fit */
+            line-height: 1.5;
+        }
+        tbody tr:last-child td {
+            border-bottom: 1px solid #e2e8f0; /* Ensure bottom border for last row */
+        }
+        tbody tr td:first-child {
+            border-left: 1px solid #e2e8f0; /* Left border for first column */
+        }
+        tbody tr td:last-child {
+            border-right: 1px solid #e2e8f0; /* Right border for last column */
+        }
+        /* Specific colors for subjects */
+        .math-text {
+            color: #3b82f6; /* Tailwind blue-500 */
+            font-weight: 600; /* Make subject names bold */
+        }
+        .reading-text {
+            color: #22c55e; /* Tailwind green-500 */
+            font-weight: 600;
+        }
+        .grammar-text {
+            color: #8b5cf6; /* Tailwind violet-500 */
+            font-weight: 600;
+        }
+        .english-text { /* For the "English" topic in Week 1 */
+            color: #ef4444; /* Tailwind red-500 */
+            font-weight: 600;
+        }
+        .topic-text { /* For "Topic: Orientation" */
+            color: #6b7280; /* Tailwind gray-500 */
+            font-weight: 600;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr:nth-child(2) { /* Hide day headers on small screens */
+                display: none;
+            }
+            thead th { /* Week header becomes full width */
+                text-align: center;
+                border-bottom: none;
+                border-radius: 8px 8px 0 0;
+            }
+            tbody tr {
+                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            tbody td {
+                border: none; /* Remove individual cell borders on small screens */
+                border-bottom: 1px dashed #e2e8f0; /* Use dashed lines for separation */
+                text-align: left;
+                padding: 10px 15px;
+            }
+            tbody td:last-child {
+                border-bottom: none; /* No border on the last item in a day */
+            }
+            tbody tr:last-child {
+                margin-bottom: 0;
+            }
+            .container {
+                padding: 10px;
+                border-radius: 8px;
+            }
+            h2 {
+                font-size: 1.5rem; /* text-2xl */
+                padding: 15px 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="page-container"> 
-        <div class="top-bar">
-            <div class="logo-top-left"><img src="assets/logo.png" alt="The SAT Hub Logo" /></div>
-            <div class="nav-button-top-right"> 
-                <a title="View Syllabus" href="index.html">← View Syllabus</a>
-            </div>
-        </div>
-        <div class="schedule-header"> 
-            <h1 class="page-header-title"><span style="font-size: 24pt;">Course Schedule & Lesson Plan</span></h1> 
-        </div>
+    <div class="container">
+        <h2>Course Syllabus At-a-Glance</h2>
+        <table>
+            
+            <thead>
+                <tr>
+                    <th colspan="4">Week 1: June 23 - 29</th>
+                </tr>
+                <tr>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong class="topic-text">Topic:</strong><br>Orientation</td>
+                    <td><strong class="english-text">English:</strong><br>Sample Questions</td>
+                    <td><strong class="math-text">Math:</strong><br>Sample Questions</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Right & Wrong Answers</td>
+                </tr>
+            </tbody>
 
-        <details class="content-section" open> 
-            <summary><span style="font-size: 18pt;">Week 1 : 23 Jun - 29 Jun, 2025</span></summary>
-            <div class="content-body"> {/* Changed class */}
-                <details class="date-group-details" open>
-                    <summary>23 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span><a title="Sentences & Fragments - Lesson Resources (G - C3)" href="content/viewer.html?subject=grammar&chapter=G-C3-Sentences-Fragments&type=hub">Sentences & Fragments (G - C3)</a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>24 June (Tuesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 from original schedule, mapped to M-C14 Lines as an example) </a></li> 
-                        
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 from original, mapped to G-C1 Transitions as an example) </a></li>
-                        
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>25 June (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>26 June (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>28 - 29 June (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 1 Practice Test" href="practice-entrypoints/week-1-practice-test.html"> Week 1 Practice Test </a></li>
-                        
-                    </ul>
-                </details>
-            </div>
-        </details>
+            <thead>
+                <tr>
+                    <th colspan="4">Week 2: June 30 - July 6</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Review<br><strong class="math-text">Math:</strong><br>Review</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Appendix: Parts of Speech<br><strong class="math-text">Math:</strong><br>Ch 6: Expressions<br>Ch 8: Manipulating & Solving Equations</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 3: Sentences & Fragments<br><strong class="math-text">Math:</strong><br>Ch 9: More Equation Solving Strategies</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 3: Sentences & Fragments<br><strong class="math-text">Math:</strong><br>Ch 10: Systems of Equations<br>Ch 11: Inequalities</td>
+                </tr>
+            </tbody>
 
-        
-        <details class="content-section"> 
-            <summary><span style="font-size: 18pt;">Week 2 : 30 Jun - 6 Jul, 2025</span></summary>
-            <div class="content-body"> 
-                <details class="date-group-details">
-                    <summary>30 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Algebra Basics (M-C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub"> Math - Algebra Basics (M-C1 maps to M-C1 Exponents & Radicals as example) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li> {/* Same slug as Week 1 */}
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>01 July (Tuesday)</summary> 
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 maps to M-C14 Lines) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 maps to G-C1 Transitions) </a></li>
-                    </ul>
-                </details>
-                
-                <details class="date-group-details">
-                    <summary>02 July (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>03 July (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>05 - 06 July (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 2 Practice Test" href="practice-entrypoints/week-2-practice-test.html"> Week 2 Practice Test </a></li>
-                    </ul>
-                </details>
-            </div>
-        </details>
+            <thead>
+                <tr>
+                    <th colspan="4">Week 3: July 7 - 13</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 2: Vocabulary in Context<br><strong class="math-text">Math:</strong><br>Ch 15: Interpreting Linear Models</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 3: Making the Leap<br><strong class="math-text">Math:</strong><br>Ch 16: Functions</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 4: The Big Picture<br><strong class="math-text">Math:</strong><br>Ch 13: Min & Max Word Problems</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 4: The Big Picture<br><strong class="math-text">Math:</strong><br>Ch 14: Lines</td>
+                </tr>
+            </tbody>
 
-<details class="content-section"> 
-            <summary><span style="font-size: 18pt;">Week 2 : 30 Jun - 6 Jul, 2025</span></summary>
-            <div class="content-body"> 
-                <details class="date-group-details">
-                    <summary>30 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Algebra Basics (M-C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub"> Math - Algebra Basics (M-C1 maps to M-C1 Exponents & Radicals as example) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li> {/* Same slug as Week 1 */}
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>01 July (Tuesday)</summary> 
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 maps to M-C14 Lines) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 maps to G-C1 Transitions) </a></li>
-                    </ul>
-                </details>
-                
-                <details class="date-group-details">
-                    <summary>02 July (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>03 July (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>05 - 06 July (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 2 Practice Test" href="practice-entrypoints/week-2-practice-test.html"> Week 2 Practice Test </a></li>
-                    </ul>
-                </details>
-            </div>
-        </details>
+            <thead>
+                <tr>
+                    <th colspan="4">Week 4: July 14 - 20</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 4: Joining & Separating Sentences<br><strong class="math-text">Math:</strong><br>Ch 1: Exponents & Radicals</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 4/5: Joining Sentences<br><strong class="math-text">Math:</strong><br>Ch 2: Percent</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 6: Non-Essential & Essential Clauses<br><strong class="math-text">Math:</strong><br>Ch 3: Exponential & Linear Growth</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 6: Non-Essential & Essential Clauses<br><strong class="math-text">Math:</strong><br>Ch 4: Rates</td>
+                </tr>
+            </tbody>
 
-        <details class="content-section"> 
-            <summary><span style="font-size: 18pt;">Week 2 : 30 Jun - 6 Jul, 2025</span></summary>
-            <div class="content-body"> 
-                <details class="date-group-details">
-                    <summary>30 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Algebra Basics (M-C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub"> Math - Algebra Basics (M-C1 maps to M-C1 Exponents & Radicals as example) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li> {/* Same slug as Week 1 */}
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>01 July (Tuesday)</summary> 
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 maps to M-C14 Lines) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 maps to G-C1 Transitions) </a></li>
-                    </ul>
-                </details>
-                
-                <details class="date-group-details">
-                    <summary>02 July (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>03 July (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>05 - 06 July (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 2 Practice Test" href="practice-entrypoints/week-2-practice-test.html"> Week 2 Practice Test </a></li>
-                    </ul>
-                </details>
-            </div>
-        </details>
+            <thead>
+                <tr>
+                    <th colspan="4">Week 5: July 21 - 27</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 5: Literal Comprehension<br><strong class="math-text">Math:</strong><br>Ch 5: Ratio & Proportion</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 6: Reading for Function<br><strong class="math-text">Math:</strong><br>Ch 16: Functions</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 7: Text Completions<br><strong class="math-text">Math:</strong><br>Ch 17: Quadratics</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 8: Supporting & Undermining<br><strong class="math-text">Math:</strong><br>Ch 18: Synthetic Division</td>
+                </tr>
+            </tbody>
 
-        <details class="content-section"> 
-            <summary><span style="font-size: 18pt;">Week 2 : 30 Jun - 6 Jul, 2025</span></summary>
-            <div class="content-body"> 
-                <details class="date-group-details">
-                    <summary>30 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Algebra Basics (M-C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub"> Math - Algebra Basics (M-C1 maps to M-C1 Exponents & Radicals as example) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li> {/* Same slug as Week 1 */}
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>01 July (Tuesday)</summary> 
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 maps to M-C14 Lines) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 maps to G-C1 Transitions) </a></li>
-                    </ul>
-                </details>
-                
-                <details class="date-group-details">
-                    <summary>02 July (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>03 July (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>05 - 06 July (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 2 Practice Test" href="practice-entrypoints/week-2-practice-test.html"> Week 2 Practice Test </a></li>
-                    </ul>
-                </details>
-            </div>
-        </details>
+            <thead>
+                <tr>
+                    <th colspan="4">Week 6: July 28 - Aug 3</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 7: Additional Comma Uses & Misuses<br><strong class="math-text">Math:</strong><br>Ch 21: Angles</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 8: Verbs Agreements and Tense<br><strong class="math-text">Math:</strong><br>Ch 22: Triangles</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 8/9: Verbs & Pronouns<br><strong class="math-text">Math:</strong><br>Ch 23: Circles</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 10: Apostrophes<br><strong class="math-text">Math:</strong><br>Ch 24: Trigonometry</td>
+                </tr>
+            </tbody>
+            
+            <thead>
+                <tr>
+                    <th colspan="4">Week 7: Aug 4 - 10</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 9: Graphs & Charts<br><strong class="math-text">Math:</strong><br>Ch 25: Reading Data</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Ch 10: Paired Passages<br><strong class="math-text">Math:</strong><br>Ch 26: Probability</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Poetry<br><strong class="math-text">Math:</strong><br>Ch 27: Statistics 1</td>
+                    <td><strong class="reading-text">Reading:</strong><br>Transitions<br><strong class="math-text">Math:</strong><br>Ch 28: Statistics 2</td>
+                </tr>
+            </tbody>
 
-        <details class="content-section"> 
-            <summary><span style="font-size: 18pt;">Week 2 : 30 Jun - 6 Jul, 2025</span></summary>
-            <div class="content-body"> 
-                <details class="date-group-details">
-                    <summary>30 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Algebra Basics (M-C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub"> Math - Algebra Basics (M-C1 maps to M-C1 Exponents & Radicals as example) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li> {/* Same slug as Week 1 */}
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>01 July (Tuesday)</summary> 
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 maps to M-C14 Lines) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 maps to G-C1 Transitions) </a></li>
-                    </ul>
-                </details>
-                
-                <details class="date-group-details">
-                    <summary>02 July (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>03 July (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>05 - 06 July (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 2 Practice Test" href="practice-entrypoints/week-2-practice-test.html"> Week 2 Practice Test </a></li>
-                    </ul>
-                </details>
-            </div>
-        </details>
-
-        <details class="content-section"> 
-            <summary><span style="font-size: 18pt;">Week 2 : 30 Jun - 6 Jul, 2025</span></summary>
-            <div class="content-body"> 
-                <details class="date-group-details">
-                    <summary>30 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Algebra Basics (M-C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub"> Math - Algebra Basics (M-C1 maps to M-C1 Exponents & Radicals as example) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li> {/* Same slug as Week 1 */}
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>01 July (Tuesday)</summary> 
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 maps to M-C14 Lines) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 maps to G-C1 Transitions) </a></li>
-                    </ul>
-                </details>
-                
-                <details class="date-group-details">
-                    <summary>02 July (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>03 July (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>05 - 06 July (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 2 Practice Test" href="practice-entrypoints/week-2-practice-test.html"> Week 2 Practice Test </a></li>
-                    </ul>
-                </details>
-            </div>
-        </details>
-
-        <details class="content-section"> 
-            <summary><span style="font-size: 18pt;">Week 2 : 30 Jun - 6 Jul, 2025</span></summary>
-            <div class="content-body"> 
-                <details class="date-group-details">
-                    <summary>30 June (Monday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Algebra Basics (M-C1)" href="content/viewer.html?subject=math&chapter=M-C1-Exponents-Radicals&type=hub"> Math - Algebra Basics (M-C1 maps to M-C1 Exponents & Radicals as example) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Introduction to Passage Types (R-C1)" href="content/viewer.html?subject=reading&chapter=R-C1-Overview-SAT-Reading&type=hub"> Reading - Introduction to Passage Types (R-C1) </a></li> {/* Same slug as Week 1 */}
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>01 July (Tuesday)</summary> 
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Linear Equations & Graphs (M-C2)" href="content/viewer.html?subject=math&chapter=M-C14-Lines&type=hub"> Math - Linear Equations & Graphs (M-C2 maps to M-C14 Lines) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Subject-Verb Agreement (G-C1)" href="content/viewer.html?subject=grammar&chapter=G-C1-Transitions&type=hub"> Grammar - Subject-Verb Agreement (G-C1 maps to G-C1 Transitions) </a></li>
-                    </ul>
-                </details>
-                
-                <details class="date-group-details">
-                    <summary>02 July (Wednesday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Ratios, Rates, and Proportions (M-C3)" href="content/viewer.html?subject=math&chapter=M-C5-Ratio-Proportion&type=hub"> Math - Ratios, Rates, and Proportions (M-C3 maps to M-C5) </a></li>
-                        <li><span class="icon">📖</span> <a title="Reading - Main Idea & Supporting Details (R-C2)" href="content/viewer.html?subject=reading&chapter=R-C4-The-Big-Picture&type=hub"> Reading - Main Idea & Supporting Details (R-C2 maps to R-C4) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>03 July (Thursday)</summary>
-                    <ul>
-                        <li><span class="icon">🧮</span> <a title="Math - Percentages and Unit Conversions (M-C4)" href="content/viewer.html?subject=math&chapter=M-C2-Percent&type=hub"> Math - Percentages and Unit Conversions (M-C4 maps to M-C2) </a></li>
-                        <li><span class="icon">📝</span> <a title="Grammar - Punctuation: Commas & Semicolons (G-C2)" href="content/viewer.html?subject=grammar&chapter=G-C7-Additional-Comma-Uses-Misuses&type=hub"> Grammar - Punctuation: Commas & Semicolons (G-C2 maps to G-C7) </a></li>
-                    </ul>
-                </details>
-                <details class="date-group-details">
-                    <summary>05 - 06 July (Weekend)</summary>
-                    <ul>
-                        <li><span class="icon">✍️</span> <a title="Week 2 Practice Test" href="practice-entrypoints/week-2-practice-test.html"> Week 2 Practice Test </a></li>
-                    </ul>
-                </details>
-            </div>
-        </details>
-
-      
-        <p style="text-align:center; color: #777; padding: 20px;"><em> </em></p>
-
-        <div class="footer-bar">
-            <div class="nav-button-bottom-left"> 
-                <a title="View Syllabus" href="index.html">← View Syllabus</a>
-            </div>
-            <div class="logo-bottom-right"><img src="assets/logo.png" alt="The SAT Hub Logo" /></div>
-        </div>
+            <thead>
+                <tr>
+                    <th colspan="4">Week 8: Aug 11 - 17</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 11: Modification<br><strong class="math-text">Math:</strong><br>Ch 20: Absolute Value</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 12: Parallel Structure<br><strong class="math-text">Math:</strong><br>Ch 29: Volume</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 13: Word Pairs<br><strong class="math-text">Math:</strong><br>Ch 7: Constructing Models</td>
+                    <td><strong class="grammar-text">Grammar:</strong><br>Ch 14: Question Marks<br><strong class="math-text">Math:</strong><br>Appendix: Desmos</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <script src="js/main.js"></script>
-    <script>
-       
-    </script>
 </body>
 </html>
+
+    
